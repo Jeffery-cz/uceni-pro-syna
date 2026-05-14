@@ -447,7 +447,12 @@
             sortableInstance = new Sortable(listEl, {
                 animation: 250, // Plynulejší animace přesouvání
                 ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag'
+                dragClass: 'sortable-drag',
+                // --- NOVÉ NASTAVENÍ PRO MOBILY ---
+                delay: 200, // Prst musí na kartičce zlomek vteřiny zůstat, než se začne přesouvat
+                delayOnTouchOnly: true, // Zpoždění platí jen pro dotykové obrazovky (myš je okamžitá)
+                touchStartThreshold: 5 // Dovolí mírné chvění prstu při čekání
+                // ---------------------------------
             });
         }
 
