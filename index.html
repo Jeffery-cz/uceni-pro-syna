@@ -8,7 +8,7 @@
     <!-- Tailwind CSS přes CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- SortableJS pro Drag & Drop (Čeština) -->
+    <!-- SortableJS pro Drag & Drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <!-- Font Awesome pro ikony -->
@@ -87,26 +87,13 @@
         }
         .animate-shuffle { animation: shuffle 0.6s ease-in-out; }
 
-        /* Animace Matematika (Rybičky) */
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(2deg); }
-        }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        
-        .fish-swimming { transition: all 0.3s ease; }
-        .fish-caught { transform: scale(0.8); background-color: #86efac !important; border-color: #22c55e !important; color: #14532d !important; pointer-events: none; }
-        .fish-wrong { animation: shake 0.4s ease; background-color: #fca5a5 !important; border-color: #ef4444 !important; color: #7f1d1d !important; }
-
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden text-slate-800 bg-slate-900">
+<body class="h-[100dvh] w-screen overflow-hidden text-slate-800 bg-slate-900">
 
-    <!-- ========================================== -->
-    <!-- 1. ZAMYKACÍ (PIN) OBRAZOVKA                -->
-    <!-- ========================================== -->
+    <!-- 1. ZAMYKACÍ (PIN) OBRAZOVKA -->
     <div id="pin-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-500">
         <div class="glass-panel p-8 rounded-[2rem] shadow-2xl max-w-sm w-[90%] text-center transform transition-all">
             <div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
@@ -124,12 +111,10 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 2. HLAVNÍ APLIKACE (Po přihlášení)         -->
-    <!-- ========================================== -->
+    <!-- 2. HLAVNÍ APLIKACE (Po přihlášení) -->
     <div id="app-container" class="hidden h-[100dvh] sm:h-screen w-full sm:p-4 md:p-6 lg:p-8 flex items-center justify-center">
-        <!-- Hlavní okno (Na mobilu bez oblých rohů, na PC jako tablet) -->
-        <div class="glass-panel w-full h-full sm:h-[90vh] sm:max-h-[850px] max-w-4xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative border-0 sm:border">
+        <!-- Hlavní okno (Na mobilu bez oblých rohů a paddingů) -->
+        <div class="glass-panel w-full h-[100dvh] sm:h-[90vh] sm:max-h-[850px] max-w-4xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative border-0 sm:border">
             
             <!-- HORNÍ NAVIGACE -->
             <header class="bg-white/50 backdrop-blur-md border-b border-white/40 p-4 flex justify-between items-center shrink-0 z-20 shadow-sm">
@@ -168,7 +153,7 @@
                         <i class="fa-solid fa-language text-red-500"></i> Angličtina
                     </button>
                     <button onclick="switchTab('tab-matematika')" class="nav-tab px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-matematika">
-                        <i class="fa-solid fa-water text-blue-500"></i> Matematika
+                        <i class="fa-solid fa-calculator text-blue-500"></i> Matematika
                     </button>
                     <button onclick="switchTab('tab-rodic')" id="nav-rodic" class="nav-tab hidden px-4 sm:px-5 py-2.5 rounded-xl font-bold text-purple-600 hover:bg-purple-100 transition-all flex items-center gap-2" data-target="tab-rodic">
                         <i class="fa-solid fa-chart-pie"></i> Rodič
@@ -179,7 +164,7 @@
             <!-- OBSAH APLIKACÍ (Tab Contents) -->
             <main class="flex-1 overflow-y-auto p-4 sm:p-6 relative">
                 
-                <!-- Toast notifikace (úspěch/chyba) -->
+                <!-- Toast notifikace -->
                 <div id="toast" class="absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform -translate-y-20 opacity-0 bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border">
                     <span id="toast-icon"></span>
                     <span id="toast-msg"></span>
@@ -196,7 +181,7 @@
                         <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-cestina')">
                             <i class="fa-solid fa-book-open text-4xl text-orange-500 mb-3"></i>
                             <h3 class="font-bold text-xl">Čeština</h3>
-                            <p class="text-sm text-slate-500 mt-2">Slovní druhy</p>
+                            <p class="text-sm text-slate-500 mt-2">Slovní druhy (Přesouvání)</p>
                         </div>
                         <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-anglictina')">
                             <i class="fa-solid fa-language text-4xl text-red-500 mb-3"></i>
@@ -204,43 +189,37 @@
                             <p class="text-sm text-slate-500 mt-2">Slovíčka (Happy House)</p>
                         </div>
                         <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-matematika')">
-                            <i class="fa-solid fa-water text-4xl text-blue-500 mb-3"></i>
+                            <i class="fa-solid fa-calculator text-4xl text-blue-500 mb-3"></i>
                             <h3 class="font-bold text-xl">Matematika</h3>
-                            <p class="text-sm text-slate-500 mt-2">Násobky 3 (Rybaření)</p>
-                        </div>
-                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer opacity-50" onclick="showToast('Prvouka se teprve připravuje.', 'info')">
-                            <i class="fa-solid fa-leaf text-4xl text-green-500 mb-3"></i>
-                            <h3 class="font-bold text-xl">Prvouka</h3>
-                            <p class="text-sm text-slate-500 mt-2">Připravuje se</p>
+                            <p class="text-sm text-slate-500 mt-2">Násobky 3 (Klávesnice)</p>
                         </div>
                     </div>
                 </section>
 
-                <!-- OBSAH: Čeština (Slovní druhy - Drag & Drop) -->
+                <!-- OBSAH: Čeština -->
                 <section id="tab-cestina" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full pb-20 sm:pb-0">
                     <div class="mb-4 text-center shrink-0">
                         <h2 class="text-2xl font-extrabold text-slate-800">Slovní druhy</h2>
-                        <p class="text-slate-500 text-sm">Seřaď je od 1 do 10!</p>
+                        <p class="text-slate-500 text-sm">Seřaď je od 1 do 10! Dlouhý stisk pro přesun.</p>
                     </div>
 
-                    <div id="word-types-list" class="flex-1 overflow-y-auto hide-scrollbar space-y-2.5 px-2 pb-4">
+                    <div id="word-types-list" class="flex-1 overflow-y-auto hide-scrollbar space-y-2 px-2 pb-4">
                         <!-- Generováno přes JS -->
                     </div>
 
-                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 mt-4">
-                        <button id="btn-check-cestina" class="w-full sm:flex-1 py-3 sm:py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 mt-4 px-2">
+                        <button id="btn-check-cestina" class="w-full sm:flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2">
                             <i class="fa-solid fa-check-circle"></i> Zkontrolovat
                         </button>
-                        <button id="btn-reset-cestina" class="w-full sm:w-auto px-6 py-3 sm:py-4 rounded-xl glass-button bg-white text-slate-700 font-bold hover:bg-white/60 transition-all flex items-center justify-center gap-2 border-2 border-slate-200">
-                            <i class="fa-solid fa-shuffle"></i> Zamíchat
+                        <button id="btn-reset-cestina" class="w-full sm:w-auto px-6 py-4 rounded-xl glass-button bg-white text-slate-700 font-bold hover:bg-white/60 transition-all flex items-center justify-center gap-2 border-2 border-slate-200">
+                            <i class="fa-solid fa-shuffle text-blue-500"></i> Zamíchat
                         </button>
                     </div>
                 </section>
 
-                <!-- OBSAH: Angličtina (Slovíčka) -->
+                <!-- OBSAH: Angličtina -->
                 <section id="tab-anglictina" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full">
-                    
-                    <!-- Obrazovka výběru levelu pro EN -->
+                    <!-- Výběr levelu -->
                     <div id="en-level-select" class="flex flex-col h-full w-full justify-center">
                         <div class="text-center mb-8">
                             <i class="fa-solid fa-language text-5xl text-red-500 mb-2"></i>
@@ -266,7 +245,7 @@
                         </div>
                     </div>
 
-                    <!-- Herní obrazovka pro EN -->
+                    <!-- Hra -->
                     <div id="en-game-screen" class="hidden flex-col h-full w-full">
                         <div class="flex justify-between items-center mb-6 bg-white/70 p-3 rounded-2xl shadow-sm">
                             <button onclick="showEnLevelSelect()" class="text-slate-500 hover:text-slate-800 font-bold px-2 py-1"><i class="fa-solid fa-arrow-left"></i> Zpět</button>
@@ -282,16 +261,14 @@
                             </button>
                         </div>
 
-                        <div id="en-feedback-area" class="h-10 flex justify-center items-center mb-4">
-                            <!-- Zde se ukáže smajlík -->
-                        </div>
+                        <div id="en-feedback-area" class="h-10 flex justify-center items-center mb-4"></div>
 
                         <div id="en-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto pb-4">
-                            <!-- Tlačítka s odpověďmi generována JS -->
+                            <!-- Odpovědi JS -->
                         </div>
                     </div>
 
-                    <!-- Výsledková obrazovka pro EN -->
+                    <!-- Výsledky -->
                     <div id="en-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center">
                         <div id="en-result-icon" class="mb-4"></div>
                         <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Hotovo!</h2>
@@ -299,7 +276,7 @@
                         
                         <div class="bg-slate-50 rounded-2xl p-6 mb-8 w-full border-2 border-slate-200">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="font-bold text-slate-700">Skóre bez chyby:</span>
+                                <span class="font-bold text-slate-700">Skóre:</span>
                                 <span id="en-final-score" class="text-3xl font-black">0 / 10</span>
                             </div>
                         </div>
@@ -307,86 +284,81 @@
                             Zpět na výběr lekcí
                         </button>
                     </div>
-
                 </section>
 
-                <!-- OBSAH: Matematika (Násobky 3 - Rybaření) -->
-                <section id="tab-matematika" class="tab-content hidden h-full w-full max-w-2xl mx-auto flex-col relative bg-gradient-to-b from-blue-100 to-blue-300 rounded-3xl p-2 sm:p-4 overflow-hidden border-4 border-blue-400">
+                <!-- OBSAH: Matematika (Čisté textové pole) -->
+                <section id="tab-matematika" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full">
                     
-                    <!-- Úvodní obrazovka -->
-                    <div id="math-level-select" class="flex flex-col h-full w-full justify-center text-center relative z-10">
-                        <i class="fa-solid fa-water text-6xl text-blue-500 mb-4 drop-shadow-md"></i>
-                        <h2 class="text-3xl sm:text-4xl font-black text-blue-900 mb-2 drop-shadow-sm">Lov kaprů a jeseterů</h2>
-                        <p class="text-blue-800 font-bold mb-8 bg-blue-200/50 inline-block mx-auto px-4 py-1 rounded-full">Násobky 3. Vyber si rybník!</p>
+                    <!-- Úvodní obrazovka Matematiky -->
+                    <div id="math-level-select" class="flex flex-col h-full w-full justify-center text-center">
+                        <i class="fa-solid fa-calculator text-6xl text-blue-500 mb-4 drop-shadow-md"></i>
+                        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Násobky 3</h2>
+                        <p class="text-slate-500 font-medium mb-8">Napiš výsledek a zmačkni Enter.</p>
                         
-                        <div class="space-y-4 px-4 max-w-sm mx-auto w-full">
-                            <button onclick="startMathLevel(1)" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xl py-5 rounded-2xl shadow-[0_6px_0_rgb(8,145,178)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-cyan-300">
-                                <span>Mělčina (Level 1)</span>
-                                <span class="text-sm font-normal opacity-90">Klasické násobky 3</span>
+                        <div class="space-y-4 px-4 w-full">
+                            <button onclick="startMathLevel(1)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-xl py-5 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-blue-400">
+                                <span>Level 1: Klasické násobky</span>
+                                <span class="text-sm font-normal opacity-90">Např. 3 × 5</span>
                             </button>
                             
-                            <button onclick="startMathLevel(2)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xl py-5 rounded-2xl shadow-[0_6px_0_rgb(79,70,229)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-indigo-400">
-                                <span>Hlubina (Level 2)</span>
-                                <span class="text-sm font-normal opacity-90">Těžší kombinace (+ a -)</span>
+                            <button onclick="startMathLevel(2)" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-xl py-5 rounded-2xl shadow-[0_6px_0_rgb(147,51,234)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-purple-400">
+                                <span>Level 2: Těžší kombinace</span>
+                                <span class="text-sm font-normal opacity-90">Např. (5 × 3) + 2</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Herní obrazovka -->
-                    <div id="math-game-screen" class="hidden flex-col h-full w-full relative z-10">
-                        <div class="flex justify-between items-center mb-4 bg-white/80 backdrop-blur-sm p-3 rounded-2xl shadow-sm border-2 border-white">
-                            <button onclick="showMathLevelSelect()" class="text-blue-700 font-bold px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors">
-                                <i class="fa-solid fa-arrow-left"></i> Zpět
-                            </button>
-                            <div class="text-center font-bold text-blue-900">
-                                <span id="math-fish-type"></span> • <span id="math-question-counter" class="text-blue-600">1</span>/10
-                            </div>
-                            <div class="flex items-center gap-2 text-blue-700 font-black text-xl">
-                                <i class="fa-solid fa-bucket text-blue-500"></i> <span id="math-score-display">0</span>
-                            </div>
+                    <!-- Herní obrazovka Matematiky -->
+                    <div id="math-game-screen" class="hidden flex-col h-full w-full">
+                        <div class="flex justify-between items-center mb-6 bg-white/70 p-3 rounded-2xl shadow-sm border border-slate-200">
+                            <button onclick="showMathLevelSelect()" class="text-slate-500 font-bold px-2 py-1"><i class="fa-solid fa-arrow-left"></i> Zpět</button>
+                            <div class="text-center font-bold text-slate-700">Příklad <span id="math-question-counter" class="text-blue-500">1</span>/10</div>
+                            <div class="flex items-center gap-1 text-green-600 font-black text-xl"><i class="fa-solid fa-check"></i> <span id="math-score-display">0</span></div>
                         </div>
 
-                        <!-- Otázka -->
-                        <div class="bg-white/90 p-6 rounded-[2rem] shadow-lg border-4 border-white flex flex-col items-center justify-center min-h-[140px] mb-6 relative">
-                            <div class="absolute top-[-15px] bg-blue-500 text-white px-6 py-1 rounded-full font-bold text-sm shadow-md border-2 border-blue-400">
-                                Spočítej příklad
-                            </div>
-                            <div id="math-question-text" class="text-5xl sm:text-6xl font-black text-center text-blue-900 drop-shadow-sm tracking-widest mt-2">
+                        <!-- Zadávací karta -->
+                        <div id="math-card" class="bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[250px] mb-6 transition-colors duration-300">
+                            <div id="math-question-text" class="text-5xl sm:text-6xl font-black text-center text-slate-800 tracking-widest mb-8">
                                 ...
                             </div>
+                            
+                            <!-- Skutečné textové pole -->
+                            <input 
+                                type="number" 
+                                id="math-answer-input" 
+                                inputmode="numeric" 
+                                pattern="[0-9]*" 
+                                class="w-full max-w-[200px] text-center text-5xl font-black bg-slate-100 rounded-2xl py-4 outline-none text-blue-600 shadow-inner border-4 border-slate-200 focus:border-blue-400 focus:bg-white transition-all" 
+                                placeholder="?" 
+                                autocomplete="off"
+                            >
                         </div>
 
-                        <!-- Rybičky -->
-                        <div id="math-options-grid" class="grid grid-cols-2 gap-4 mt-auto pb-4 px-2">
-                            <!-- Generováno JS -->
+                        <div id="math-feedback" class="h-10 text-center font-bold text-xl mb-4 text-slate-500">
+                            Zadej číslo
                         </div>
+
+                        <button onclick="checkMathTextAnswer()" id="math-submit-btn" class="w-full mt-auto mb-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-2xl py-5 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all flex justify-center items-center gap-3">
+                            Zkontrolovat <i class="fa-solid fa-arrow-right"></i>
+                        </button>
                     </div>
 
-                    <!-- Výsledky -->
-                    <div id="math-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center relative z-10">
+                    <!-- Výsledky Matematiky -->
+                    <div id="math-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center">
                         <div id="math-result-icon" class="mb-4"></div>
-                        <h2 class="text-4xl font-black text-blue-900 mb-2 drop-shadow-sm">Konec lovu!</h2>
-                        <p class="text-sm font-bold text-green-700 mb-6 bg-green-200/80 px-4 py-2 rounded-full border border-green-300 backdrop-blur-sm">
-                            ✔️ Uloženo do statistik
-                        </p>
+                        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Konec počítání!</h2>
+                        <p class="text-sm font-bold text-green-600 mb-6 bg-green-100 px-4 py-2 rounded-full border border-green-200">✔️ Uloženo do statistik</p>
                         
-                        <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border-4 border-white mb-8 w-full max-w-xs">
+                        <div class="bg-slate-50 rounded-2xl p-6 mb-8 w-full border-2 border-slate-200">
                             <div class="flex justify-between items-center text-xl">
-                                <span class="font-bold text-blue-900">Chyceno ryb:</span>
-                                <span id="math-final-score" class="text-4xl font-black text-blue-600"></span>
+                                <span class="font-bold text-slate-700">Správně napoprvé:</span>
+                                <span id="math-final-score" class="text-3xl font-black text-blue-600">0 / 10</span>
                             </div>
                         </div>
 
-                        <button onclick="showMathLevelSelect()" class="w-full max-w-xs bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold py-4 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all border-2 border-blue-400">
-                            Zpět na rybník
+                        <button onclick="showMathLevelSelect()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xl font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(15,23,42)] active:translate-y-1 active:shadow-none transition-all">
+                            Zpět na výběr levelu
                         </button>
-                    </div>
-                    
-                    <!-- Bublinky v pozadí -->
-                    <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-40 z-0">
-                        <div class="absolute bottom-[-10%] left-[10%] w-4 h-4 bg-white/60 rounded-full animate-[float_4s_ease-in-out_infinite]"></div>
-                        <div class="absolute bottom-[-10%] left-[50%] w-8 h-8 bg-white/40 rounded-full animate-[float_5s_ease-in-out_infinite_0.5s]"></div>
-                        <div class="absolute bottom-[-10%] left-[80%] w-3 h-3 bg-white/50 rounded-full animate-[float_3s_ease-in-out_infinite_1s]"></div>
                     </div>
                 </section>
 
@@ -398,7 +370,7 @@
                             <p class="text-sm text-slate-500">Výsledky ze všech předmětů</p>
                         </div>
                         <div class="text-right text-xs text-slate-400 font-mono">
-                            Status DB: <span id="db-status-indicator" class="font-bold text-orange-500">Připojuji...</span>
+                            DB: <span id="db-status-indicator" class="font-bold text-orange-500">Připojuji...</span>
                         </div>
                     </div>
 
@@ -414,15 +386,12 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. FIREBASE & JAVASCRIPT LOGIKA            -->
-    <!-- ========================================== -->
+    <!-- 3. FIREBASE A JS LOGIKA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-        // Tvoje Firebase Konfigurace
         const firebaseConfig = {
             apiKey: "AIzaSyBzTErD4ZCo-HCRD9mw4EFKLm8kZKQugqk",
             authDomain: "tom-learning-996cc.firebaseapp.com",
@@ -432,9 +401,7 @@
             appId: "1:1025710047976:web:fcef139057d21ec2e6bf5d"
         };
 
-        let app, auth, db;
-        let isDbConnected = false;
-        let currentUserUid = null;
+        let app, auth, db, isDbConnected = false, currentUserUid = null;
 
         try {
             app = initializeApp(firebaseConfig);
@@ -447,11 +414,11 @@
                 updateDbStatus('Připojeno', 'text-green-500');
                 loadStatsFromCloud();
             }).catch((error) => {
-                console.warn("Nelze se připojit k Firebase Auth:", error);
+                console.warn("Chyba Auth:", error);
                 useLocalFallback();
             });
         } catch (e) {
-            console.warn("Nelze inicializovat Firebase:", e);
+            console.warn("Chyba Firebase:", e);
             useLocalFallback();
         }
 
@@ -465,46 +432,26 @@
 
         function useLocalFallback() {
             isDbConnected = false;
-            updateDbStatus('Lokální paměť (Offline)', 'text-slate-500');
+            updateDbStatus('Lokální paměť', 'text-slate-500');
             loadStatsFromLocal();
         }
 
-        // GLOBÁLNÍ FUNKCE PRO UKLÁDÁNÍ
         window.saveSession = async function(subject, detail, score, maxScore) {
-            const record = {
-                timestamp: new Date().getTime(),
-                subject: subject,
-                detail: detail,
-                score: score,
-                maxScore: maxScore
-            };
-
+            const record = { timestamp: new Date().getTime(), subject, detail, score, maxScore };
             if (isDbConnected && currentUserUid) {
                 try {
-                    await addDoc(collection(db, "stats"), {
-                        ...record,
-                        timestamp: serverTimestamp(),
-                        userId: currentUserUid
-                    });
-                } catch (e) {
-                    console.error("Chyba zápisu do DB:", e);
-                    saveToLocal(record);
-                }
-            } else {
-                saveToLocal(record);
-            }
+                    await addDoc(collection(db, "stats"), { ...record, timestamp: serverTimestamp(), userId: currentUserUid });
+                } catch (e) { saveToLocal(record); }
+            } else { saveToLocal(record); }
         };
 
         function saveToLocal(record) {
             let localStats = JSON.parse(localStorage.getItem('eduStats') || '[]');
             localStats.push(record);
             localStorage.setItem('eduStats', JSON.stringify(localStats));
-            if(document.getElementById('tab-rodic').classList.contains('active')) {
-                loadStatsFromLocal();
-            }
+            if(document.getElementById('tab-rodic').classList.contains('active')) loadStatsFromLocal();
         }
 
-        // NAČÍTÁNÍ STATISTIK PRO RODIČE
         function loadStatsFromCloud() {
             if (!isDbConnected) return;
             const q = query(collection(db, "stats"), orderBy("timestamp", "desc"));
@@ -516,10 +463,7 @@
                     stats.push({ id: doc.id, ...data, timestamp: ts });
                 });
                 renderStats(stats);
-            }, (error) => {
-                console.error("Chyba čtení DB:", error);
-                loadStatsFromLocal();
-            });
+            }, () => loadStatsFromLocal());
         }
 
         function loadStatsFromLocal() {
@@ -534,44 +478,37 @@
                 container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-white rounded-2xl border"><p>Zatím žádná historie.</p></div>`;
                 return;
             }
-
             const icons = {
                 'Čeština': '<i class="fa-solid fa-book-open text-orange-500"></i>',
                 'Angličtina': '<i class="fa-solid fa-language text-red-500"></i>',
-                'Matematika': '<i class="fa-solid fa-water text-blue-500"></i>'
+                'Matematika': '<i class="fa-solid fa-calculator text-blue-500"></i>'
             };
-
             container.innerHTML = stats.map(s => {
                 const date = new Date(s.timestamp).toLocaleString('cs-CZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
                 const percent = Math.round((s.score / s.maxScore) * 100);
                 const color = percent >= 80 ? 'text-green-600 bg-green-100' : (percent >= 50 ? 'text-orange-600 bg-orange-100' : 'text-red-600 bg-red-100');
-                
                 return `
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border">
-                            ${icons[s.subject] || '<i class="fa-solid fa-star"></i>'}
-                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border">${icons[s.subject] || '<i class="fa-solid fa-star"></i>'}</div>
                         <div>
                             <div class="font-bold text-slate-800">${s.subject} <span class="text-xs font-normal text-slate-500 ml-1">(${s.detail})</span></div>
                             <div class="text-xs text-slate-400">${date}</div>
                         </div>
                     </div>
-                    <div class="font-black px-3 py-1 rounded-lg ${color}">
-                        ${s.score}/${s.maxScore}
-                    </div>
+                    <div class="font-black px-3 py-1 rounded-lg ${color}">${s.score}/${s.maxScore}</div>
                 </div>`;
             }).join('');
         }
 
         // ==========================================
-        // UI LOGIKA (Přihlášení, Navigace, Toasty)
+        // UI LOGIKA
         // ==========================================
         window.checkPin = function() {
             const pin = document.getElementById('pin-input').value;
             if (pin === '1111' || pin === '1234') {
                 const isParent = pin === '1234';
-                document.getElementById('user-name').textContent = isParent ? 'Rodič' : 'Tomášek';
+                document.getElementById('user-name').textContent = isParent ? 'Rodič' : 'Žák';
                 document.getElementById('user-badge').className = `hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold ${isParent ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`;
                 
                 const rodicTab = document.getElementById('nav-rodic');
@@ -609,7 +546,6 @@
         window.showToast = function(msg, type = 'success') {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').textContent = msg;
-            
             const icon = document.getElementById('toast-icon');
             if(type === 'success') {
                 icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>';
@@ -617,11 +553,7 @@
             } else if (type === 'error') {
                 icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500 text-xl"></i>';
                 toast.className = 'absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border border-red-200 text-slate-700 translate-y-0 opacity-100';
-            } else {
-                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500 text-xl"></i>';
-                toast.className = 'absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border border-blue-200 text-slate-700 translate-y-0 opacity-100';
             }
-
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('-translate-y-20', 'opacity-0');
@@ -629,30 +561,24 @@
         };
 
         // ==========================================
-        // LOGIKA - ČEŠTINA (Slovní druhy)
+        // ČEŠTINA
         // ==========================================
-        const spravnePoradi = [
-            "Podstatná jména", "Přídavná jména", "Zájmena", "Číslovky", "Slovesa",
-            "Příslovce", "Předložky", "Spojky", "Částice", "Citoslovce"
-        ];
+        const spravnePoradi = ["Podstatná jména", "Přídavná jména", "Zájmena", "Číslovky", "Slovesa", "Příslovce", "Předložky", "Spojky", "Částice", "Citoslovce"];
         let sortableInstance = null;
 
         function renderCestinaList() {
             const container = document.getElementById('word-types-list');
             let currentItems = Array.from(container.children).map(el => el.querySelector('span').textContent);
-            
-            if (currentItems.length === 0) {
-                currentItems = [...spravnePoradi].sort(() => Math.random() - 0.5);
-            }
-
+            if (currentItems.length === 0) currentItems = [...spravnePoradi].sort(() => Math.random() - 0.5);
             container.innerHTML = '';
+            
             currentItems.forEach((text) => {
                 const originalIndex = spravnePoradi.indexOf(text) + 1;
                 const div = document.createElement('div');
-                div.className = `word-card card-${originalIndex} p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between font-bold text-slate-700 transition-all`;
+                div.className = `word-card card-${originalIndex} p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between font-bold text-slate-700 transition-all cursor-grab`;
                 div.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-grip-vertical text-slate-300 cursor-grab"></i>
+                        <i class="fa-solid fa-grip-vertical text-slate-300"></i>
                         <span>${text}</span>
                     </div>
                     <div class="status-icon"></div>
@@ -664,232 +590,56 @@
             sortableInstance = new Sortable(container, {
                 animation: 250,
                 ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                delay: 150, 
-                delayOnTouchOnly: true 
+                delay: 200, 
+                delayOnTouchOnly: true
             });
         }
 
         document.getElementById('btn-reset-cestina').addEventListener('click', () => {
             const container = document.getElementById('word-types-list');
             container.classList.add('animate-shuffle');
-            setTimeout(() => {
-                container.innerHTML = '';
-                renderCestinaList();
-                container.classList.remove('animate-shuffle');
-            }, 300);
+            setTimeout(() => { container.innerHTML = ''; renderCestinaList(); container.classList.remove('animate-shuffle'); }, 300);
         });
 
         document.getElementById('btn-check-cestina').addEventListener('click', () => {
             const items = document.querySelectorAll('#word-types-list .word-card');
             let score = 0;
-            
             items.forEach((item, index) => {
                 const text = item.querySelector('span').textContent;
                 const statusDiv = item.querySelector('.status-icon');
-                
                 if (text === spravnePoradi[index]) {
                     score++;
                     statusDiv.innerHTML = '<i class="fa-solid fa-check text-green-500 text-xl"></i>';
                     item.classList.remove('animate-shake');
                 } else {
                     statusDiv.innerHTML = '<i class="fa-solid fa-xmark text-red-500 text-xl"></i>';
-                    item.classList.remove('animate-shake');
-                    void item.offsetWidth; 
-                    item.classList.add('animate-shake');
+                    item.classList.remove('animate-shake'); void item.offsetWidth; item.classList.add('animate-shake');
                 }
             });
-
-            if (score === 10) {
-                window.showToast('Všechno je správně! Skvělá práce.', 'success');
-            } else {
-                window.showToast(`Máš správně ${score} z 10. Zkus to znovu!`, 'error');
-            }
-            
+            score === 10 ? window.showToast('Všechno správně!', 'success') : window.showToast(`Správně ${score} z 10.`, 'error');
             window.saveSession('Čeština', 'Slovní druhy', score, 10);
         });
 
         // ==========================================
-        // LOGIKA - MATEMATIKA (Násobky 3)
-        // ==========================================
-        let mathState = {
-            level: 1,
-            questionCount: 0,
-            score: 0,
-            currentQuestion: null,
-            firstTry: true
-        };
-
-        const mathFishStyles = [
-            { bg: "bg-orange-100", border: "border-orange-400", text: "text-orange-800" },
-            { bg: "bg-blue-100", border: "border-blue-400", text: "text-blue-800" },
-            { bg: "bg-purple-100", border: "border-purple-400", text: "text-purple-800" },
-            { bg: "bg-pink-100", border: "border-pink-400", text: "text-pink-800" }
-        ];
-
-        window.startMathLevel = function(level) {
-            mathState.level = level;
-            mathState.questionCount = 0;
-            mathState.score = 0;
-            
-            document.getElementById('math-level-select').classList.add('hidden');
-            document.getElementById('math-result-screen').classList.add('hidden');
-            document.getElementById('math-game-screen').classList.remove('hidden');
-            document.getElementById('math-game-screen').classList.add('flex');
-            
-            document.getElementById('math-fish-type').textContent = level === 1 ? 'Mělčina' : 'Hlubina';
-            
-            nextMathQuestion();
-        };
-
-        window.showMathLevelSelect = function() {
-            document.getElementById('math-game-screen').classList.add('hidden');
-            document.getElementById('math-game-screen').classList.remove('flex');
-            document.getElementById('math-result-screen').classList.add('hidden');
-            document.getElementById('math-level-select').classList.remove('hidden');
-        };
-
-        function generateMathQuestion() {
-            let num1, num2, answer, questionText;
-            
-            if (mathState.level === 1) {
-                // Klasické násobky 3 (0-10)
-                num1 = Math.floor(Math.random() * 11);
-                num2 = 3;
-                if(Math.random() > 0.5) { [num1, num2] = [num2, num1]; }
-                answer = num1 * num2;
-                questionText = `${num1} × ${num2}`;
-            } else {
-                // Těžší level: (x * 3) + y  nebo (x * 3) - y
-                let base = Math.floor(Math.random() * 10) + 1; // 1-10
-                let offset = Math.floor(Math.random() * 5) + 1; // 1-5
-                let isPlus = Math.random() > 0.5;
-                
-                if (isPlus) {
-                    answer = (base * 3) + offset;
-                    questionText = `(${base} × 3) + ${offset}`;
-                } else {
-                    answer = (base * 3) - offset;
-                    if (answer < 0) answer = 0; // zamezení minusu pro jistotu
-                    questionText = `(${base} × 3) - ${offset}`;
-                }
-            }
-
-            // Vygenerování špatných odpovědí
-            let options = new Set([answer]);
-            while(options.size < 4) {
-                let wrong = answer + (Math.floor(Math.random() * 10) - 5);
-                if(wrong !== answer && wrong >= 0) options.add(wrong);
-            }
-            
-            return {
-                text: questionText,
-                answer: answer,
-                options: Array.from(options).sort(() => Math.random() - 0.5)
-            };
-        }
-
-        function nextMathQuestion() {
-            if (mathState.questionCount >= 10) {
-                endMathGame();
-                return;
-            }
-
-            mathState.currentQuestion = generateMathQuestion();
-            mathState.firstTry = true;
-            
-            document.getElementById('math-question-counter').textContent = mathState.questionCount + 1;
-            document.getElementById('math-score-display').textContent = mathState.score;
-            document.getElementById('math-question-text').textContent = mathState.currentQuestion.text;
-            
-            const grid = document.getElementById('math-options-grid');
-            grid.innerHTML = '';
-            
-            mathState.currentQuestion.options.forEach((opt, index) => {
-                const style = mathFishStyles[index];
-                const btn = document.createElement('button');
-                btn.className = `fish-swimming animate-float bg-white/80 backdrop-blur-md border-[3px] border-blue-200 text-blue-900 font-black text-3xl sm:text-4xl py-6 rounded-3xl shadow-md hover:scale-105 active:scale-95 flex items-center justify-center relative overflow-hidden`;
-                // Zpoždění animace pro každou rybu jinak
-                btn.style.animationDelay = `${index * 0.2}s`;
-                
-                // Přidání SVG rybičky na pozadí tlačítka
-                btn.innerHTML = `
-                    <i class="fa-solid fa-fish absolute left-4 opacity-20 text-4xl text-blue-400 rotate-[-20deg]"></i>
-                    <span class="relative z-10">${opt}</span>
-                `;
-                
-                btn.onclick = () => checkMathAnswer(opt, btn);
-                grid.appendChild(btn);
-            });
-        }
-
-        function checkMathAnswer(selectedOption, btnElement) {
-            const isCorrect = selectedOption === mathState.currentQuestion.answer;
-            const grid = document.getElementById('math-options-grid');
-            const allBtns = grid.querySelectorAll('button');
-
-            if (isCorrect) {
-                btnElement.classList.add('fish-caught');
-                allBtns.forEach(b => b.disabled = true); // Zablokuje ostatní
-                
-                if (mathState.firstTry) {
-                    mathState.score++;
-                    document.getElementById('math-score-display').textContent = mathState.score;
-                }
-                
-                setTimeout(() => {
-                    mathState.questionCount++;
-                    nextMathQuestion();
-                }, 1000);
-            } else {
-                mathState.firstTry = false;
-                btnElement.classList.add('fish-wrong');
-                setTimeout(() => btnElement.classList.remove('fish-wrong'), 400);
-            }
-        }
-
-        function endMathGame() {
-            document.getElementById('math-game-screen').classList.add('hidden');
-            document.getElementById('math-game-screen').classList.remove('flex');
-            document.getElementById('math-result-screen').classList.remove('hidden');
-            document.getElementById('math-result-screen').classList.add('flex');
-            
-            document.getElementById('math-final-score').textContent = `${mathState.score} / 10`;
-            
-            const iconContainer = document.getElementById('math-result-icon');
-            if (mathState.score >= 8) {
-                iconContainer.innerHTML = '<i class="fa-solid fa-trophy text-6xl text-yellow-500 drop-shadow-md"></i>';
-            } else {
-                iconContainer.innerHTML = '<i class="fa-solid fa-star-half-stroke text-6xl text-blue-400 drop-shadow-md"></i>';
-            }
-
-            window.saveSession('Matematika', `Level ${mathState.level}`, mathState.score, 10);
-        }
-
-        // ==========================================
-        // LOGIKA - ANGLIČTINA (Happy House)
+        // ANGLIČTINA
         // ==========================================
         const VOCABULARY = [
             { en: "cat", cz: "kočka", level: 1 }, { en: "dog", cz: "pes", level: 1 }, { en: "mouse", cz: "myš", level: 1 }, { en: "bird", cz: "pták", level: 1 },
             { en: "mum", cz: "maminka", level: 2 }, { en: "dad", cz: "tatínek", level: 2 }, { en: "brother", cz: "bratr", level: 2 }, { en: "sister", cz: "sestra", level: 2 },
             { en: "kitchen", cz: "kuchyně", level: 3 }, { en: "bedroom", cz: "ložnice", level: 3 }, { en: "bathroom", cz: "koupelna", level: 3 },
-            { en: "Where is my book?", cz: "Kde je moje kniha?", level: 4 }, { en: "Is it in the bathroom?", cz: "Je to v koupelně?", level: 4 }, { en: "Yes, it is.", cz: "Ano, to je.", level: 4 },
+            { en: "Where is my book?", cz: "Kde je moje kniha?", level: 4 }, { en: "Yes, it is.", cz: "Ano, to je.", level: 4 }, { en: "No, it isn't.", cz: "Ne, to není.", level: 4 },
             { en: "bed", cz: "postel", level: 5 }, { en: "table", cz: "stůl", level: 5 }, { en: "chair", cz: "židle", level: 5 }, { en: "window", cz: "okno", level: 5 }
         ];
 
-        let enState = { level: 1, questionCount: 0, score: 0, currentQuestion: null, firstTry: true };
+        let enState = { level: 1, qCount: 0, score: 0, currentQ: null, firstTry: true };
 
         window.startEnLevel = function(level) {
-            enState.level = level;
-            enState.questionCount = 0;
-            enState.score = 0;
-            
+            enState = { level, qCount: 0, score: 0, currentQ: null, firstTry: true };
             document.getElementById('en-level-select').classList.add('hidden');
             document.getElementById('en-result-screen').classList.add('hidden');
             document.getElementById('en-game-screen').classList.remove('hidden');
             document.getElementById('en-game-screen').classList.add('flex');
             document.getElementById('en-current-level').textContent = level;
-            
             nextEnQuestion();
         };
 
@@ -903,47 +653,33 @@
         function playEnAudio(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-GB';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
+                const u = new SpeechSynthesisUtterance(text); u.lang = 'en-GB'; u.rate = 0.9;
+                window.speechSynthesis.speak(u);
             }
-        }
-
-        function getEnQuestion(level) {
-            const levelVocab = VOCABULARY.filter(v => v.level <= level);
-            const correctItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
-            
-            const types = ['read', 'translate'];
-            if (level >= 3) types.push('listen');
-            const type = types[Math.floor(Math.random() * types.length)];
-            
-            let options = [correctItem];
-            while (options.length < 4) {
-                const randomItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
-                if (!options.some(item => item.en === randomItem.en)) options.push(randomItem);
-            }
-            options = options.sort(() => Math.random() - 0.5);
-
-            return {
-                type: type,
-                targetText: type === 'translate' ? correctItem.cz : correctItem.en,
-                correctAnswer: type === 'translate' ? correctItem.en : correctItem.cz,
-                options: options.map(i => type === 'translate' ? i.en : i.cz),
-                originalEn: correctItem.en
-            };
         }
 
         function nextEnQuestion() {
-            if (enState.questionCount >= 10) {
-                endEnGame();
-                return;
+            if (enState.qCount >= 10) { endEnGame(); return; }
+            const lvlVocab = VOCABULARY.filter(v => v.level <= enState.level);
+            const correct = lvlVocab[Math.floor(Math.random() * lvlVocab.length)];
+            const type = Math.random() > 0.5 ? 'read' : 'translate';
+            
+            let options = [correct];
+            while (options.length < 4) {
+                const rand = lvlVocab[Math.floor(Math.random() * lvlVocab.length)];
+                if (!options.some(i => i.en === rand.en)) options.push(rand);
             }
+            options = options.sort(() => Math.random() - 0.5);
 
-            enState.currentQuestion = getEnQuestion(enState.level);
+            enState.currentQ = {
+                type, target: type === 'translate' ? correct.cz : correct.en,
+                answer: type === 'translate' ? correct.en : correct.cz,
+                options: options.map(i => type === 'translate' ? i.en : i.cz),
+                enWord: correct.en
+            };
             enState.firstTry = true;
             
-            document.getElementById('en-question-counter').textContent = enState.questionCount + 1;
+            document.getElementById('en-question-counter').textContent = enState.qCount + 1;
             document.getElementById('en-score-display').textContent = enState.score;
             document.getElementById('en-feedback-area').innerHTML = '';
             
@@ -951,72 +687,43 @@
             const qType = document.getElementById('en-question-type');
             const btnAudio = document.getElementById('en-btn-audio');
 
-            btnAudio.classList.add('hidden');
-            qText.classList.remove('hidden');
-
-            if (enState.currentQuestion.type === 'read') {
-                qType.textContent = 'Přečti a přelož';
-                qType.className = 'absolute top-[-12px] bg-blue-100 text-blue-700 border border-blue-200 px-4 py-1 rounded-full font-bold text-xs shadow-sm';
-                qText.textContent = enState.currentQuestion.targetText;
-                btnAudio.classList.remove('hidden');
-                btnAudio.onclick = () => playEnAudio(enState.currentQuestion.targetText);
-            } else if (enState.currentQuestion.type === 'translate') {
-                qType.textContent = 'Jak se to řekne?';
-                qType.className = 'absolute top-[-12px] bg-purple-100 text-purple-700 border border-purple-200 px-4 py-1 rounded-full font-bold text-xs shadow-sm';
-                qText.textContent = enState.currentQuestion.targetText;
+            qText.textContent = enState.currentQ.target;
+            if (type === 'read') {
+                qType.textContent = 'Přelož'; qType.className = 'absolute top-[-12px] bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-bold text-xs';
+                btnAudio.classList.remove('hidden'); btnAudio.onclick = () => playEnAudio(enState.currentQ.target);
             } else {
-                qType.textContent = 'Poslouchej';
-                qType.className = 'absolute top-[-12px] bg-orange-100 text-orange-700 border border-orange-200 px-4 py-1 rounded-full font-bold text-xs shadow-sm';
-                qText.classList.add('hidden');
-                btnAudio.classList.remove('hidden');
-                btnAudio.innerHTML = '<i class="fa-solid fa-volume-high text-2xl"></i>';
-                btnAudio.className = 'bg-red-500 text-white hover:bg-red-600 p-6 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform animate-pulse';
-                btnAudio.onclick = () => playEnAudio(enState.currentQuestion.targetText);
-                setTimeout(() => playEnAudio(enState.currentQuestion.targetText), 300);
+                qType.textContent = 'Jak se řekne?'; qType.className = 'absolute top-[-12px] bg-purple-100 text-purple-700 px-4 py-1 rounded-full font-bold text-xs';
+                btnAudio.classList.add('hidden');
             }
 
             const grid = document.getElementById('en-options-grid');
             grid.innerHTML = '';
-            const colors = ['bg-red-50 text-red-700 border-red-200', 'bg-blue-50 text-blue-700 border-blue-200', 'bg-amber-50 text-amber-700 border-amber-200', 'bg-emerald-50 text-emerald-700 border-emerald-200'];
-            
-            enState.currentQuestion.options.forEach((opt, idx) => {
+            enState.currentQ.options.forEach((opt) => {
                 const btn = document.createElement('button');
-                btn.className = `${colors[idx]} border-2 font-bold text-lg py-4 px-2 rounded-2xl shadow-sm hover:brightness-95 active:scale-95 transition-all`;
+                btn.className = `bg-slate-50 border-2 border-slate-200 text-slate-700 font-bold text-lg py-4 px-2 rounded-2xl hover:bg-slate-100 active:scale-95 transition-all`;
                 btn.textContent = opt;
                 btn.onclick = () => checkEnAnswer(opt, btn);
                 grid.appendChild(btn);
             });
         }
 
-        function checkEnAnswer(selectedOption, btnElement) {
-            const isCorrect = selectedOption === enState.currentQuestion.correctAnswer;
-            const grid = document.getElementById('en-options-grid');
-            const allBtns = grid.querySelectorAll('button');
+        function checkEnAnswer(sel, btn) {
+            const isCorrect = sel === enState.currentQ.answer;
+            const allBtns = document.getElementById('en-options-grid').querySelectorAll('button');
             const feedback = document.getElementById('en-feedback-area');
-
-            if (enState.currentQuestion.type === 'translate') playEnAudio(selectedOption);
+            if (enState.currentQ.type === 'translate') playEnAudio(sel);
 
             if (isCorrect) {
-                btnElement.classList.remove('bg-red-50', 'bg-blue-50', 'bg-amber-50', 'bg-emerald-50', 'text-red-700', 'text-blue-700', 'text-amber-700', 'text-emerald-700');
-                btnElement.classList.add('bg-green-500', 'text-white', 'border-green-600', 'scale-105');
+                btn.className = 'bg-green-500 text-white font-bold text-lg py-4 px-2 rounded-2xl scale-105 transition-all';
                 allBtns.forEach(b => b.disabled = true);
-                
-                feedback.innerHTML = '<i class="fa-solid fa-face-smile text-4xl text-green-500 animate-bounce"></i>';
-                if (enState.currentQuestion.type !== 'translate') playEnAudio(enState.currentQuestion.originalEn);
-                
-                if (enState.firstTry) {
-                    enState.score++;
-                    document.getElementById('en-score-display').textContent = enState.score;
-                }
-                
-                setTimeout(() => {
-                    enState.questionCount++;
-                    nextEnQuestion();
-                }, 1500);
+                feedback.innerHTML = '<i class="fa-solid fa-face-smile text-4xl text-green-500"></i>';
+                if (enState.currentQ.type !== 'translate') playEnAudio(enState.currentQ.enWord);
+                if (enState.firstTry) { enState.score++; document.getElementById('en-score-display').textContent = enState.score; }
+                setTimeout(() => { enState.qCount++; nextEnQuestion(); }, 1500);
             } else {
                 enState.firstTry = false;
-                btnElement.classList.add('opacity-50', 'animate-shake');
-                feedback.innerHTML = '<i class="fa-solid fa-face-frown text-4xl text-red-500 animate-pulse"></i>';
+                btn.classList.add('opacity-50', 'animate-shake');
+                feedback.innerHTML = '<i class="fa-solid fa-face-frown text-4xl text-red-500"></i>';
             }
         }
 
@@ -1025,29 +732,123 @@
             document.getElementById('en-game-screen').classList.remove('flex');
             document.getElementById('en-result-screen').classList.remove('hidden');
             document.getElementById('en-result-screen').classList.add('flex');
-            
             document.getElementById('en-final-score').textContent = `${enState.score} / 10`;
-            
-            const iconContainer = document.getElementById('en-result-icon');
-            if (enState.score >= 8) {
-                iconContainer.innerHTML = '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>';
-            } else {
-                iconContainer.innerHTML = '<i class="fa-solid fa-clipboard-list text-6xl text-slate-500"></i>';
-            }
-
+            document.getElementById('en-result-icon').innerHTML = enState.score >= 8 ? '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>' : '<i class="fa-solid fa-clipboard-list text-6xl text-slate-500"></i>';
             window.saveSession('Angličtina', `Lekce ${enState.level}`, enState.score, 10);
         }
 
         // ==========================================
-        // INICIALIZACE PO NAČTENÍ
+        // MATEMATIKA (Textové zadávání)
+        // ==========================================
+        let mathState = { level: 1, qCount: 0, score: 0, answer: 0, firstTry: true };
+        const mathInput = document.getElementById('math-answer-input');
+        const mathCard = document.getElementById('math-card');
+        const mathFeedback = document.getElementById('math-feedback');
+
+        window.startMathLevel = function(level) {
+            mathState = { level, qCount: 0, score: 0, answer: 0, firstTry: true };
+            document.getElementById('math-level-select').classList.add('hidden');
+            document.getElementById('math-result-screen').classList.add('hidden');
+            document.getElementById('math-game-screen').classList.remove('hidden');
+            document.getElementById('math-game-screen').classList.add('flex');
+            nextMathQuestion();
+        };
+
+        window.showMathLevelSelect = function() {
+            document.getElementById('math-game-screen').classList.add('hidden');
+            document.getElementById('math-game-screen').classList.remove('flex');
+            document.getElementById('math-result-screen').classList.add('hidden');
+            document.getElementById('math-level-select').classList.remove('hidden');
+        };
+
+        function nextMathQuestion() {
+            if (mathState.qCount >= 10) { endMathGame(); return; }
+            mathState.firstTry = true;
+            mathInput.value = '';
+            mathCard.className = 'bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[250px] mb-6 transition-colors duration-300';
+            mathFeedback.textContent = 'Zadej číslo a potvrď';
+            mathFeedback.className = 'h-10 text-center font-bold text-xl mb-4 text-slate-500';
+            document.getElementById('math-question-counter').textContent = mathState.qCount + 1;
+            document.getElementById('math-score-display').textContent = mathState.score;
+
+            let qText = "";
+            if (mathState.level === 1) {
+                // Klasika násobky 3
+                let num = Math.floor(Math.random() * 11);
+                mathState.answer = num * 3;
+                qText = Math.random() > 0.5 ? `${num} × 3` : `3 × ${num}`;
+            } else {
+                // Těžší
+                let base = Math.floor(Math.random() * 10) + 1;
+                let offset = Math.floor(Math.random() * 5) + 1;
+                if (Math.random() > 0.5) {
+                    mathState.answer = (base * 3) + offset;
+                    qText = `(${base} × 3) + ${offset}`;
+                } else {
+                    mathState.answer = (base * 3) - offset;
+                    qText = `(${base} × 3) - ${offset}`;
+                }
+            }
+            document.getElementById('math-question-text').textContent = qText;
+            
+            // Focus pro psaní (zpožděno kvůli vykreslení)
+            setTimeout(() => mathInput.focus(), 100);
+        }
+
+        // Kontrola odpovědi po stisku Enter nebo kliknutí na tlačítko
+        window.checkMathTextAnswer = function() {
+            if (mathInput.value === '') return;
+            const userAnswer = parseInt(mathInput.value, 10);
+            
+            if (userAnswer === mathState.answer) {
+                // Správně
+                mathCard.className = 'bg-green-100 p-8 rounded-3xl shadow-xl border-4 border-green-400 flex flex-col items-center justify-center min-h-[250px] mb-6 transition-colors duration-300';
+                mathFeedback.innerHTML = '<span class="text-green-600"><i class="fa-solid fa-check"></i> Správně!</span>';
+                if (mathState.firstTry) { mathState.score++; document.getElementById('math-score-display').textContent = mathState.score; }
+                
+                // Pauza před dalším
+                mathInput.blur(); // schováme klávesnici na mobilu
+                setTimeout(() => { mathState.qCount++; nextMathQuestion(); }, 1200);
+            } else {
+                // Špatně
+                mathState.firstTry = false;
+                mathCard.classList.remove('border-slate-200');
+                mathCard.classList.add('border-red-400', 'bg-red-50', 'animate-shake');
+                mathFeedback.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Zkus to znovu</span>';
+                
+                setTimeout(() => { 
+                    mathCard.classList.remove('animate-shake', 'border-red-400', 'bg-red-50'); 
+                    mathCard.classList.add('border-slate-200', 'bg-white');
+                    mathInput.value = '';
+                    mathInput.focus();
+                }, 600);
+            }
+        };
+
+        // Podpora klávesy ENTER v políčku
+        mathInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkMathTextAnswer();
+            }
+        });
+
+        function endMathGame() {
+            document.getElementById('math-game-screen').classList.add('hidden');
+            document.getElementById('math-game-screen').classList.remove('flex');
+            document.getElementById('math-result-screen').classList.remove('hidden');
+            document.getElementById('math-result-screen').classList.add('flex');
+            document.getElementById('math-final-score').textContent = `${mathState.score} / 10`;
+            document.getElementById('math-result-icon').innerHTML = mathState.score >= 8 ? '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>' : '<i class="fa-solid fa-star-half-stroke text-6xl text-blue-400"></i>';
+            window.saveSession('Matematika', `Level ${mathState.level}`, mathState.score, 10);
+        }
+
+        // ==========================================
+        // INIT
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             renderCestinaList();
-            
-            // Enter key pro PIN
-            document.getElementById('pin-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') window.checkPin();
-            });
+            document.getElementById('pin-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') window.checkPin(); });
         });
     </script>
 </body>
