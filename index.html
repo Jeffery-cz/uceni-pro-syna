@@ -220,7 +220,7 @@
                 <!-- OBSAH: Angličtina -->
                 <section id="tab-anglictina" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full">
                     <!-- Výběr levelu -->
-                    <div id="en-level-select" class="flex flex-col h-full w-full justify-center">
+                    <div id="en-level-select" class="flex flex-col w-full my-auto py-8">
                         <div class="text-center mb-8">
                             <i class="fa-solid fa-language text-5xl text-red-500 mb-2"></i>
                             <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Happy House 2</h2>
@@ -290,7 +290,7 @@
                 <section id="tab-matematika" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full">
                     
                     <!-- Úvodní obrazovka Matematiky -->
-                    <div id="math-level-select" class="flex flex-col h-full w-full justify-center text-center">
+                    <div id="math-level-select" class="flex flex-col w-full text-center my-auto py-8">
                         <i class="fa-solid fa-calculator text-6xl text-blue-500 mb-4 drop-shadow-md"></i>
                         <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Násobky 3</h2>
                         <p class="text-slate-500 font-medium mb-8">Napiš výsledek a zmačkni Enter.</p>
@@ -741,6 +741,9 @@
         // MATEMATIKA (Textové zadávání)
         // ==========================================
         let mathState = { level: 1, qCount: 0, score: 0, answer: 0, firstTry: true };
+        let mathTimerInterval = null;
+        let mathTimeLeft = 10;
+
         const mathInput = document.getElementById('math-answer-input');
         const mathCard = document.getElementById('math-card');
         const mathFeedback = document.getElementById('math-feedback');
@@ -755,6 +758,7 @@
         };
 
         window.showMathLevelSelect = function() {
+            clearInterval(mathTimerInterval);
             document.getElementById('math-game-screen').classList.add('hidden');
             document.getElementById('math-game-screen').classList.remove('flex');
             document.getElementById('math-result-screen').classList.add('hidden');
@@ -764,21 +768,29 @@
         function nextMathQuestion() {
             if (mathState.qCount >= 10) { endMathGame(); return; }
             mathState.firstTry = true;
+            mathInput.disabled = false;
             mathInput.value = '';
-            mathCard.className = 'bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[250px] mb-6 transition-colors duration-300';
+            mathCard.className = 'bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[220px] mb-4 transition-colors duration-300';
             mathFeedback.textContent = 'Zadej číslo a potvrď';
-            mathFeedback.className = 'h-10 text-center font-bold text-xl mb-4 text-slate-500';
+            mathFeedback.className = 'h-8 text-center font-bold text-xl mb-2 text-slate-500';
             document.getElementById('math-question-counter').textContent = mathState.qCount + 1;
             document.getElementById('math-score-display').textContent = mathState.score;
 
             let qText = "";
-            if (mathState.level === 1) {
+            let currentLvl = mathState.level;
+            
+            // Level 4 je náhodný mix levelů 1 až 3
+            if (currentLvl === 4) {
+                currentLvl = Math.floor(Math.random() * 3) + 1;
+            }
+
+            if (currentLvl === 1) {
                 // Klasika násobky 3
                 let num = Math.floor(Math.random() * 11);
                 mathState.answer = num * 3;
                 qText = Math.random() > 0.5 ? `${num} × 3` : `3 × ${num}`;
-            } else {
-                // Těžší
+            } else if (currentLvl === 2) {
+                // Těžší kombinace
                 let base = Math.floor(Math.random() * 10) + 1;
                 let offset = Math.floor(Math.random() * 5) + 1;
                 if (Math.random() > 0.5) {
@@ -788,16 +800,77 @@
                     mathState.answer = (base * 3) - offset;
                     qText = `(${base} × 3) - ${offset}`;
                 }
+            } else if (currentLvl === 3) {
+                // Dělení 3
+                let num = Math.floor(Math.random() * 11); // 0 až 10
+                let dividend = num * 3;
+                mathState.answer = num;
+                qText = `${dividend} : 3`;
             }
+            
             document.getElementById('math-question-text').textContent = qText;
             
-            // Focus pro psaní (zpožděno kvůli vykreslení)
+            startMathTimer();
+
+            // Focus pro psaní (zpožděno kvůli vykreslení na mobilu)
             setTimeout(() => mathInput.focus(), 100);
+        }
+
+        function startMathTimer() {
+            clearInterval(mathTimerInterval);
+            mathTimeLeft = 10;
+            updateMathTimerUI();
+            
+            mathTimerInterval = setInterval(() => {
+                mathTimeLeft--;
+                updateMathTimerUI();
+                
+                if (mathTimeLeft <= 0) {
+                    clearInterval(mathTimerInterval);
+                    handleMathTimeout();
+                }
+            }, 1000);
+        }
+
+        function updateMathTimerUI() {
+            const textEl = document.getElementById('math-timer-text');
+            const barEl = document.getElementById('math-timer-bar');
+            if(!textEl || !barEl) return;
+            
+            textEl.textContent = `${mathTimeLeft}s`;
+            barEl.style.width = `${(mathTimeLeft / 10) * 100}%`;
+            
+            if (mathTimeLeft <= 3) {
+                textEl.classList.remove('text-slate-700');
+                textEl.classList.add('text-red-600', 'animate-pulse');
+                barEl.classList.remove('bg-blue-500');
+                barEl.classList.add('bg-red-500');
+            } else {
+                textEl.classList.add('text-slate-700');
+                textEl.classList.remove('text-red-600', 'animate-pulse');
+                barEl.classList.add('bg-blue-500');
+                barEl.classList.remove('bg-red-500');
+            }
+        }
+
+        function handleMathTimeout() {
+            mathState.firstTry = false;
+            mathInput.disabled = true;
+            
+            mathCard.classList.remove('border-slate-200');
+            mathCard.classList.add('border-red-400', 'bg-red-50', 'animate-shake');
+            mathFeedback.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-clock"></i> Čas vypršel!</span>';
+            
+            setTimeout(() => { 
+                mathState.qCount++; 
+                nextMathQuestion(); 
+            }, 1500);
         }
 
         // Kontrola odpovědi po stisku Enter nebo kliknutí na tlačítko
         window.checkMathTextAnswer = function() {
             if (mathInput.value === '') return;
+            clearInterval(mathTimerInterval); // Zastaví odpočet po zadání
             const userAnswer = parseInt(mathInput.value, 10);
             
             if (userAnswer === mathState.answer) {
@@ -821,6 +894,7 @@
                     mathCard.classList.add('border-slate-200', 'bg-white');
                     mathInput.value = '';
                     mathInput.focus();
+                    startMathTimer(); // Zapne časovač znova pro nový pokus
                 }, 600);
             }
         };
@@ -834,6 +908,7 @@
         });
 
         function endMathGame() {
+            clearInterval(mathTimerInterval);
             document.getElementById('math-game-screen').classList.add('hidden');
             document.getElementById('math-game-screen').classList.remove('flex');
             document.getElementById('math-result-screen').classList.remove('hidden');
