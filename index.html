@@ -629,6 +629,227 @@
         });
 
         // ==========================================
+        // LOGIKA - MATEMATIKA (RYBAŘENÍ NÁSOBKY 3)
+        // ==========================================
+        let mathCurrentLevel = 1;
+        let mathScore = 0;
+        let mathQuestionCount = 0;
+        let mathCurrentQuestion = null;
+        let mathMistakesCount = 0;
+        let mathFirstTry = true;
+        let mathIsAnswering = false;
+
+        const mathLevelSelect = document.getElementById('math-level-select');
+        const mathGameScreen = document.getElementById('math-game-screen');
+        const mathResultScreen = document.getElementById('math-result-screen');
+        const mathQuestionText = document.getElementById('math-question-text');
+        const mathOptionsGrid = document.getElementById('math-options-grid');
+        const mathScoreDisplay = document.getElementById('math-score-display');
+        const mathQuestionCounter = document.getElementById('math-question-counter');
+        const mathFishType = document.getElementById('math-fish-type');
+
+        window.showMathLevelSelect = function() {
+            mathGameScreen.classList.add('hidden');
+            mathResultScreen.classList.add('hidden');
+            mathLevelSelect.classList.remove('hidden');
+        };
+
+        window.startMathLevel = function(level) {
+            mathCurrentLevel = level;
+            mathScore = 0;
+            mathQuestionCount = 0;
+            mathMistakesCount = 0;
+            
+            mathFishType.innerText = level === 1 ? "Kapr & Lín" : "Jeseter & Štika";
+            mathScoreDisplay.innerText = "0";
+            
+            mathLevelSelect.classList.add('hidden');
+            mathResultScreen.classList.add('hidden');
+            mathGameScreen.classList.remove('hidden');
+            mathGameScreen.classList.add('flex');
+            
+            nextMathQuestion();
+        };
+
+        function generateMathQuestion(level) {
+            let text = "";
+            let correct = 0;
+            
+            if (level === 1) {
+                // Level 1: Čisté násobení 3 (1-10)
+                const b = Math.floor(Math.random() * 10) + 1; // 1 až 10
+                const isReversed = Math.random() > 0.5;
+                if (isReversed) {
+                    text = `3 × ${b}`;
+                } else {
+                    text = `${b} × 3`;
+                }
+                correct = 3 * b;
+            } else {
+                // Level 2: Kombinace (násobení/dělení + sčítání/odčítání)
+                const type = Math.floor(Math.random() * 4); // 0 až 3
+                const a = Math.floor(Math.random() * 10) + 1; // 1 až 10 pro násobek
+                const b = Math.floor(Math.random() * 10) + 1; // 1 až 10 pro přičtení
+                const baseMultiple = a * 3; // 3, 6, 9... 30
+
+                if (type === 0) {
+                    text = `(${a} × 3) + ${b}`;
+                    correct = baseMultiple + b;
+                } else if (type === 1) {
+                    // Ochrana před mínusem
+                    const safeB = b > baseMultiple ? baseMultiple : b;
+                    text = `(${a} × 3) - ${safeB}`;
+                    correct = baseMultiple - safeB;
+                } else if (type === 2) {
+                    text = `(${baseMultiple} : 3) + ${b}`;
+                    correct = (baseMultiple / 3) + b;
+                } else {
+                    const divided = baseMultiple / 3;
+                    const safeB = b > divided ? divided : b;
+                    text = `(${baseMultiple} : 3) - ${safeB}`;
+                    correct = divided - safeB;
+                }
+            }
+
+            // Vygenerování 3 špatných odpovědí (rybiček), které jsou blízko správné
+            let optionsSet = new Set([correct]);
+            let attempts = 0;
+            while(optionsSet.size < 4 && attempts < 50) {
+                // Odchylka -3 až +3 od správného výsledku
+                let fake = correct + (Math.floor(Math.random() * 7) - 3);
+                // Zabráníme nule a záporným číslům u možností
+                if (fake <= 0 || fake === correct) {
+                    fake = correct + Math.floor(Math.random() * 10) + 1; 
+                }
+                optionsSet.add(fake);
+                attempts++;
+            }
+
+            return { text, correct, options: shuffleArray(Array.from(optionsSet)) };
+        }
+
+        function nextMathQuestion() {
+            if (mathQuestionCount >= 10) {
+                endMathGame();
+                return;
+            }
+
+            mathFirstTry = true;
+            mathIsAnswering = false;
+            mathQuestionCount++;
+            mathQuestionCounter.innerText = mathQuestionCount;
+
+            mathCurrentQuestion = generateMathQuestion(mathCurrentLevel);
+            
+            // Vykreslení
+            mathQuestionText.innerText = mathCurrentQuestion.text;
+            renderMathOptions();
+        }
+
+        function renderMathOptions() {
+            mathOptionsGrid.innerHTML = '';
+            
+            // Barvy rybiček podle levelu
+            const fishColors = mathCurrentLevel === 1 
+                ? ["bg-orange-500", "bg-yellow-500", "bg-lime-600", "bg-emerald-500"] // Kapři a líni
+                : ["bg-slate-600", "bg-indigo-600", "bg-blue-600", "bg-cyan-700"];   // Jeseteři a hlubina
+
+            mathCurrentQuestion.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                // Tlačítko jako ryba
+                btn.className = `relative w-full h-20 sm:h-24 rounded-3xl text-white font-black text-3xl shadow-[0_6px_0_rgba(0,0,0,0.2)] active:translate-y-2 active:shadow-none transition-all flex items-center justify-center animate-float ${fishColors[index % 4]} border-2 border-white/30`;
+                // Aby neplavaly všechny stejně
+                btn.style.animationDelay = `${index * 0.2}s`;
+                
+                // Ikonka ryby v pozadí
+                const icon = mathCurrentLevel === 1 ? 'fa-fish' : 'fa-fish-fins';
+                btn.innerHTML = `
+                    <i class="fa-solid ${icon} absolute left-4 text-4xl opacity-20 transform -scale-x-100"></i>
+                    <span class="relative z-10 drop-shadow-md">${option}</span>
+                `;
+                
+                btn.onclick = () => handleMathAnswer(btn, option);
+                mathOptionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleMathAnswer(btnElement, selectedAnswer) {
+            if (mathIsAnswering) return;
+
+            const isCorrect = selectedAnswer === mathCurrentQuestion.correct;
+            
+            if (isCorrect) {
+                mathIsAnswering = true;
+                
+                // Úspěšný úlovek! Ryba zezelená a poskočí
+                btnElement.className = `relative w-full h-20 sm:h-24 rounded-3xl text-white font-black text-3xl flex items-center justify-center transition-all bg-green-500 shadow-none scale-105 border-4 border-green-300 z-20`;
+                btnElement.innerHTML = `<i class="fa-solid fa-check text-4xl drop-shadow-md"></i>`;
+                
+                if (mathFirstTry) {
+                    mathScore++;
+                    mathScoreDisplay.innerText = mathScore;
+                    mathScoreDisplay.classList.add('scale-150');
+                    setTimeout(() => mathScoreDisplay.classList.remove('scale-150'), 300);
+                }
+
+                setTimeout(nextMathQuestion, 1200);
+
+            } else {
+                // Špatně! Ryba zčervená, zatřese se a "uplave" (zmenší se)
+                mathFirstTry = false;
+                mathMistakesCount++;
+                
+                btnElement.classList.remove('animate-float');
+                btnElement.classList.add('bg-red-500', 'animate-shake', 'opacity-50', 'scale-95');
+                setTimeout(() => {
+                    btnElement.classList.remove('animate-shake');
+                }, 400);
+            }
+        }
+
+        async function endMathGame() {
+            mathGameScreen.classList.add('hidden');
+            mathGameScreen.classList.remove('flex');
+            
+            const finalScoreEl = document.getElementById('math-final-score');
+            finalScoreEl.innerText = `${mathScore} / 10`;
+            
+            const iconContainer = document.getElementById('math-result-icon');
+            if (mathScore >= 8) {
+                iconContainer.innerHTML = '<i class="fa-solid fa-trophy text-6xl text-yellow-500 drop-shadow-md"></i>';
+                finalScoreEl.className = "text-4xl font-black text-green-600";
+            } else {
+                iconContainer.innerHTML = '<i class="fa-solid fa-fish text-6xl text-slate-400 drop-shadow-md"></i>';
+                finalScoreEl.className = "text-4xl font-black text-orange-500";
+            }
+            
+            mathResultScreen.classList.remove('hidden');
+            mathResultScreen.classList.add('flex');
+
+            // Uložení statistiky
+            const isSuccess = mathScore >= 8;
+            const statData = {
+                userId: currentUserId || 'local-user',
+                activity: `Matematika L${mathCurrentLevel}`,
+                success: isSuccess,
+                errors: mathMistakesCount,
+                score: mathScore,
+                timestamp: new Date().getTime(),
+                role: currentUserRole
+            };
+
+            try {
+                if (!auth || !auth.currentUser || !db) throw new Error("Firebase offline");
+                const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
+                await addDoc(statsRef, statData);
+            } catch (error) {
+                const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
+                localStats.push(statData);
+                localStorage.setItem('eduAppStats', JSON.stringify(localStats));
+            }
+        }
+
+        // ==========================================
         // LOGIKA - ANGLIČTINA (HAPPY HOUSE)
         // ==========================================
         const englishVocab = [
