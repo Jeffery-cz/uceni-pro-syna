@@ -106,6 +106,10 @@
                     <button class="tab-btn shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700 snap-start" data-target="tab-prvouka">
                         <i class="fa-solid fa-leaf mr-1"></i> Prvouka
                     </button>
+                    <!-- Přidána záložka pro Angličtinu -->
+                    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700 snap-start" data-target="tab-anglictina">
+                        <i class="fa-solid fa-language mr-1"></i> Angličtina
+                    </button>
                     <!-- Rodičovská záložka (skrytá pro žáka) -->
                     <button id="nav-rodic" class="hidden tab-btn shrink-0 px-4 py-2 rounded-lg font-bold text-sm transition-all bg-purple-500/20 hover:bg-purple-500/40 text-purple-900 border border-purple-500/30 snap-start" data-target="tab-rodic">
                         <i class="fa-solid fa-chart-line mr-1"></i> Rodič
@@ -121,14 +125,17 @@
         <main class="flex-1 overflow-y-auto p-6 relative h-full">
             
             <!-- OBSAH: Domů -->
-            <section id="tab-domu" class="tab-content h-full flex flex-col justify-center items-center text-center">
-                <h2 class="text-4xl font-extrabold mb-4 text-slate-800">Vítej zpět!</h2>
-                <p class="text-lg text-slate-700 font-medium mb-8 max-w-md">Vyber si předmět v horním menu a pojďme se něco nového naučit. Dneska nám to půjde skvěle!</p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
+            <section id="tab-domu" class="tab-content w-full h-full flex justify-center">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-4xl h-min">
                     <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer" onclick="switchTab('tab-cestina')">
                         <i class="fa-solid fa-book-open text-4xl text-blue-500 mb-3"></i>
                         <h3 class="font-bold text-xl">Čeština</h3>
                         <p class="text-sm opacity-80 mt-2">Slovní druhy</p>
+                    </div>
+                     <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer" onclick="switchTab('tab-anglictina')">
+                        <i class="fa-solid fa-language text-4xl text-red-500 mb-3"></i>
+                        <h3 class="font-bold text-xl">Angličtina</h3>
+                        <p class="text-sm opacity-80 mt-2">Slovíčka (Happy House)</p>
                     </div>
                     <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer opacity-50" onclick="showToast('Matematika se teprve připravuje.', 'info')">
                         <i class="fa-solid fa-calculator text-4xl text-emerald-500 mb-3"></i>
@@ -179,6 +186,98 @@
                 <i class="fa-solid fa-person-digging text-6xl text-slate-400 mb-4"></i>
                 <h2 class="text-2xl font-bold">Prvouka - ve výstavbě</h2>
                 <p>Zde se budeme učit o přírodě a zvířátkách.</p>
+            </section>
+
+            <!-- OBSAH: Angličtina (Slovíčka Happy House) -->
+            <section id="tab-anglictina" class="tab-content hidden h-full flex flex-col max-w-2xl mx-auto w-full relative">
+                
+                <!-- Úvodní obrazovka výběru lekce -->
+                <div id="eng-level-select" class="flex flex-col h-full w-full justify-center">
+                    <div class="text-center mb-6">
+                         <h2 class="text-3xl font-bold text-slate-800"><i class="fa-solid fa-language text-red-500"></i> Angličtina</h2>
+                         <p class="text-slate-700 font-medium mt-2">Vyber lekci a trénuj slovíčka (Kvíz).</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-3 overflow-y-auto hide-scrollbar px-2 pb-4">
+                         <button onclick="startEnglishLevel(1)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-orange-500 hover:bg-orange-600 shadow-[0_4px_0_rgb(234,88,12)] active:translate-y-1 active:shadow-none">
+                             <div class="text-lg">Lekce 1: Zvířátka</div>
+                             <div class="text-xs opacity-90 font-normal">Myši, kočky a psi</div>
+                         </button>
+                         <button onclick="startEnglishLevel(2)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-blue-500 hover:bg-blue-600 shadow-[0_4px_0_rgb(37,99,235)] active:translate-y-1 active:shadow-none">
+                             <div class="text-lg">Lekce 2: Rodina</div>
+                             <div class="text-xs opacity-90 font-normal">Máma, táta a čísla</div>
+                         </button>
+                         <button onclick="startEnglishLevel(3)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-emerald-500 hover:bg-emerald-600 shadow-[0_4px_0_rgb(16,185,129)] active:translate-y-1 active:shadow-none">
+                             <div class="text-lg">Lekce 3: Dům</div>
+                             <div class="text-xs opacity-90 font-normal">Místnosti</div>
+                         </button>
+                         <button onclick="startEnglishLevel(4)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-purple-500 hover:bg-purple-600 shadow-[0_4px_0_rgb(147,51,234)] active:translate-y-1 active:shadow-none">
+                             <div class="text-lg">Lekce 4: Otázky</div>
+                             <div class="text-xs opacity-90 font-normal">Is it in the...?</div>
+                         </button>
+                         <button onclick="startEnglishLevel(5)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-pink-500 hover:bg-pink-600 shadow-[0_4px_0_rgb(219,39,119)] active:translate-y-1 active:shadow-none">
+                             <div class="text-lg">Lekce 5: Vybavení</div>
+                             <div class="text-xs opacity-90 font-normal">Nábytek a velký test</div>
+                         </button>
+                    </div>
+                </div>
+
+                <!-- Herní obrazovka -->
+                <div id="eng-game-screen" class="hidden flex-col h-full w-full justify-between pb-4">
+                     <!-- Hlavička hry -->
+                     <div class="flex justify-between items-center mb-4 bg-white/50 p-3 rounded-2xl shadow-sm">
+                         <button onclick="showEnglishLevelSelect()" class="text-slate-600 hover:text-slate-800 font-bold px-3 py-1 rounded-lg hover:bg-white/60 transition-colors">
+                             <i class="fa-solid fa-arrow-left"></i> Zpět
+                         </button>
+                         <div class="text-center font-bold text-slate-700">
+                             Lekce <span id="eng-current-level-display"></span> • <span id="eng-question-counter" class="text-blue-600">1</span>/10
+                         </div>
+                         <div class="flex items-center gap-2 text-yellow-600 font-black text-xl">
+                             <i class="fa-solid fa-star"></i> <span id="eng-score-display">0</span>
+                         </div>
+                     </div>
+
+                     <!-- Otázka -->
+                     <div class="bg-white/80 p-6 rounded-3xl shadow-inner border-4 border-white flex flex-col items-center justify-center min-h-[150px] mb-6 relative">
+                         <div id="eng-type-badge" class="absolute top-[-12px] bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-bold text-sm shadow-sm">
+                             Přečti a přelož
+                         </div>
+                         
+                         <div id="eng-question-text" class="text-3xl sm:text-4xl font-black text-center text-slate-800 drop-shadow-sm leading-tight mb-4">
+                             ...
+                         </div>
+                         
+                         <button id="eng-btn-audio" class="hidden bg-slate-200 text-slate-700 hover:bg-slate-300 p-2 px-4 rounded-full flex items-center gap-2 font-bold transition-colors">
+                             <i class="fa-solid fa-volume-high"></i> Přehrát
+                         </button>
+                     </div>
+
+                     <!-- Možnosti odpovědí -->
+                     <div id="eng-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto">
+                         <!-- Tlačítka se generují z JS -->
+                     </div>
+                </div>
+
+                <!-- Výsledková obrazovka -->
+                <div id="eng-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center">
+                    <div id="eng-result-icon" class="mb-4"></div>
+                    <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Výsledek Lekce <span id="eng-result-level"></span></h2>
+                    <p class="text-sm font-bold text-green-600 mb-6 bg-green-100 px-4 py-2 rounded-full border border-green-200">
+                        ✔️ Uloženo do statistik
+                    </p>
+                    
+                    <div class="bg-white/60 rounded-2xl p-6 shadow-inner border border-white mb-6 w-full max-w-sm">
+                        <div class="flex justify-between items-center text-lg">
+                            <span class="font-bold text-slate-700">Skóre:</span>
+                            <span id="eng-final-score" class="text-3xl font-black"></span>
+                        </div>
+                    </div>
+
+                    <button onclick="showEnglishLevelSelect()" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold py-4 px-8 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all">
+                        Zpět na výběr lekcí
+                    </button>
+                </div>
+
             </section>
 
             <!-- OBSAH: Rodič (Statistiky) -->
@@ -528,6 +627,270 @@
                 localStorage.setItem('eduAppStats', JSON.stringify(localStats));
             }
         });
+
+        // ==========================================
+        // LOGIKA - ANGLIČTINA (HAPPY HOUSE)
+        // ==========================================
+        const englishVocab = [
+            { en: "cat", cz: "kočka", level: 1 }, { en: "dog", cz: "pes", level: 1 },
+            { en: "snake", cz: "had", level: 1 }, { en: "mouse", cz: "myš", level: 1 },
+            { en: "bird", cz: "pták", level: 1 }, { en: "Is it a snake?", cz: "Je to had?", level: 1 },
+            { en: "I don't know.", cz: "Já nevím.", level: 1 },
+            { en: "mum", cz: "maminka", level: 2 }, { en: "dad", cz: "tatínek", level: 2 },
+            { en: "brother", cz: "bratr", level: 2 }, { en: "sister", cz: "sestra", level: 2 },
+            { en: "one", cz: "jedna", level: 2 }, { en: "two", cz: "dva", level: 2 }, { en: "three", cz: "tři", level: 2 },
+            { en: "kitchen", cz: "kuchyně", level: 3 }, { en: "bedroom", cz: "ložnice", level: 3 },
+            { en: "bathroom", cz: "koupelna", level: 3 }, { en: "sitting room", cz: "obývací pokoj", level: 3 },
+            { en: "hall", cz: "chodba", level: 3 }, { en: "garden", cz: "zahrada", level: 3 },
+            { en: "Where is my book?", cz: "Kde je moje kniha?", level: 4 }, { en: "Where is my pen?", cz: "Kde je moje pero?", level: 4 },
+            { en: "Is it in the bathroom?", cz: "Je to v koupelně?", level: 4 }, { en: "It is in the bathroom.", cz: "Je to v koupelně.", level: 4 },
+            { en: "Is it in the kitchen?", cz: "Je to v kuchyni?", level: 4 }, { en: "It is in the kitchen.", cz: "Je to v kuchyni.", level: 4 },
+            { en: "Yes, it is.", cz: "Ano, to je.", level: 4 }, { en: "No, it isn't.", cz: "Ne, to není.", level: 4 },
+            { en: "bed", cz: "postel", level: 5 }, { en: "table", cz: "stůl", level: 5 },
+            { en: "chair", cz: "židle", level: 5 }, { en: "door", cz: "dveře", level: 5 },
+            { en: "window", cz: "okno", level: 5 }, { en: "box", cz: "krabice", level: 5 }
+        ];
+
+        let engCurrentLevel = 1;
+        let engScore = 0;
+        let engQuestionCount = 0;
+        let engCurrentQuestion = null;
+        let engMistakesCount = 0;
+        let engFirstTry = true;
+        let engIsAnswering = false; // Zabraňuje vícenásobnému kliknutí
+
+        const engLevelSelect = document.getElementById('eng-level-select');
+        const engGameScreen = document.getElementById('eng-game-screen');
+        const engResultScreen = document.getElementById('eng-result-screen');
+        const engQuestionText = document.getElementById('eng-question-text');
+        const engOptionsGrid = document.getElementById('eng-options-grid');
+        const engScoreDisplay = document.getElementById('eng-score-display');
+        const engQuestionCounter = document.getElementById('eng-question-counter');
+        const engBtnAudio = document.getElementById('eng-btn-audio');
+        const engTypeBadge = document.getElementById('eng-type-badge');
+
+        function playEnglishAudio(text) {
+            if ('speechSynthesis' in window) {
+                // Přeruší aktuální přehrávání, pokud běží
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = window.speechSynthesis.getVoices();
+                // Pokusí se najít britskou nebo alespoň nějakou anglickou výslovnost
+                const enVoice = voices.find(v => v.lang === 'en-GB') || voices.find(v => v.lang.includes('en'));
+                if (enVoice) utterance.voice = enVoice;
+                else utterance.lang = 'en-GB';
+                
+                utterance.rate = 0.85; // Mírně zpomalí čtení pro děti
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("Váš prohlížeč nepodporuje čtení zvuku.", "info");
+            }
+        }
+
+        // Tlačítko přehrát zvuk v UI
+        engBtnAudio.addEventListener('click', () => {
+            if(engCurrentQuestion && engCurrentQuestion.type === 'read') {
+                playEnglishAudio(engCurrentQuestion.targetText);
+            }
+        });
+
+        // Vynutí načtení hlasů do prohlížeče (někdy to trvá)
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+
+        window.showEnglishLevelSelect = function() {
+            engGameScreen.classList.add('hidden');
+            engResultScreen.classList.add('hidden');
+            engLevelSelect.classList.remove('hidden');
+        };
+
+        window.startEnglishLevel = function(level) {
+            engCurrentLevel = level;
+            engScore = 0;
+            engQuestionCount = 0;
+            engMistakesCount = 0;
+            
+            document.getElementById('eng-current-level-display').innerText = level;
+            engScoreDisplay.innerText = "0";
+            
+            engLevelSelect.classList.add('hidden');
+            engResultScreen.classList.add('hidden');
+            engGameScreen.classList.remove('hidden');
+            engGameScreen.classList.add('flex'); // zruší se po vyčištění v hidden
+            
+            nextEnglishQuestion();
+        };
+
+        function nextEnglishQuestion() {
+            if (engQuestionCount >= 10) {
+                endEnglishGame();
+                return;
+            }
+
+            engFirstTry = true;
+            engIsAnswering = false;
+            engQuestionCount++;
+            engQuestionCounter.innerText = engQuestionCount;
+
+            // Vyfiltruj slovíčka pro aktuální a předchozí level, aby se to opakovalo
+            const levelVocab = englishVocab.filter(v => v.level === engCurrentLevel || v.level === engCurrentLevel - 1);
+            
+            // Náhodně vyber správnou odpověď
+            const correctItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
+            
+            // Urči typ otázky (z EN do CZ, nebo z CZ do EN)
+            const type = Math.random() > 0.5 ? 'read' : 'translate';
+            
+            // Připrav 3 další náhodné (špatné) možnosti z daného levelu
+            let optionsItems = [correctItem];
+            let attempts = 0;
+            while (optionsItems.length < 4 && attempts < 50) {
+                const randomItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
+                // Zajistí, že nepřidáváme duplikáty
+                if (!optionsItems.some(item => item.en === randomItem.en)) {
+                    optionsItems.push(randomItem);
+                }
+                attempts++;
+            }
+            
+            // Zamíchej možnosti
+            optionsItems = shuffleArray(optionsItems);
+
+            let targetText = "";
+            let correctAnswer = "";
+            let options = [];
+
+            if (type === 'read') {
+                targetText = correctItem.en;
+                correctAnswer = correctItem.cz;
+                options = optionsItems.map(i => i.cz);
+                engTypeBadge.innerText = "Přečti a přelož";
+                engTypeBadge.className = "absolute top-[-12px] bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-bold text-sm shadow-sm";
+                engBtnAudio.classList.remove('hidden');
+                // Automaticky přečte slovíčko při zobrazení otázky
+                setTimeout(() => playEnglishAudio(targetText), 300);
+            } else {
+                targetText = correctItem.cz;
+                correctAnswer = correctItem.en;
+                options = optionsItems.map(i => i.en);
+                engTypeBadge.innerText = "Jak se řekne...";
+                engTypeBadge.className = "absolute top-[-12px] bg-purple-100 text-purple-700 px-4 py-1 rounded-full font-bold text-sm shadow-sm";
+                engBtnAudio.classList.add('hidden');
+            }
+
+            engCurrentQuestion = { type, targetText, correctAnswer, options };
+            
+            // Vykreslení UI
+            engQuestionText.innerText = targetText;
+            renderEnglishOptions();
+        }
+
+        function renderEnglishOptions() {
+            engOptionsGrid.innerHTML = '';
+            const buttonColors = [
+                "bg-red-400 hover:bg-red-500 shadow-[0_4px_0_rgb(239,68,68)]",
+                "bg-blue-400 hover:bg-blue-500 shadow-[0_4px_0_rgb(59,130,246)]",
+                "bg-amber-400 hover:bg-amber-500 shadow-[0_4px_0_rgb(245,158,11)]",
+                "bg-emerald-400 hover:bg-emerald-500 shadow-[0_4px_0_rgb(16,185,129)]"
+            ];
+
+            engCurrentQuestion.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = `text-lg sm:text-xl font-bold py-5 px-4 rounded-2xl text-white transition-all active:translate-y-1 active:shadow-none flex justify-center items-center gap-2 ${buttonColors[index % 4]}`;
+                btn.innerText = option;
+                
+                btn.onclick = () => handleEnglishAnswer(btn, option);
+                engOptionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleEnglishAnswer(btnElement, selectedAnswer) {
+            if (engIsAnswering) return; // Zamezí zběsilému klikání
+
+            const isCorrect = selectedAnswer === engCurrentQuestion.correctAnswer;
+            
+            if (isCorrect) {
+                engIsAnswering = true;
+                
+                // Přečti odpověď, pokud se hádá anglické slovo
+                if (engCurrentQuestion.type === 'translate') {
+                    playEnglishAudio(selectedAnswer);
+                }
+
+                // Vizuální odezva na tlačítku
+                btnElement.classList.remove(...btnElement.className.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('hover:bg-') || c.startsWith('shadow-')));
+                btnElement.classList.add('bg-green-500', 'shadow-none', 'translate-y-1');
+                btnElement.innerHTML = `<i class="fa-solid fa-check mr-2"></i> ${selectedAnswer}`;
+                
+                // Přičti skóre, pokud je to první pokus
+                if (engFirstTry) {
+                    engScore++;
+                    engScoreDisplay.innerText = engScore;
+                    
+                    // Malá animace hvězdičky
+                    engScoreDisplay.classList.add('scale-150', 'text-yellow-500');
+                    setTimeout(() => engScoreDisplay.classList.remove('scale-150', 'text-yellow-500'), 300);
+                }
+
+                // Přejdi na další otázku po krátké prodlevě
+                setTimeout(nextEnglishQuestion, 1200);
+
+            } else {
+                // Špatná odpověď
+                engFirstTry = false;
+                engMistakesCount++;
+                
+                // Zatřesení tlačítka
+                btnElement.classList.add('animate-shake', 'opacity-50');
+                setTimeout(() => btnElement.classList.remove('animate-shake'), 400);
+            }
+        }
+
+        async function endEnglishGame() {
+            engGameScreen.classList.add('hidden');
+            engGameScreen.classList.remove('flex');
+            
+            document.getElementById('eng-result-level').innerText = engCurrentLevel;
+            const finalScoreEl = document.getElementById('eng-final-score');
+            finalScoreEl.innerText = `${engScore} / 10`;
+            
+            const iconContainer = document.getElementById('eng-result-icon');
+            if (engScore >= 8) {
+                iconContainer.innerHTML = '<i class="fa-solid fa-trophy text-6xl text-yellow-500 drop-shadow-md"></i>';
+                finalScoreEl.className = "text-4xl font-black text-green-600";
+            } else {
+                iconContainer.innerHTML = '<i class="fa-solid fa-clipboard-list text-6xl text-slate-400 drop-shadow-md"></i>';
+                finalScoreEl.className = "text-4xl font-black text-orange-500";
+            }
+            
+            engResultScreen.classList.remove('hidden');
+            engResultScreen.classList.add('flex');
+
+            // --- ULOŽENÍ DO DATABÁZE (Stejné jako u Češtiny) ---
+            const isSuccess = engScore >= 8;
+            const statData = {
+                userId: currentUserId || 'local-user',
+                activity: `Angličtina L${engCurrentLevel}`,
+                success: isSuccess,
+                errors: engMistakesCount,
+                score: engScore, // Angličtina ukládá i konkrétní skóre
+                timestamp: new Date().getTime(),
+                role: currentUserRole
+            };
+
+            try {
+                if (!auth || !auth.currentUser || !db) throw new Error("Firebase není inicializován.");
+                const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
+                await addDoc(statsRef, statData);
+            } catch (error) {
+                console.warn("Ukládám do LocalStorage (Angličtina).");
+                const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
+                localStats.push(statData);
+                localStorage.setItem('eduAppStats', JSON.stringify(localStats));
+            }
+        }
 
         // ==========================================
         // STATISTIKY PRO RODIČE
