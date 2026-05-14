@@ -874,17 +874,13 @@
         }
 
         function handleMathTimeout() {
-            mathState.firstTry = false;
-            mathInput.disabled = true;
-            
+            // Zrušeno přeskakování! Políčko zůstává aktivní.
             mathCard.classList.remove('border-slate-200');
-            mathCard.classList.add('border-red-400', 'bg-red-50', 'animate-shake');
-            mathFeedback.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-clock"></i> Čas vypršel!</span>';
+            mathCard.classList.add('border-orange-400', 'bg-orange-50');
+            mathFeedback.innerHTML = '<span class="text-orange-600 font-bold"><i class="fa-solid fa-clock"></i> Čas je pryč! Rychle to dopočítej!</span>';
             
-            setTimeout(() => { 
-                mathState.qCount++; 
-                nextMathQuestion(); 
-            }, 1500);
+            // Vrátíme focus do políčka, aby mohl dál psát
+            mathInput.focus();
         }
 
         // Kontrola odpovědi po stisku Enter nebo kliknutí na tlačítko
@@ -905,7 +901,7 @@
             } else {
                 // Špatně
                 mathState.firstTry = false;
-                mathCard.classList.remove('border-slate-200');
+                mathCard.classList.remove('border-slate-200', 'border-orange-400', 'bg-orange-50'); // Odstraní oranžovou z případného timeoutu
                 mathCard.classList.add('border-red-400', 'bg-red-50', 'animate-shake');
                 mathFeedback.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Zkus to znovu</span>';
                 
