@@ -2,44 +2,76 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Učení hrou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Škola hrou</title>
     
+    <!-- Tailwind CSS přes CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     
+    <!-- SortableJS pro Drag & Drop (Čeština) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <!-- Font Awesome pro ikony -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Konfigurace Tailwindu a vlastní styly -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
     <style>
-        /* Základní font a skrytí posuvníků pro čistší vzhled */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
         
-        /* Glassmorphism utility třídy */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         .glass-panel {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-        }
-        
-        .glass-button {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.2s ease;
         }
-        .glass-button:hover { background: rgba(255, 255, 255, 0.6); transform: translateY(-2px); }
-        .glass-button:active { transform: translateY(0); }
 
-        /* Sortable drag state */
-        .sortable-ghost { opacity: 0.4; background-color: #f3f4f6; }
+        .glass-button {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Skrývání záložek */
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; }
+
+        /* Čeština - Drag & Drop styly */
+        .sortable-ghost { opacity: 0.4; }
         .sortable-drag { cursor: grabbing !important; }
+        .word-card { touch-action: manipulation; }
 
-        /* Přidaná animace zatřesení při chybě */
+        /* Čeština - Duhové barvy kartiček */
+        .card-1 { border-left: 6px solid #ef4444; background: linear-gradient(to right, #fef2f2, #ffffff); }
+        .card-2 { border-left: 6px solid #f97316; background: linear-gradient(to right, #fff7ed, #ffffff); }
+        .card-3 { border-left: 6px solid #f59e0b; background: linear-gradient(to right, #fffbeb, #ffffff); }
+        .card-4 { border-left: 6px solid #84cc16; background: linear-gradient(to right, #f7fee7, #ffffff); }
+        .card-5 { border-left: 6px solid #10b981; background: linear-gradient(to right, #ecfdf5, #ffffff); }
+        .card-6 { border-left: 6px solid #06b6d4; background: linear-gradient(to right, #ecfeff, #ffffff); }
+        .card-7 { border-left: 6px solid #3b82f6; background: linear-gradient(to right, #eff6ff, #ffffff); }
+        .card-8 { border-left: 6px solid #8b5cf6; background: linear-gradient(to right, #f5f3ff, #ffffff); }
+        .card-9 { border-left: 6px solid #d946ef; background: linear-gradient(to right, #fdf4ff, #ffffff); }
+        .card-10 { border-left: 6px solid #f43f5e; background: linear-gradient(to right, #fff1f2, #ffffff); }
+
+        /* Animace obecné */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -48,286 +80,349 @@
         }
         .animate-shake { animation: shake 0.4s ease-in-out; }
 
+        @keyframes shuffle {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-shuffle { animation: shuffle 0.6s ease-in-out; }
+
+        /* Animace Matematika (Rybičky) */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        
+        .fish-swimming { transition: all 0.3s ease; }
+        .fish-caught { transform: scale(0.8); background-color: #86efac !important; border-color: #22c55e !important; color: #14532d !important; pointer-events: none; }
+        .fish-wrong { animation: shake 0.4s ease; background-color: #fca5a5 !important; border-color: #ef4444 !important; color: #7f1d1d !important; }
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-cover bg-center bg-fixed min-h-screen text-slate-800 flex items-center justify-center p-0 sm:p-4 md:p-8" 
-      style="background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop');">
+<body class="h-screen w-screen overflow-hidden text-slate-800 bg-slate-900">
 
-    <!-- OVERLAY: Oznámení a zprávy místo alert() -->
-    <div id="toast-container" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <!-- OBRAZOVKA 1: PIN Přihlášení -->
-    <div id="pin-screen" class="glass-panel w-full max-w-sm rounded-3xl p-8 flex flex-col items-center justify-center text-center z-40 transition-opacity duration-500 mx-4">
-        <div class="w-20 h-20 bg-white/50 rounded-full flex items-center justify-center mb-6 shadow-inner text-4xl text-slate-700">
-            <i class="fa-solid fa-lock"></i>
-        </div>
-        <h1 class="text-3xl font-bold mb-2 text-white drop-shadow-md">Ahoj!</h1>
-        <p class="text-white/90 mb-6 drop-shadow-sm font-medium">Zadej svůj PIN pro vstup.</p>
-        
-        <input type="password" id="pin-input" class="w-full text-center text-3xl tracking-widest p-4 rounded-xl glass-button focus:outline-none focus:ring-4 ring-white/50 mb-4 placeholder-slate-600" placeholder="••••" maxlength="4">
-        
-        <button id="btn-login" class="w-full py-4 rounded-xl bg-blue-600/80 hover:bg-blue-500/90 text-white font-bold text-lg backdrop-blur-md shadow-lg transition-all">
-            Vstoupit <i class="fa-solid fa-arrow-right ml-2"></i>
-        </button>
-        <p class="text-xs text-white/70 mt-4">Nápověda: 1111 (Žák), 1234 (Rodič)</p>
-    </div>
-
-    <!-- OBRAZOVKA 2: Hlavní Aplikace (Skrytá po startu) -->
-    <div id="main-app" class="hidden w-full max-w-5xl h-[100dvh] sm:h-[85vh] glass-panel rounded-none sm:rounded-3xl overflow-hidden flex flex-col shadow-2xl relative bg-white/90 sm:bg-transparent">
-        
-        <!-- Hlavička a Navigace -->
-        <header class="bg-white/30 border-b border-white/40 p-4 shrink-0">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white/50 rounded-full flex items-center justify-center text-blue-600 text-xl">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-800 drop-shadow-sm">Škola hrou</h2>
-                    </div>
-                    <button id="btn-logout-mobile" class="sm:hidden px-3 py-2 rounded-lg text-xl text-red-600 hover:bg-red-500/20 transition-all">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                </div>
-                
-                <!-- Záložky (Tabs) -->
-                <nav class="flex gap-2 bg-slate-100/50 sm:bg-white/20 p-1 rounded-xl w-full overflow-x-auto hide-scrollbar snap-x">
-                    <button class="tab-btn active shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-white shadow-sm text-blue-600 snap-start" data-target="tab-domu">
-                        <i class="fa-solid fa-house mr-1"></i> Domů
-                    </button>
-                    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700 snap-start" data-target="tab-cestina">
-                        <i class="fa-solid fa-book-open mr-1"></i> Čeština
-                    </button>
-                    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700 snap-start" data-target="tab-matematika">
-                        <i class="fa-solid fa-calculator mr-1"></i> Matematika
-                    </button>
-                    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700 snap-start" data-target="tab-prvouka">
-                        <i class="fa-solid fa-leaf mr-1"></i> Prvouka
-                    </button>
-                    <!-- Přidána záložka pro Angličtinu -->
-                    <button class="tab-btn shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700 snap-start" data-target="tab-anglictina">
-                        <i class="fa-solid fa-language mr-1"></i> Angličtina
-                    </button>
-                    <!-- Rodičovská záložka (skrytá pro žáka) -->
-                    <button id="nav-rodic" class="hidden tab-btn shrink-0 px-4 py-2 rounded-lg font-bold text-sm transition-all bg-purple-500/20 hover:bg-purple-500/40 text-purple-900 border border-purple-500/30 snap-start" data-target="tab-rodic">
-                        <i class="fa-solid fa-chart-line mr-1"></i> Rodič
-                    </button>
-                    <button id="btn-logout" class="hidden sm:block shrink-0 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-500/20 transition-all ml-auto">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                </nav>
+    <!-- ========================================== -->
+    <!-- 1. ZAMYKACÍ (PIN) OBRAZOVKA                -->
+    <!-- ========================================== -->
+    <div id="pin-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-500">
+        <div class="glass-panel p-8 rounded-[2rem] shadow-2xl max-w-sm w-[90%] text-center transform transition-all">
+            <div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <i class="fa-solid fa-lock text-2xl text-slate-600"></i>
             </div>
-        </header>
-
-        <!-- Obsah aplikací (Tab Contents) -->
-        <main class="flex-1 overflow-y-auto p-6 relative h-full">
+            <h2 class="text-3xl font-extrabold mb-2 text-slate-800">Ahoj!</h2>
+            <p class="text-slate-500 mb-8 font-medium">Zadej svůj PIN pro vstup.</p>
             
-            <!-- OBSAH: Domů -->
-            <section id="tab-domu" class="tab-content w-full h-full flex justify-center">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-4xl h-min">
-                    <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer" onclick="switchTab('tab-cestina')">
-                        <i class="fa-solid fa-book-open text-4xl text-blue-500 mb-3"></i>
-                        <h3 class="font-bold text-xl">Čeština</h3>
-                        <p class="text-sm opacity-80 mt-2">Slovní druhy</p>
-                    </div>
-                     <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer" onclick="switchTab('tab-anglictina')">
-                        <i class="fa-solid fa-language text-4xl text-red-500 mb-3"></i>
-                        <h3 class="font-bold text-xl">Angličtina</h3>
-                        <p class="text-sm opacity-80 mt-2">Slovíčka (Happy House)</p>
-                    </div>
-                    <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer opacity-50" onclick="showToast('Matematika se teprve připravuje.', 'info')">
-                        <i class="fa-solid fa-calculator text-4xl text-emerald-500 mb-3"></i>
-                        <h3 class="font-bold text-xl">Matematika</h3>
-                        <p class="text-sm opacity-80 mt-2">Připravujeme</p>
-                    </div>
-                    <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer opacity-50" onclick="showToast('Prvouka se teprve připravuje.', 'info')">
-                        <i class="fa-solid fa-leaf text-4xl text-green-600 mb-3"></i>
-                        <h3 class="font-bold text-xl">Prvouka</h3>
-                        <p class="text-sm opacity-80 mt-2">Připravujeme</p>
-                    </div>
-                </div>
-            </section>
+            <input type="password" id="pin-input" class="w-full text-center text-4xl tracking-[1em] font-black bg-slate-100 rounded-xl py-4 outline-none text-slate-700 shadow-inner mb-6 border-2 border-transparent focus:border-blue-400 transition-colors" maxlength="4" placeholder="••••">
+            
+            <button onclick="checkPin()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                Vstoupit <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <p class="mt-4 text-xs text-slate-400">Nápověda: 1111 (Žák), 1234 (Rodič)</p>
+        </div>
+    </div>
 
-            <!-- OBSAH: Čeština (Slovní druhy) -->
-            <section id="tab-cestina" class="tab-content hidden h-full flex flex-col max-w-2xl mx-auto w-full">
-                <div class="mb-4 sm:mb-6 text-center shrink-0">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">Slovní druhy</h2>
-                    <p class="text-sm sm:text-base text-slate-700 font-medium mt-1 sm:mt-2">Seřaď je správně pod sebe. Chytni je a přetáhni.</p>
+    <!-- ========================================== -->
+    <!-- 2. HLAVNÍ APLIKACE (Po přihlášení)         -->
+    <!-- ========================================== -->
+    <div id="app-container" class="hidden h-[100dvh] sm:h-screen w-full sm:p-4 md:p-6 lg:p-8 flex items-center justify-center">
+        <!-- Hlavní okno (Na mobilu bez oblých rohů, na PC jako tablet) -->
+        <div class="glass-panel w-full h-full sm:h-[90vh] sm:max-h-[850px] max-w-4xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative border-0 sm:border">
+            
+            <!-- HORNÍ NAVIGACE -->
+            <header class="bg-white/50 backdrop-blur-md border-b border-white/40 p-4 flex justify-between items-center shrink-0 z-20 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-500 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <h1 class="font-extrabold text-xl tracking-tight text-slate-800">Škola <span class="text-blue-500">hrou</span></h1>
                 </div>
                 
-                <div class="bg-white/40 p-2 sm:p-4 rounded-2xl border border-white/50 shadow-inner flex-1 overflow-y-auto mb-4 relative">
-                    <!-- Zde se vygeneruje seznam z JS -->
-                    <ul id="slovni-druhy-list" class="flex flex-col min-h-full justify-center px-1 sm:px-2 relative z-10 gap-2 sm:gap-3 transition-all duration-300 pb-2">
-                        <!-- Items injected by JS -->
-                    </ul>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
-                    <button id="btn-check-cestina" class="w-full sm:flex-1 py-3 sm:py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-check-circle"></i> Zkontrolovat
+                <div class="flex items-center gap-2">
+                    <span id="user-badge" class="hidden md:flex items-center gap-2 bg-slate-200/50 px-3 py-1.5 rounded-full text-sm font-bold text-slate-600">
+                        <i class="fa-solid fa-user"></i> <span id="user-name">Žák</span>
+                    </span>
+                    <!-- Odhlášení mobil (jen ikona) -->
+                    <button onclick="logout()" class="md:hidden w-10 h-10 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-colors">
+                        <i class="fa-solid fa-power-off"></i>
                     </button>
-                    <button id="btn-reset-cestina" class="w-full sm:w-auto px-6 py-3 sm:py-4 rounded-xl glass-button bg-white text-slate-700 font-bold hover:bg-white/60 transition-all flex items-center justify-center gap-2 border-2 border-slate-200">
-                        <i class="fa-solid fa-shuffle"></i> Zamíchat
+                    <!-- Odhlášení PC (s textem) -->
+                    <button onclick="logout()" class="hidden md:flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded-xl font-bold transition-colors">
+                        <i class="fa-solid fa-power-off"></i> Odhlásit
                     </button>
                 </div>
-            </section>
+            </header>
 
-            <!-- OBSAH: Matematika (Placeholder) -->
-            <section id="tab-matematika" class="tab-content hidden h-full flex flex-col justify-center items-center text-center">
-                <i class="fa-solid fa-person-digging text-6xl text-slate-400 mb-4"></i>
-                <h2 class="text-2xl font-bold">Matematika - ve výstavbě</h2>
-                <p>Zde brzy přidáme sčítání a odčítání.</p>
-            </section>
+            <!-- LIŠTA ZÁLOŽEK -->
+            <nav class="bg-slate-50/50 border-b border-white/30 px-2 sm:px-4 py-2 shrink-0 overflow-x-auto hide-scrollbar z-10">
+                <div class="flex gap-2 min-w-max">
+                    <button onclick="switchTab('tab-domu')" class="nav-tab active px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-domu">
+                        <i class="fa-solid fa-house"></i> <span class="hidden sm:inline">Domů</span>
+                    </button>
+                    <button onclick="switchTab('tab-cestina')" class="nav-tab px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-cestina">
+                        <i class="fa-solid fa-book-open text-orange-500"></i> Čeština
+                    </button>
+                    <button onclick="switchTab('tab-anglictina')" class="nav-tab px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-anglictina">
+                        <i class="fa-solid fa-language text-red-500"></i> Angličtina
+                    </button>
+                    <button onclick="switchTab('tab-matematika')" class="nav-tab px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-matematika">
+                        <i class="fa-solid fa-water text-blue-500"></i> Matematika
+                    </button>
+                    <button onclick="switchTab('tab-rodic')" id="nav-rodic" class="nav-tab hidden px-4 sm:px-5 py-2.5 rounded-xl font-bold text-purple-600 hover:bg-purple-100 transition-all flex items-center gap-2" data-target="tab-rodic">
+                        <i class="fa-solid fa-chart-pie"></i> Rodič
+                    </button>
+                </div>
+            </nav>
 
-            <!-- OBSAH: Prvouka (Placeholder) -->
-            <section id="tab-prvouka" class="tab-content hidden h-full flex flex-col justify-center items-center text-center">
-                <i class="fa-solid fa-person-digging text-6xl text-slate-400 mb-4"></i>
-                <h2 class="text-2xl font-bold">Prvouka - ve výstavbě</h2>
-                <p>Zde se budeme učit o přírodě a zvířátkách.</p>
-            </section>
-
-            <!-- OBSAH: Angličtina (Slovíčka Happy House) -->
-            <section id="tab-anglictina" class="tab-content hidden h-full flex flex-col max-w-2xl mx-auto w-full relative">
+            <!-- OBSAH APLIKACÍ (Tab Contents) -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 relative">
                 
-                <!-- Úvodní obrazovka výběru lekce -->
-                <div id="eng-level-select" class="flex flex-col h-full w-full justify-center">
-                    <div class="text-center mb-6">
-                         <h2 class="text-3xl font-bold text-slate-800"><i class="fa-solid fa-language text-red-500"></i> Angličtina</h2>
-                         <p class="text-slate-700 font-medium mt-2">Vyber lekci a trénuj slovíčka (Kvíz).</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 gap-3 overflow-y-auto hide-scrollbar px-2 pb-4">
-                         <button onclick="startEnglishLevel(1)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-orange-500 hover:bg-orange-600 shadow-[0_4px_0_rgb(234,88,12)] active:translate-y-1 active:shadow-none">
-                             <div class="text-lg">Lekce 1: Zvířátka</div>
-                             <div class="text-xs opacity-90 font-normal">Myši, kočky a psi</div>
-                         </button>
-                         <button onclick="startEnglishLevel(2)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-blue-500 hover:bg-blue-600 shadow-[0_4px_0_rgb(37,99,235)] active:translate-y-1 active:shadow-none">
-                             <div class="text-lg">Lekce 2: Rodina</div>
-                             <div class="text-xs opacity-90 font-normal">Máma, táta a čísla</div>
-                         </button>
-                         <button onclick="startEnglishLevel(3)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-emerald-500 hover:bg-emerald-600 shadow-[0_4px_0_rgb(16,185,129)] active:translate-y-1 active:shadow-none">
-                             <div class="text-lg">Lekce 3: Dům</div>
-                             <div class="text-xs opacity-90 font-normal">Místnosti</div>
-                         </button>
-                         <button onclick="startEnglishLevel(4)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-purple-500 hover:bg-purple-600 shadow-[0_4px_0_rgb(147,51,234)] active:translate-y-1 active:shadow-none">
-                             <div class="text-lg">Lekce 4: Otázky</div>
-                             <div class="text-xs opacity-90 font-normal">Is it in the...?</div>
-                         </button>
-                         <button onclick="startEnglishLevel(5)" class="w-full text-left p-4 rounded-xl font-bold text-white transition-all bg-pink-500 hover:bg-pink-600 shadow-[0_4px_0_rgb(219,39,119)] active:translate-y-1 active:shadow-none">
-                             <div class="text-lg">Lekce 5: Vybavení</div>
-                             <div class="text-xs opacity-90 font-normal">Nábytek a velký test</div>
-                         </button>
-                    </div>
+                <!-- Toast notifikace (úspěch/chyba) -->
+                <div id="toast" class="absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform -translate-y-20 opacity-0 bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border">
+                    <span id="toast-icon"></span>
+                    <span id="toast-msg"></span>
                 </div>
 
-                <!-- Herní obrazovka -->
-                <div id="eng-game-screen" class="hidden flex-col h-full w-full justify-between pb-4">
-                     <!-- Hlavička hry -->
-                     <div class="flex justify-between items-center mb-4 bg-white/50 p-3 rounded-2xl shadow-sm">
-                         <button onclick="showEnglishLevelSelect()" class="text-slate-600 hover:text-slate-800 font-bold px-3 py-1 rounded-lg hover:bg-white/60 transition-colors">
-                             <i class="fa-solid fa-arrow-left"></i> Zpět
-                         </button>
-                         <div class="text-center font-bold text-slate-700">
-                             Lekce <span id="eng-current-level-display"></span> • <span id="eng-question-counter" class="text-blue-600">1</span>/10
-                         </div>
-                         <div class="flex items-center gap-2 text-yellow-600 font-black text-xl">
-                             <i class="fa-solid fa-star"></i> <span id="eng-score-display">0</span>
-                         </div>
-                     </div>
+                <!-- OBSAH: Domů (Rozcestník) -->
+                <section id="tab-domu" class="tab-content active h-full flex-col">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Vyber si předmět</h2>
+                        <p class="text-slate-500 font-medium">Co se dnes budeme učit?</p>
+                    </div>
 
-                     <!-- Otázka -->
-                     <div class="bg-white/80 p-6 rounded-3xl shadow-inner border-4 border-white flex flex-col items-center justify-center min-h-[150px] mb-6 relative">
-                         <div id="eng-type-badge" class="absolute top-[-12px] bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-bold text-sm shadow-sm">
-                             Přečti a přelož
-                         </div>
-                         
-                         <div id="eng-question-text" class="text-3xl sm:text-4xl font-black text-center text-slate-800 drop-shadow-sm leading-tight mb-4">
-                             ...
-                         </div>
-                         
-                         <button id="eng-btn-audio" class="hidden bg-slate-200 text-slate-700 hover:bg-slate-300 p-2 px-4 rounded-full flex items-center gap-2 font-bold transition-colors">
-                             <i class="fa-solid fa-volume-high"></i> Přehrát
-                         </button>
-                     </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-cestina')">
+                            <i class="fa-solid fa-book-open text-4xl text-orange-500 mb-3"></i>
+                            <h3 class="font-bold text-xl">Čeština</h3>
+                            <p class="text-sm text-slate-500 mt-2">Slovní druhy</p>
+                        </div>
+                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-anglictina')">
+                            <i class="fa-solid fa-language text-4xl text-red-500 mb-3"></i>
+                            <h3 class="font-bold text-xl">Angličtina</h3>
+                            <p class="text-sm text-slate-500 mt-2">Slovíčka (Happy House)</p>
+                        </div>
+                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-matematika')">
+                            <i class="fa-solid fa-water text-4xl text-blue-500 mb-3"></i>
+                            <h3 class="font-bold text-xl">Matematika</h3>
+                            <p class="text-sm text-slate-500 mt-2">Násobky 3 (Rybaření)</p>
+                        </div>
+                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer opacity-50" onclick="showToast('Prvouka se teprve připravuje.', 'info')">
+                            <i class="fa-solid fa-leaf text-4xl text-green-500 mb-3"></i>
+                            <h3 class="font-bold text-xl">Prvouka</h3>
+                            <p class="text-sm text-slate-500 mt-2">Připravuje se</p>
+                        </div>
+                    </div>
+                </section>
 
-                     <!-- Možnosti odpovědí -->
-                     <div id="eng-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-auto">
-                         <!-- Tlačítka se generují z JS -->
-                     </div>
-                </div>
+                <!-- OBSAH: Čeština (Slovní druhy - Drag & Drop) -->
+                <section id="tab-cestina" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full pb-20 sm:pb-0">
+                    <div class="mb-4 text-center shrink-0">
+                        <h2 class="text-2xl font-extrabold text-slate-800">Slovní druhy</h2>
+                        <p class="text-slate-500 text-sm">Seřaď je od 1 do 10!</p>
+                    </div>
 
-                <!-- Výsledková obrazovka -->
-                <div id="eng-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center">
-                    <div id="eng-result-icon" class="mb-4"></div>
-                    <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Výsledek Lekce <span id="eng-result-level"></span></h2>
-                    <p class="text-sm font-bold text-green-600 mb-6 bg-green-100 px-4 py-2 rounded-full border border-green-200">
-                        ✔️ Uloženo do statistik
-                    </p>
+                    <div id="word-types-list" class="flex-1 overflow-y-auto hide-scrollbar space-y-2.5 px-2 pb-4">
+                        <!-- Generováno přes JS -->
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 mt-4">
+                        <button id="btn-check-cestina" class="w-full sm:flex-1 py-3 sm:py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check-circle"></i> Zkontrolovat
+                        </button>
+                        <button id="btn-reset-cestina" class="w-full sm:w-auto px-6 py-3 sm:py-4 rounded-xl glass-button bg-white text-slate-700 font-bold hover:bg-white/60 transition-all flex items-center justify-center gap-2 border-2 border-slate-200">
+                            <i class="fa-solid fa-shuffle"></i> Zamíchat
+                        </button>
+                    </div>
+                </section>
+
+                <!-- OBSAH: Angličtina (Slovíčka) -->
+                <section id="tab-anglictina" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full">
                     
-                    <div class="bg-white/60 rounded-2xl p-6 shadow-inner border border-white mb-6 w-full max-w-sm">
-                        <div class="flex justify-between items-center text-lg">
-                            <span class="font-bold text-slate-700">Skóre:</span>
-                            <span id="eng-final-score" class="text-3xl font-black"></span>
+                    <!-- Obrazovka výběru levelu pro EN -->
+                    <div id="en-level-select" class="flex flex-col h-full w-full justify-center">
+                        <div class="text-center mb-8">
+                            <i class="fa-solid fa-language text-5xl text-red-500 mb-2"></i>
+                            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Happy House 2</h2>
+                            <p class="text-slate-500 font-medium">Vyber si lekci k procvičení</p>
+                        </div>
+                        <div class="space-y-3 px-2">
+                            <button onclick="startEnLevel(1)" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(194,65,12)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
+                                <span>Lekce 1: Zvířátka</span> <i class="fa-solid fa-play opacity-70"></i>
+                            </button>
+                            <button onclick="startEnLevel(2)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(29,78,216)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
+                                <span>Lekce 2: Rodina</span> <i class="fa-solid fa-play opacity-70"></i>
+                            </button>
+                            <button onclick="startEnLevel(3)" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(4,120,87)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
+                                <span>Lekce 3: Náš dům</span> <i class="fa-solid fa-play opacity-70"></i>
+                            </button>
+                            <button onclick="startEnLevel(4)" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(126,34,206)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
+                                <span>Lekce 4: Kde to je?</span> <i class="fa-solid fa-play opacity-70"></i>
+                            </button>
+                            <button onclick="startEnLevel(5)" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(190,24,93)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
+                                <span>Lekce 5: Vybavení</span> <i class="fa-solid fa-play opacity-70"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <button onclick="showEnglishLevelSelect()" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold py-4 px-8 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all">
-                        Zpět na výběr lekcí
-                    </button>
-                </div>
+                    <!-- Herní obrazovka pro EN -->
+                    <div id="en-game-screen" class="hidden flex-col h-full w-full">
+                        <div class="flex justify-between items-center mb-6 bg-white/70 p-3 rounded-2xl shadow-sm">
+                            <button onclick="showEnLevelSelect()" class="text-slate-500 hover:text-slate-800 font-bold px-2 py-1"><i class="fa-solid fa-arrow-left"></i> Zpět</button>
+                            <div class="text-center font-bold text-slate-700">Lekce <span id="en-current-level">1</span> • <span id="en-question-counter" class="text-red-500">1</span>/10</div>
+                            <div class="flex items-center gap-1 text-yellow-600 font-black text-xl"><i class="fa-solid fa-star"></i> <span id="en-score-display">0</span></div>
+                        </div>
 
-            </section>
+                        <div class="bg-white/80 p-6 rounded-3xl shadow-inner border-2 border-slate-100 flex flex-col items-center justify-center min-h-[160px] mb-6 relative">
+                            <div id="en-question-type" class="absolute top-[-12px] bg-slate-200 text-slate-700 px-4 py-1 rounded-full font-bold text-xs shadow-sm">Typ otázky</div>
+                            <div id="en-question-text" class="text-3xl sm:text-4xl font-black text-center text-slate-800 drop-shadow-sm mt-2">...</div>
+                            <button id="en-btn-audio" class="mt-4 bg-red-100 text-red-600 hover:bg-red-200 p-2 px-4 rounded-full flex items-center gap-2 font-bold transition-colors hidden">
+                                <i class="fa-solid fa-volume-high"></i> Přehrát
+                            </button>
+                        </div>
 
-            <!-- OBSAH: Rodič (Statistiky) -->
-            <section id="tab-rodic" class="tab-content hidden h-full flex flex-col">
-                <div class="flex justify-between items-end mb-6">
-                    <div>
-                        <h2 class="text-3xl font-bold text-purple-900">Statistiky učení</h2>
-                        <p class="text-purple-800/80 font-medium mt-1">Sleduj pokrok svého syna v reálném čase.</p>
+                        <div id="en-feedback-area" class="h-10 flex justify-center items-center mb-4">
+                            <!-- Zde se ukáže smajlík -->
+                        </div>
+
+                        <div id="en-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto pb-4">
+                            <!-- Tlačítka s odpověďmi generována JS -->
+                        </div>
                     </div>
-                    <div class="bg-white/50 px-4 py-2 rounded-lg shadow-sm border border-white/60 flex items-center gap-2">
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                        </span>
-                        <span class="text-sm font-semibold text-slate-700">Live DB</span>
-                    </div>
-                </div>
 
-                <div class="bg-white/60 rounded-2xl shadow-inner border border-white/60 overflow-hidden flex-1 flex flex-col">
-                    <div class="overflow-x-auto flex-1">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-white/50 text-slate-800 border-b border-slate-300/50">
-                                    <th class="p-4 font-bold">Datum a čas</th>
-                                    <th class="p-4 font-bold">Aktivita</th>
-                                    <th class="p-4 font-bold">Výsledek</th>
-                                    <th class="p-4 font-bold">Počet chyb</th>
-                                </tr>
-                            </thead>
-                            <tbody id="stats-table-body" class="divide-y divide-slate-200/50">
-                                <!-- Data injected by JS -->
-                                <tr><td colspan="4" class="p-8 text-center text-slate-500">Načítám data...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Výsledková obrazovka pro EN -->
+                    <div id="en-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center">
+                        <div id="en-result-icon" class="mb-4"></div>
+                        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Hotovo!</h2>
+                        <p class="text-sm font-bold text-green-600 mb-6 bg-green-100 px-4 py-2 rounded-full border border-green-200">✔️ Uloženo do statistik</p>
+                        
+                        <div class="bg-slate-50 rounded-2xl p-6 mb-8 w-full border-2 border-slate-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-slate-700">Skóre bez chyby:</span>
+                                <span id="en-final-score" class="text-3xl font-black">0 / 10</span>
+                            </div>
+                        </div>
+                        <button onclick="showEnLevelSelect()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xl font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(15,23,42)] active:translate-y-1 active:shadow-none transition-all">
+                            Zpět na výběr lekcí
+                        </button>
                     </div>
-                </div>
-            </section>
 
-        </main>
+                </section>
+
+                <!-- OBSAH: Matematika (Násobky 3 - Rybaření) -->
+                <section id="tab-matematika" class="tab-content hidden h-full w-full max-w-2xl mx-auto flex-col relative bg-gradient-to-b from-blue-100 to-blue-300 rounded-3xl p-2 sm:p-4 overflow-hidden border-4 border-blue-400">
+                    
+                    <!-- Úvodní obrazovka -->
+                    <div id="math-level-select" class="flex flex-col h-full w-full justify-center text-center relative z-10">
+                        <i class="fa-solid fa-water text-6xl text-blue-500 mb-4 drop-shadow-md"></i>
+                        <h2 class="text-3xl sm:text-4xl font-black text-blue-900 mb-2 drop-shadow-sm">Lov kaprů a jeseterů</h2>
+                        <p class="text-blue-800 font-bold mb-8 bg-blue-200/50 inline-block mx-auto px-4 py-1 rounded-full">Násobky 3. Vyber si rybník!</p>
+                        
+                        <div class="space-y-4 px-4 max-w-sm mx-auto w-full">
+                            <button onclick="startMathLevel(1)" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xl py-5 rounded-2xl shadow-[0_6px_0_rgb(8,145,178)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-cyan-300">
+                                <span>Mělčina (Level 1)</span>
+                                <span class="text-sm font-normal opacity-90">Klasické násobky 3</span>
+                            </button>
+                            
+                            <button onclick="startMathLevel(2)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xl py-5 rounded-2xl shadow-[0_6px_0_rgb(79,70,229)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-indigo-400">
+                                <span>Hlubina (Level 2)</span>
+                                <span class="text-sm font-normal opacity-90">Těžší kombinace (+ a -)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Herní obrazovka -->
+                    <div id="math-game-screen" class="hidden flex-col h-full w-full relative z-10">
+                        <div class="flex justify-between items-center mb-4 bg-white/80 backdrop-blur-sm p-3 rounded-2xl shadow-sm border-2 border-white">
+                            <button onclick="showMathLevelSelect()" class="text-blue-700 font-bold px-3 py-1 rounded-lg hover:bg-blue-100 transition-colors">
+                                <i class="fa-solid fa-arrow-left"></i> Zpět
+                            </button>
+                            <div class="text-center font-bold text-blue-900">
+                                <span id="math-fish-type"></span> • <span id="math-question-counter" class="text-blue-600">1</span>/10
+                            </div>
+                            <div class="flex items-center gap-2 text-blue-700 font-black text-xl">
+                                <i class="fa-solid fa-bucket text-blue-500"></i> <span id="math-score-display">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Otázka -->
+                        <div class="bg-white/90 p-6 rounded-[2rem] shadow-lg border-4 border-white flex flex-col items-center justify-center min-h-[140px] mb-6 relative">
+                            <div class="absolute top-[-15px] bg-blue-500 text-white px-6 py-1 rounded-full font-bold text-sm shadow-md border-2 border-blue-400">
+                                Spočítej příklad
+                            </div>
+                            <div id="math-question-text" class="text-5xl sm:text-6xl font-black text-center text-blue-900 drop-shadow-sm tracking-widest mt-2">
+                                ...
+                            </div>
+                        </div>
+
+                        <!-- Rybičky -->
+                        <div id="math-options-grid" class="grid grid-cols-2 gap-4 mt-auto pb-4 px-2">
+                            <!-- Generováno JS -->
+                        </div>
+                    </div>
+
+                    <!-- Výsledky -->
+                    <div id="math-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center relative z-10">
+                        <div id="math-result-icon" class="mb-4"></div>
+                        <h2 class="text-4xl font-black text-blue-900 mb-2 drop-shadow-sm">Konec lovu!</h2>
+                        <p class="text-sm font-bold text-green-700 mb-6 bg-green-200/80 px-4 py-2 rounded-full border border-green-300 backdrop-blur-sm">
+                            ✔️ Uloženo do statistik
+                        </p>
+                        
+                        <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border-4 border-white mb-8 w-full max-w-xs">
+                            <div class="flex justify-between items-center text-xl">
+                                <span class="font-bold text-blue-900">Chyceno ryb:</span>
+                                <span id="math-final-score" class="text-4xl font-black text-blue-600"></span>
+                            </div>
+                        </div>
+
+                        <button onclick="showMathLevelSelect()" class="w-full max-w-xs bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold py-4 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all border-2 border-blue-400">
+                            Zpět na rybník
+                        </button>
+                    </div>
+                    
+                    <!-- Bublinky v pozadí -->
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-40 z-0">
+                        <div class="absolute bottom-[-10%] left-[10%] w-4 h-4 bg-white/60 rounded-full animate-[float_4s_ease-in-out_infinite]"></div>
+                        <div class="absolute bottom-[-10%] left-[50%] w-8 h-8 bg-white/40 rounded-full animate-[float_5s_ease-in-out_infinite_0.5s]"></div>
+                        <div class="absolute bottom-[-10%] left-[80%] w-3 h-3 bg-white/50 rounded-full animate-[float_3s_ease-in-out_infinite_1s]"></div>
+                    </div>
+                </section>
+
+                <!-- OBSAH: Rodič (Statistiky) -->
+                <section id="tab-rodic" class="tab-content hidden h-full flex-col max-w-2xl mx-auto w-full">
+                    <div class="flex justify-between items-center mb-6 bg-purple-50 p-4 rounded-2xl border border-purple-100">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-slate-800">Přehled učení</h2>
+                            <p class="text-sm text-slate-500">Výsledky ze všech předmětů</p>
+                        </div>
+                        <div class="text-right text-xs text-slate-400 font-mono">
+                            Status DB: <span id="db-status-indicator" class="font-bold text-orange-500">Připojuji...</span>
+                        </div>
+                    </div>
+
+                    <div id="stats-container" class="flex-1 overflow-y-auto hide-scrollbar space-y-3 pb-4">
+                        <div class="text-center py-10 text-slate-400">
+                            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+                            <p>Načítám historii...</p>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- 3. FIREBASE & JAVASCRIPT LOGIKA            -->
+    <!-- ========================================== -->
     <script type="module">
-        // Vkládáme Firebase jako nejnovější modul v12.13.0
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-        // ==========================================
-        // FIREBASE KONFIGURACE (Tvůj projekt tom-learning)
-        // ==========================================
+        // Tvoje Firebase Konfigurace
         const firebaseConfig = {
             apiKey: "AIzaSyBzTErD4ZCo-HCRD9mw4EFKLm8kZKQugqk",
             authDomain: "tom-learning-996cc.firebaseapp.com",
@@ -336,869 +431,624 @@
             messagingSenderId: "1025710047976",
             appId: "1:1025710047976:web:fcef139057d21ec2e6bf5d"
         };
-        
-        // Globální proměnné dodané prostředím
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'edu-app-syn';
 
-        // Inicializace
-        let db, auth;
+        let app, auth, db;
+        let isDbConnected = false;
+        let currentUserUid = null;
+
         try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
+            app = initializeApp(firebaseConfig);
             auth = getAuth(app);
+            db = getFirestore(app);
+            
+            signInAnonymously(auth).then((userCredential) => {
+                currentUserUid = userCredential.user.uid;
+                isDbConnected = true;
+                updateDbStatus('Připojeno', 'text-green-500');
+                loadStatsFromCloud();
+            }).catch((error) => {
+                console.warn("Nelze se připojit k Firebase Auth:", error);
+                useLocalFallback();
+            });
         } catch (e) {
-            console.error("Chyba inicializace Firebase:", e);
+            console.warn("Nelze inicializovat Firebase:", e);
+            useLocalFallback();
         }
 
-        // ==========================================
-        // STAVOVÉ PROMĚNNÉ A DOM ELEMENTY
-        // ==========================================
-        let currentUserRole = null; // 'student' nebo 'parent'
-        let currentUserId = null;
-        let unsubscribeStats = null;
+        function updateDbStatus(text, colorClass) {
+            const el = document.getElementById('db-status-indicator');
+            if(el) {
+                el.textContent = text;
+                el.className = `font-bold ${colorClass}`;
+            }
+        }
 
-        // DOM Elementy
-        const pinScreen = document.getElementById('pin-screen');
-        const mainApp = document.getElementById('main-app');
-        const pinInput = document.getElementById('pin-input');
-        const btnLogin = document.getElementById('btn-login');
-        const btnLogout = document.getElementById('btn-logout');
-        const btnLogoutMobile = document.getElementById('btn-logout-mobile');
-        const navRodic = document.getElementById('nav-rodic');
-        const toastContainer = document.getElementById('toast-container');
-        
-        // ==========================================
-        // POMOCNÉ FUNKCE (UI)
-        // ==========================================
-        window.showToast = function(message, type = 'info') {
-            const toast = document.createElement('div');
-            const bg = type === 'error' ? 'bg-red-500' : (type === 'success' ? 'bg-green-500' : 'bg-slate-800');
-            toast.className = `${bg} text-white px-6 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-y-[-20px] opacity-0 flex items-center gap-3`;
-            
-            let icon = 'fa-info-circle';
-            if(type==='success') icon = 'fa-check-circle';
-            if(type==='error') icon = 'fa-triangle-exclamation';
+        function useLocalFallback() {
+            isDbConnected = false;
+            updateDbStatus('Lokální paměť (Offline)', 'text-slate-500');
+            loadStatsFromLocal();
+        }
 
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="font-medium">${message}</span>`;
-            toastContainer.appendChild(toast);
-            
-            // Animace zobrazení
-            setTimeout(() => {
-                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
-            }, 10);
+        // GLOBÁLNÍ FUNKCE PRO UKLÁDÁNÍ
+        window.saveSession = async function(subject, detail, score, maxScore) {
+            const record = {
+                timestamp: new Date().getTime(),
+                subject: subject,
+                detail: detail,
+                score: score,
+                maxScore: maxScore
+            };
 
-            // Zmizení
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-[-20px]');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        };
-
-        window.switchTab = function(targetId) {
-            // Skryj všechny záložky
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            // Zobraz cílovou
-            document.getElementById(targetId).classList.remove('hidden');
-            
-            // Uprav styly tlačítek v navigaci
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                if(btn.dataset.target === targetId) {
-                    btn.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
-                    btn.classList.remove('hover:bg-white/50', 'text-slate-700');
-                    // Výjimka pro fialové rodičovské tlačítko
-                    if(targetId === 'tab-rodic') {
-                        btn.classList.add('bg-purple-500/40', 'text-purple-900');
-                        btn.classList.remove('bg-white', 'text-blue-600', 'bg-purple-500/20');
-                    }
-                } else {
-                    btn.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
-                    btn.classList.add('hover:bg-white/50', 'text-slate-700');
-                    if(btn.id === 'nav-rodic') {
-                        btn.classList.remove('bg-purple-500/40');
-                        btn.classList.add('bg-purple-500/20', 'text-purple-900');
-                    }
+            if (isDbConnected && currentUserUid) {
+                try {
+                    await addDoc(collection(db, "stats"), {
+                        ...record,
+                        timestamp: serverTimestamp(),
+                        userId: currentUserUid
+                    });
+                } catch (e) {
+                    console.error("Chyba zápisu do DB:", e);
+                    saveToLocal(record);
                 }
-            });
+            } else {
+                saveToLocal(record);
+            }
         };
 
-        // Zpřístupnění do globálního scope pro onClick z HTML
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => switchTab(e.currentTarget.dataset.target));
-        });
+        function saveToLocal(record) {
+            let localStats = JSON.parse(localStorage.getItem('eduStats') || '[]');
+            localStats.push(record);
+            localStorage.setItem('eduStats', JSON.stringify(localStats));
+            if(document.getElementById('tab-rodic').classList.contains('active')) {
+                loadStatsFromLocal();
+            }
+        }
 
-        // ==========================================
-        // PŘIHLÁŠENÍ (PIN LOGIKA)
-        // ==========================================
-        async function handleLogin() {
-            const pin = pinInput.value;
-            if (pin === '1111') {
-                currentUserRole = 'student';
-            } else if (pin === '1234') {
-                currentUserRole = 'parent';
-            } else {
-                showToast('Nesprávný PIN!', 'error');
-                pinInput.value = '';
+        // NAČÍTÁNÍ STATISTIK PRO RODIČE
+        function loadStatsFromCloud() {
+            if (!isDbConnected) return;
+            const q = query(collection(db, "stats"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const stats = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    let ts = data.timestamp ? data.timestamp.toMillis() : new Date().getTime();
+                    stats.push({ id: doc.id, ...data, timestamp: ts });
+                });
+                renderStats(stats);
+            }, (error) => {
+                console.error("Chyba čtení DB:", error);
+                loadStatsFromLocal();
+            });
+        }
+
+        function loadStatsFromLocal() {
+            let stats = JSON.parse(localStorage.getItem('eduStats') || '[]');
+            stats.sort((a, b) => b.timestamp - a.timestamp);
+            renderStats(stats);
+        }
+
+        function renderStats(stats) {
+            const container = document.getElementById('stats-container');
+            if (stats.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-white rounded-2xl border"><p>Zatím žádná historie.</p></div>`;
                 return;
             }
 
-            try {
-                // Přihlášení do Firebase (Anonymní - nevyžaduje hesla, pro účely uložení dat stačí)
-                if (auth) {
-                    const userCredential = await signInAnonymously(auth);
-                    currentUserId = userCredential.user.uid;
-                }
-                
-                // Úprava UI podle role
-                pinScreen.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => {
-                    pinScreen.classList.add('hidden');
-                    mainApp.classList.remove('hidden');
-                    // Přidáme animaci vstupu
-                    mainApp.classList.add('animate-[fadeIn_0.5s_ease-out]');
-                }, 500);
+            const icons = {
+                'Čeština': '<i class="fa-solid fa-book-open text-orange-500"></i>',
+                'Angličtina': '<i class="fa-solid fa-language text-red-500"></i>',
+                'Matematika': '<i class="fa-solid fa-water text-blue-500"></i>'
+            };
 
-                if (currentUserRole === 'parent') {
-                    navRodic.classList.remove('hidden');
-                    showToast('Přihlášen jako Rodič', 'success');
-                    initStatsListener(); // Spustíme načítání dat z Firebase
-                } else {
-                    navRodic.classList.add('hidden');
-                    showToast('Přihlášen jako Žák', 'success');
-                }
+            container.innerHTML = stats.map(s => {
+                const date = new Date(s.timestamp).toLocaleString('cs-CZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const percent = Math.round((s.score / s.maxScore) * 100);
+                const color = percent >= 80 ? 'text-green-600 bg-green-100' : (percent >= 50 ? 'text-orange-600 bg-orange-100' : 'text-red-600 bg-red-100');
                 
-                // Vyčisti a resetuj na Domů
-                pinInput.value = '';
-                switchTab('tab-domu');
-                initCestinaGame();
-
-            } catch (error) {
-                console.error("Auth error:", error);
-                showToast('Chyba spojení s databází.', 'error');
-            }
+                return `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border">
+                            ${icons[s.subject] || '<i class="fa-solid fa-star"></i>'}
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800">${s.subject} <span class="text-xs font-normal text-slate-500 ml-1">(${s.detail})</span></div>
+                            <div class="text-xs text-slate-400">${date}</div>
+                        </div>
+                    </div>
+                    <div class="font-black px-3 py-1 rounded-lg ${color}">
+                        ${s.score}/${s.maxScore}
+                    </div>
+                </div>`;
+            }).join('');
         }
 
-        btnLogin.addEventListener('click', handleLogin);
-        pinInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
-        
-        const logoutLogic = () => {
-            mainApp.classList.add('hidden');
-            pinScreen.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-            currentUserRole = null;
-            if(unsubscribeStats) {
-                unsubscribeStats(); // Přestat poslouchat DB
+        // ==========================================
+        // UI LOGIKA (Přihlášení, Navigace, Toasty)
+        // ==========================================
+        window.checkPin = function() {
+            const pin = document.getElementById('pin-input').value;
+            if (pin === '1111' || pin === '1234') {
+                const isParent = pin === '1234';
+                document.getElementById('user-name').textContent = isParent ? 'Rodič' : 'Tomášek';
+                document.getElementById('user-badge').className = `hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold ${isParent ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`;
+                
+                const rodicTab = document.getElementById('nav-rodic');
+                isParent ? rodicTab.classList.remove('hidden') : rodicTab.classList.add('hidden');
+                
+                document.getElementById('pin-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('pin-screen').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    window.switchTab('tab-domu');
+                }, 500);
+            } else {
+                window.showToast('Špatný PIN!', 'error');
+                document.getElementById('pin-input').value = '';
             }
-            showToast('Odhlášeno', 'info');
         };
 
-        btnLogout.addEventListener('click', logoutLogic);
-        if(btnLogoutMobile) btnLogoutMobile.addEventListener('click', logoutLogic);
+        window.logout = function() {
+            document.getElementById('pin-input').value = '';
+            document.getElementById('app-container').classList.add('hidden');
+            const pinScreen = document.getElementById('pin-screen');
+            pinScreen.classList.remove('hidden');
+            setTimeout(() => pinScreen.style.opacity = '1', 50);
+        };
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('bg-white/50', 'text-slate-800');
+                if (el.dataset.target === tabId) el.classList.add('bg-white/50', 'text-slate-800');
+            });
+            document.getElementById(tabId).classList.add('active');
+        };
+
+        window.showToast = function(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            
+            const icon = document.getElementById('toast-icon');
+            if(type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>';
+                toast.className = 'absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border border-green-200 text-slate-700 translate-y-0 opacity-100';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500 text-xl"></i>';
+                toast.className = 'absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border border-red-200 text-slate-700 translate-y-0 opacity-100';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500 text-xl"></i>';
+                toast.className = 'absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border border-blue-200 text-slate-700 translate-y-0 opacity-100';
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-20', 'opacity-0');
+            }, 3000);
+        };
 
         // ==========================================
-        // LOGIKA - ČEŠTINA (SLOVNÍ DRUHY)
+        // LOGIKA - ČEŠTINA (Slovní druhy)
         // ==========================================
-        // Barevné mapování pro jednotlivé slovní druhy
-        const slovniDruhyData = [
-            { name: "Podstatná jména", color: "bg-red-100 text-red-900 border-red-300" },
-            { name: "Přídavná jména", color: "bg-orange-100 text-orange-900 border-orange-300" },
-            { name: "Zájmena", color: "bg-amber-100 text-amber-900 border-amber-300" },
-            { name: "Číslovky", color: "bg-yellow-100 text-yellow-900 border-yellow-300" },
-            { name: "Slovesa", color: "bg-lime-100 text-lime-900 border-lime-300" },
-            { name: "Příslovce", color: "bg-green-100 text-green-900 border-green-300" },
-            { name: "Předložky", color: "bg-emerald-100 text-emerald-900 border-emerald-300" },
-            { name: "Spojky", color: "bg-cyan-100 text-cyan-900 border-cyan-300" },
-            { name: "Částice", color: "bg-blue-100 text-blue-900 border-blue-300" },
-            { name: "Citoslovce", color: "bg-purple-100 text-purple-900 border-purple-300" }
+        const spravnePoradi = [
+            "Podstatná jména", "Přídavná jména", "Zájmena", "Číslovky", "Slovesa",
+            "Příslovce", "Předložky", "Spojky", "Částice", "Citoslovce"
         ];
-        
-        const correctOrder = slovniDruhyData.map(d => d.name);
-        
-        const listEl = document.getElementById('slovni-druhy-list');
-        const btnCheckCestina = document.getElementById('btn-check-cestina');
-        const btnResetCestina = document.getElementById('btn-reset-cestina');
         let sortableInstance = null;
 
-        function shuffleArray(array) {
-            const arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            // Zabraň tomu, aby to náhodou bylo správně hned na začátku
-            if(JSON.stringify(arr.map(a=>a.name)) === JSON.stringify(correctOrder)) return shuffleArray(arr);
-            return arr;
-        }
-
-        function initCestinaGame() {
-            listEl.innerHTML = '';
-            const randomized = shuffleArray(slovniDruhyData);
+        function renderCestinaList() {
+            const container = document.getElementById('word-types-list');
+            let currentItems = Array.from(container.children).map(el => el.querySelector('span').textContent);
             
-            randomized.forEach(item => {
-                const li = document.createElement('li');
-                // Přidání krásných barev, 3D stínu (border-b-4) a zakulacení
-                li.className = `py-3 px-5 rounded-xl font-bold text-lg cursor-grab flex items-center justify-between shadow-sm border-b-4 border-r-2 active:scale-[0.98] transition-transform ${item.color}`;
-                li.innerHTML = `<span>${item.name}</span> <div class="flex items-center gap-3 icon-container"><i class="fa-solid fa-grip-lines opacity-40 grip-icon"></i></div>`;
-                li.dataset.value = item.name;
-                listEl.appendChild(li);
+            if (currentItems.length === 0) {
+                currentItems = [...spravnePoradi].sort(() => Math.random() - 0.5);
+            }
+
+            container.innerHTML = '';
+            currentItems.forEach((text) => {
+                const originalIndex = spravnePoradi.indexOf(text) + 1;
+                const div = document.createElement('div');
+                div.className = `word-card card-${originalIndex} p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between font-bold text-slate-700 transition-all`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-grip-vertical text-slate-300 cursor-grab"></i>
+                        <span>${text}</span>
+                    </div>
+                    <div class="status-icon"></div>
+                `;
+                container.appendChild(div);
             });
 
             if (sortableInstance) sortableInstance.destroy();
-            
-            sortableInstance = new Sortable(listEl, {
-                animation: 250, // Plynulejší animace přesouvání
+            sortableInstance = new Sortable(container, {
+                animation: 250,
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
-                // --- NOVÉ NASTAVENÍ PRO MOBILY ---
-                delay: 200, // Prst musí na kartičce zlomek vteřiny zůstat, než se začne přesouvat
-                delayOnTouchOnly: true, // Zpoždění platí jen pro dotykové obrazovky (myš je okamžitá)
-                touchStartThreshold: 5 // Dovolí mírné chvění prstu při čekání
-                // ---------------------------------
+                delay: 150, 
+                delayOnTouchOnly: true 
             });
         }
 
-        // Tlačítko Zamíchat nyní udělá plynulý fade-out / fade-in efekt
-        btnResetCestina.addEventListener('click', () => {
-            listEl.classList.add('opacity-0', 'scale-95');
+        document.getElementById('btn-reset-cestina').addEventListener('click', () => {
+            const container = document.getElementById('word-types-list');
+            container.classList.add('animate-shuffle');
             setTimeout(() => {
-                initCestinaGame();
-                listEl.classList.remove('opacity-0', 'scale-95');
-            }, 250);
+                container.innerHTML = '';
+                renderCestinaList();
+                container.classList.remove('animate-shuffle');
+            }, 300);
         });
 
-        btnCheckCestina.addEventListener('click', async () => {
-            const currentItems = Array.from(listEl.children);
-            let errorsCount = 0;
-
-            currentItems.forEach((li, index) => {
-                const value = li.dataset.value;
-                const correctValue = correctOrder[index];
+        document.getElementById('btn-check-cestina').addEventListener('click', () => {
+            const items = document.querySelectorAll('#word-types-list .word-card');
+            let score = 0;
+            
+            items.forEach((item, index) => {
+                const text = item.querySelector('span').textContent;
+                const statusDiv = item.querySelector('.status-icon');
                 
-                // Reset ikon z předchozí kontroly
-                const oldIcon = li.querySelector('.status-icon');
-                if (oldIcon) oldIcon.remove();
-                
-                const iconContainer = li.querySelector('.icon-container');
-                
-                if (value !== correctValue) {
-                    errorsCount++;
-                    // Při chybě se kartička varovně zatřese a přidá se křížek
-                    li.classList.add('animate-shake');
-                    setTimeout(() => li.classList.remove('animate-shake'), 400);
-                    iconContainer.insertAdjacentHTML('afterbegin', `<i class="fa-solid fa-xmark text-red-600 text-2xl status-icon drop-shadow-md"></i>`);
+                if (text === spravnePoradi[index]) {
+                    score++;
+                    statusDiv.innerHTML = '<i class="fa-solid fa-check text-green-500 text-xl"></i>';
+                    item.classList.remove('animate-shake');
                 } else {
-                    // Při úspěchu se přidá velká zelená fajfka
-                    iconContainer.insertAdjacentHTML('afterbegin', `<i class="fa-solid fa-check text-green-600 text-2xl status-icon drop-shadow-md"></i>`);
+                    statusDiv.innerHTML = '<i class="fa-solid fa-xmark text-red-500 text-xl"></i>';
+                    item.classList.remove('animate-shake');
+                    void item.offsetWidth; 
+                    item.classList.add('animate-shake');
                 }
             });
 
-            const isSuccess = errorsCount === 0;
-
-            if (isSuccess) {
-                showToast('Výborně! Vše je správně.', 'success');
-                // Přidání konfet efektu pro děti
-                btnCheckCestina.innerHTML = '<i class="fa-solid fa-star text-yellow-300"></i> Skvělá práce!';
-                setTimeout(() => {
-                    btnCheckCestina.innerHTML = '<i class="fa-solid fa-check-circle"></i> Zkontrolovat';
-                }, 2000);
+            if (score === 10) {
+                window.showToast('Všechno je správně! Skvělá práce.', 'success');
             } else {
-                showToast(`Chybička se vloudila. Počet chyb: ${errorsCount}`, 'error');
+                window.showToast(`Máš správně ${score} z 10. Zkus to znovu!`, 'error');
             }
-
-            // Data pro uložení
-            const statData = {
-                userId: currentUserId || 'local-user',
-                activity: 'Slovní druhy',
-                success: isSuccess,
-                errors: errorsCount,
-                timestamp: new Date().getTime(),
-                role: currentUserRole
-            };
-
-            // Uložení statistiky do Firebase s fallbackem na LocalStorage
-            try {
-                if (!auth || !auth.currentUser || !db) throw new Error("Firebase není inicializován.");
-                
-                // MANDATORY PATH: /artifacts/{appId}/public/data/{collectionName}
-                const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
-                await addDoc(statsRef, statData);
-            } catch (error) {
-                console.warn("Firebase uložení selhalo (chybí oprávnění), ukládám lokálně do prohlížeče.");
-                const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
-                localStats.push(statData);
-                localStorage.setItem('eduAppStats', JSON.stringify(localStats));
-            }
+            
+            window.saveSession('Čeština', 'Slovní druhy', score, 10);
         });
 
         // ==========================================
-        // LOGIKA - MATEMATIKA (RYBAŘENÍ NÁSOBKY 3)
+        // LOGIKA - MATEMATIKA (Násobky 3)
         // ==========================================
-        let mathCurrentLevel = 1;
-        let mathScore = 0;
-        let mathQuestionCount = 0;
-        let mathCurrentQuestion = null;
-        let mathMistakesCount = 0;
-        let mathFirstTry = true;
-        let mathIsAnswering = false;
-
-        const mathLevelSelect = document.getElementById('math-level-select');
-        const mathGameScreen = document.getElementById('math-game-screen');
-        const mathResultScreen = document.getElementById('math-result-screen');
-        const mathQuestionText = document.getElementById('math-question-text');
-        const mathOptionsGrid = document.getElementById('math-options-grid');
-        const mathScoreDisplay = document.getElementById('math-score-display');
-        const mathQuestionCounter = document.getElementById('math-question-counter');
-        const mathFishType = document.getElementById('math-fish-type');
-
-        window.showMathLevelSelect = function() {
-            mathGameScreen.classList.add('hidden');
-            mathResultScreen.classList.add('hidden');
-            mathLevelSelect.classList.remove('hidden');
+        let mathState = {
+            level: 1,
+            questionCount: 0,
+            score: 0,
+            currentQuestion: null,
+            firstTry: true
         };
 
+        const mathFishStyles = [
+            { bg: "bg-orange-100", border: "border-orange-400", text: "text-orange-800" },
+            { bg: "bg-blue-100", border: "border-blue-400", text: "text-blue-800" },
+            { bg: "bg-purple-100", border: "border-purple-400", text: "text-purple-800" },
+            { bg: "bg-pink-100", border: "border-pink-400", text: "text-pink-800" }
+        ];
+
         window.startMathLevel = function(level) {
-            mathCurrentLevel = level;
-            mathScore = 0;
-            mathQuestionCount = 0;
-            mathMistakesCount = 0;
+            mathState.level = level;
+            mathState.questionCount = 0;
+            mathState.score = 0;
             
-            mathFishType.innerText = level === 1 ? "Kapr & Lín" : "Jeseter & Štika";
-            mathScoreDisplay.innerText = "0";
+            document.getElementById('math-level-select').classList.add('hidden');
+            document.getElementById('math-result-screen').classList.add('hidden');
+            document.getElementById('math-game-screen').classList.remove('hidden');
+            document.getElementById('math-game-screen').classList.add('flex');
             
-            mathLevelSelect.classList.add('hidden');
-            mathResultScreen.classList.add('hidden');
-            mathGameScreen.classList.remove('hidden');
-            mathGameScreen.classList.add('flex');
+            document.getElementById('math-fish-type').textContent = level === 1 ? 'Mělčina' : 'Hlubina';
             
             nextMathQuestion();
         };
 
-        function generateMathQuestion(level) {
-            let text = "";
-            let correct = 0;
+        window.showMathLevelSelect = function() {
+            document.getElementById('math-game-screen').classList.add('hidden');
+            document.getElementById('math-game-screen').classList.remove('flex');
+            document.getElementById('math-result-screen').classList.add('hidden');
+            document.getElementById('math-level-select').classList.remove('hidden');
+        };
+
+        function generateMathQuestion() {
+            let num1, num2, answer, questionText;
             
-            if (level === 1) {
-                // Level 1: Čisté násobení 3 (1-10)
-                const b = Math.floor(Math.random() * 10) + 1; // 1 až 10
-                const isReversed = Math.random() > 0.5;
-                if (isReversed) {
-                    text = `3 × ${b}`;
-                } else {
-                    text = `${b} × 3`;
-                }
-                correct = 3 * b;
+            if (mathState.level === 1) {
+                // Klasické násobky 3 (0-10)
+                num1 = Math.floor(Math.random() * 11);
+                num2 = 3;
+                if(Math.random() > 0.5) { [num1, num2] = [num2, num1]; }
+                answer = num1 * num2;
+                questionText = `${num1} × ${num2}`;
             } else {
-                // Level 2: Kombinace (násobení/dělení + sčítání/odčítání)
-                const type = Math.floor(Math.random() * 4); // 0 až 3
-                const a = Math.floor(Math.random() * 10) + 1; // 1 až 10 pro násobek
-                const b = Math.floor(Math.random() * 10) + 1; // 1 až 10 pro přičtení
-                const baseMultiple = a * 3; // 3, 6, 9... 30
-
-                if (type === 0) {
-                    text = `(${a} × 3) + ${b}`;
-                    correct = baseMultiple + b;
-                } else if (type === 1) {
-                    // Ochrana před mínusem
-                    const safeB = b > baseMultiple ? baseMultiple : b;
-                    text = `(${a} × 3) - ${safeB}`;
-                    correct = baseMultiple - safeB;
-                } else if (type === 2) {
-                    text = `(${baseMultiple} : 3) + ${b}`;
-                    correct = (baseMultiple / 3) + b;
+                // Těžší level: (x * 3) + y  nebo (x * 3) - y
+                let base = Math.floor(Math.random() * 10) + 1; // 1-10
+                let offset = Math.floor(Math.random() * 5) + 1; // 1-5
+                let isPlus = Math.random() > 0.5;
+                
+                if (isPlus) {
+                    answer = (base * 3) + offset;
+                    questionText = `(${base} × 3) + ${offset}`;
                 } else {
-                    const divided = baseMultiple / 3;
-                    const safeB = b > divided ? divided : b;
-                    text = `(${baseMultiple} : 3) - ${safeB}`;
-                    correct = divided - safeB;
+                    answer = (base * 3) - offset;
+                    if (answer < 0) answer = 0; // zamezení minusu pro jistotu
+                    questionText = `(${base} × 3) - ${offset}`;
                 }
             }
 
-            // Vygenerování 3 špatných odpovědí (rybiček), které jsou blízko správné
-            let optionsSet = new Set([correct]);
-            let attempts = 0;
-            while(optionsSet.size < 4 && attempts < 50) {
-                // Odchylka -3 až +3 od správného výsledku
-                let fake = correct + (Math.floor(Math.random() * 7) - 3);
-                // Zabráníme nule a záporným číslům u možností
-                if (fake <= 0 || fake === correct) {
-                    fake = correct + Math.floor(Math.random() * 10) + 1; 
-                }
-                optionsSet.add(fake);
-                attempts++;
+            // Vygenerování špatných odpovědí
+            let options = new Set([answer]);
+            while(options.size < 4) {
+                let wrong = answer + (Math.floor(Math.random() * 10) - 5);
+                if(wrong !== answer && wrong >= 0) options.add(wrong);
             }
-
-            return { text, correct, options: shuffleArray(Array.from(optionsSet)) };
+            
+            return {
+                text: questionText,
+                answer: answer,
+                options: Array.from(options).sort(() => Math.random() - 0.5)
+            };
         }
 
         function nextMathQuestion() {
-            if (mathQuestionCount >= 10) {
+            if (mathState.questionCount >= 10) {
                 endMathGame();
                 return;
             }
 
-            mathFirstTry = true;
-            mathIsAnswering = false;
-            mathQuestionCount++;
-            mathQuestionCounter.innerText = mathQuestionCount;
-
-            mathCurrentQuestion = generateMathQuestion(mathCurrentLevel);
+            mathState.currentQuestion = generateMathQuestion();
+            mathState.firstTry = true;
             
-            // Vykreslení
-            mathQuestionText.innerText = mathCurrentQuestion.text;
-            renderMathOptions();
-        }
-
-        function renderMathOptions() {
-            mathOptionsGrid.innerHTML = '';
+            document.getElementById('math-question-counter').textContent = mathState.questionCount + 1;
+            document.getElementById('math-score-display').textContent = mathState.score;
+            document.getElementById('math-question-text').textContent = mathState.currentQuestion.text;
             
-            // Barvy rybiček podle levelu
-            const fishColors = mathCurrentLevel === 1 
-                ? ["bg-orange-500", "bg-yellow-500", "bg-lime-600", "bg-emerald-500"] // Kapři a líni
-                : ["bg-slate-600", "bg-indigo-600", "bg-blue-600", "bg-cyan-700"];   // Jeseteři a hlubina
-
-            mathCurrentQuestion.options.forEach((option, index) => {
+            const grid = document.getElementById('math-options-grid');
+            grid.innerHTML = '';
+            
+            mathState.currentQuestion.options.forEach((opt, index) => {
+                const style = mathFishStyles[index];
                 const btn = document.createElement('button');
-                // Tlačítko jako ryba
-                btn.className = `relative w-full h-20 sm:h-24 rounded-3xl text-white font-black text-3xl shadow-[0_6px_0_rgba(0,0,0,0.2)] active:translate-y-2 active:shadow-none transition-all flex items-center justify-center animate-float ${fishColors[index % 4]} border-2 border-white/30`;
-                // Aby neplavaly všechny stejně
+                btn.className = `fish-swimming animate-float bg-white/80 backdrop-blur-md border-[3px] border-blue-200 text-blue-900 font-black text-3xl sm:text-4xl py-6 rounded-3xl shadow-md hover:scale-105 active:scale-95 flex items-center justify-center relative overflow-hidden`;
+                // Zpoždění animace pro každou rybu jinak
                 btn.style.animationDelay = `${index * 0.2}s`;
                 
-                // Ikonka ryby v pozadí
-                const icon = mathCurrentLevel === 1 ? 'fa-fish' : 'fa-fish-fins';
+                // Přidání SVG rybičky na pozadí tlačítka
                 btn.innerHTML = `
-                    <i class="fa-solid ${icon} absolute left-4 text-4xl opacity-20 transform -scale-x-100"></i>
-                    <span class="relative z-10 drop-shadow-md">${option}</span>
+                    <i class="fa-solid fa-fish absolute left-4 opacity-20 text-4xl text-blue-400 rotate-[-20deg]"></i>
+                    <span class="relative z-10">${opt}</span>
                 `;
                 
-                btn.onclick = () => handleMathAnswer(btn, option);
-                mathOptionsGrid.appendChild(btn);
+                btn.onclick = () => checkMathAnswer(opt, btn);
+                grid.appendChild(btn);
             });
         }
 
-        function handleMathAnswer(btnElement, selectedAnswer) {
-            if (mathIsAnswering) return;
+        function checkMathAnswer(selectedOption, btnElement) {
+            const isCorrect = selectedOption === mathState.currentQuestion.answer;
+            const grid = document.getElementById('math-options-grid');
+            const allBtns = grid.querySelectorAll('button');
 
-            const isCorrect = selectedAnswer === mathCurrentQuestion.correct;
-            
             if (isCorrect) {
-                mathIsAnswering = true;
+                btnElement.classList.add('fish-caught');
+                allBtns.forEach(b => b.disabled = true); // Zablokuje ostatní
                 
-                // Úspěšný úlovek! Ryba zezelená a poskočí
-                btnElement.className = `relative w-full h-20 sm:h-24 rounded-3xl text-white font-black text-3xl flex items-center justify-center transition-all bg-green-500 shadow-none scale-105 border-4 border-green-300 z-20`;
-                btnElement.innerHTML = `<i class="fa-solid fa-check text-4xl drop-shadow-md"></i>`;
-                
-                if (mathFirstTry) {
-                    mathScore++;
-                    mathScoreDisplay.innerText = mathScore;
-                    mathScoreDisplay.classList.add('scale-150');
-                    setTimeout(() => mathScoreDisplay.classList.remove('scale-150'), 300);
+                if (mathState.firstTry) {
+                    mathState.score++;
+                    document.getElementById('math-score-display').textContent = mathState.score;
                 }
-
-                setTimeout(nextMathQuestion, 1200);
-
-            } else {
-                // Špatně! Ryba zčervená, zatřese se a "uplave" (zmenší se)
-                mathFirstTry = false;
-                mathMistakesCount++;
                 
-                btnElement.classList.remove('animate-float');
-                btnElement.classList.add('bg-red-500', 'animate-shake', 'opacity-50', 'scale-95');
                 setTimeout(() => {
-                    btnElement.classList.remove('animate-shake');
-                }, 400);
+                    mathState.questionCount++;
+                    nextMathQuestion();
+                }, 1000);
+            } else {
+                mathState.firstTry = false;
+                btnElement.classList.add('fish-wrong');
+                setTimeout(() => btnElement.classList.remove('fish-wrong'), 400);
             }
         }
 
-        async function endMathGame() {
-            mathGameScreen.classList.add('hidden');
-            mathGameScreen.classList.remove('flex');
+        function endMathGame() {
+            document.getElementById('math-game-screen').classList.add('hidden');
+            document.getElementById('math-game-screen').classList.remove('flex');
+            document.getElementById('math-result-screen').classList.remove('hidden');
+            document.getElementById('math-result-screen').classList.add('flex');
             
-            const finalScoreEl = document.getElementById('math-final-score');
-            finalScoreEl.innerText = `${mathScore} / 10`;
+            document.getElementById('math-final-score').textContent = `${mathState.score} / 10`;
             
             const iconContainer = document.getElementById('math-result-icon');
-            if (mathScore >= 8) {
+            if (mathState.score >= 8) {
                 iconContainer.innerHTML = '<i class="fa-solid fa-trophy text-6xl text-yellow-500 drop-shadow-md"></i>';
-                finalScoreEl.className = "text-4xl font-black text-green-600";
             } else {
-                iconContainer.innerHTML = '<i class="fa-solid fa-fish text-6xl text-slate-400 drop-shadow-md"></i>';
-                finalScoreEl.className = "text-4xl font-black text-orange-500";
+                iconContainer.innerHTML = '<i class="fa-solid fa-star-half-stroke text-6xl text-blue-400 drop-shadow-md"></i>';
             }
-            
-            mathResultScreen.classList.remove('hidden');
-            mathResultScreen.classList.add('flex');
 
-            // Uložení statistiky
-            const isSuccess = mathScore >= 8;
-            const statData = {
-                userId: currentUserId || 'local-user',
-                activity: `Matematika L${mathCurrentLevel}`,
-                success: isSuccess,
-                errors: mathMistakesCount,
-                score: mathScore,
-                timestamp: new Date().getTime(),
-                role: currentUserRole
-            };
-
-            try {
-                if (!auth || !auth.currentUser || !db) throw new Error("Firebase offline");
-                const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
-                await addDoc(statsRef, statData);
-            } catch (error) {
-                const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
-                localStats.push(statData);
-                localStorage.setItem('eduAppStats', JSON.stringify(localStats));
-            }
+            window.saveSession('Matematika', `Level ${mathState.level}`, mathState.score, 10);
         }
 
         // ==========================================
-        // LOGIKA - ANGLIČTINA (HAPPY HOUSE)
+        // LOGIKA - ANGLIČTINA (Happy House)
         // ==========================================
-        const englishVocab = [
-            { en: "cat", cz: "kočka", level: 1 }, { en: "dog", cz: "pes", level: 1 },
-            { en: "snake", cz: "had", level: 1 }, { en: "mouse", cz: "myš", level: 1 },
-            { en: "bird", cz: "pták", level: 1 }, { en: "Is it a snake?", cz: "Je to had?", level: 1 },
-            { en: "I don't know.", cz: "Já nevím.", level: 1 },
-            { en: "mum", cz: "maminka", level: 2 }, { en: "dad", cz: "tatínek", level: 2 },
-            { en: "brother", cz: "bratr", level: 2 }, { en: "sister", cz: "sestra", level: 2 },
-            { en: "one", cz: "jedna", level: 2 }, { en: "two", cz: "dva", level: 2 }, { en: "three", cz: "tři", level: 2 },
-            { en: "kitchen", cz: "kuchyně", level: 3 }, { en: "bedroom", cz: "ložnice", level: 3 },
-            { en: "bathroom", cz: "koupelna", level: 3 }, { en: "sitting room", cz: "obývací pokoj", level: 3 },
-            { en: "hall", cz: "chodba", level: 3 }, { en: "garden", cz: "zahrada", level: 3 },
-            { en: "Where is my book?", cz: "Kde je moje kniha?", level: 4 }, { en: "Where is my pen?", cz: "Kde je moje pero?", level: 4 },
-            { en: "Is it in the bathroom?", cz: "Je to v koupelně?", level: 4 }, { en: "It is in the bathroom.", cz: "Je to v koupelně.", level: 4 },
-            { en: "Is it in the kitchen?", cz: "Je to v kuchyni?", level: 4 }, { en: "It is in the kitchen.", cz: "Je to v kuchyni.", level: 4 },
-            { en: "Yes, it is.", cz: "Ano, to je.", level: 4 }, { en: "No, it isn't.", cz: "Ne, to není.", level: 4 },
-            { en: "bed", cz: "postel", level: 5 }, { en: "table", cz: "stůl", level: 5 },
-            { en: "chair", cz: "židle", level: 5 }, { en: "door", cz: "dveře", level: 5 },
-            { en: "window", cz: "okno", level: 5 }, { en: "box", cz: "krabice", level: 5 }
+        const VOCABULARY = [
+            { en: "cat", cz: "kočka", level: 1 }, { en: "dog", cz: "pes", level: 1 }, { en: "mouse", cz: "myš", level: 1 }, { en: "bird", cz: "pták", level: 1 },
+            { en: "mum", cz: "maminka", level: 2 }, { en: "dad", cz: "tatínek", level: 2 }, { en: "brother", cz: "bratr", level: 2 }, { en: "sister", cz: "sestra", level: 2 },
+            { en: "kitchen", cz: "kuchyně", level: 3 }, { en: "bedroom", cz: "ložnice", level: 3 }, { en: "bathroom", cz: "koupelna", level: 3 },
+            { en: "Where is my book?", cz: "Kde je moje kniha?", level: 4 }, { en: "Is it in the bathroom?", cz: "Je to v koupelně?", level: 4 }, { en: "Yes, it is.", cz: "Ano, to je.", level: 4 },
+            { en: "bed", cz: "postel", level: 5 }, { en: "table", cz: "stůl", level: 5 }, { en: "chair", cz: "židle", level: 5 }, { en: "window", cz: "okno", level: 5 }
         ];
 
-        let engCurrentLevel = 1;
-        let engScore = 0;
-        let engQuestionCount = 0;
-        let engCurrentQuestion = null;
-        let engMistakesCount = 0;
-        let engFirstTry = true;
-        let engIsAnswering = false; // Zabraňuje vícenásobnému kliknutí
+        let enState = { level: 1, questionCount: 0, score: 0, currentQuestion: null, firstTry: true };
 
-        const engLevelSelect = document.getElementById('eng-level-select');
-        const engGameScreen = document.getElementById('eng-game-screen');
-        const engResultScreen = document.getElementById('eng-result-screen');
-        const engQuestionText = document.getElementById('eng-question-text');
-        const engOptionsGrid = document.getElementById('eng-options-grid');
-        const engScoreDisplay = document.getElementById('eng-score-display');
-        const engQuestionCounter = document.getElementById('eng-question-counter');
-        const engBtnAudio = document.getElementById('eng-btn-audio');
-        const engTypeBadge = document.getElementById('eng-type-badge');
+        window.startEnLevel = function(level) {
+            enState.level = level;
+            enState.questionCount = 0;
+            enState.score = 0;
+            
+            document.getElementById('en-level-select').classList.add('hidden');
+            document.getElementById('en-result-screen').classList.add('hidden');
+            document.getElementById('en-game-screen').classList.remove('hidden');
+            document.getElementById('en-game-screen').classList.add('flex');
+            document.getElementById('en-current-level').textContent = level;
+            
+            nextEnQuestion();
+        };
 
-        function playEnglishAudio(text) {
+        window.showEnLevelSelect = function() {
+            document.getElementById('en-game-screen').classList.add('hidden');
+            document.getElementById('en-game-screen').classList.remove('flex');
+            document.getElementById('en-result-screen').classList.add('hidden');
+            document.getElementById('en-level-select').classList.remove('hidden');
+        };
+
+        function playEnAudio(text) {
             if ('speechSynthesis' in window) {
-                // Přeruší aktuální přehrávání, pokud běží
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
-                const voices = window.speechSynthesis.getVoices();
-                // Pokusí se najít britskou nebo alespoň nějakou anglickou výslovnost
-                const enVoice = voices.find(v => v.lang === 'en-GB') || voices.find(v => v.lang.includes('en'));
-                if (enVoice) utterance.voice = enVoice;
-                else utterance.lang = 'en-GB';
-                
-                utterance.rate = 0.85; // Mírně zpomalí čtení pro děti
+                utterance.lang = 'en-GB';
+                utterance.rate = 0.9;
                 window.speechSynthesis.speak(utterance);
-            } else {
-                showToast("Váš prohlížeč nepodporuje čtení zvuku.", "info");
             }
         }
 
-        // Tlačítko přehrát zvuk v UI
-        engBtnAudio.addEventListener('click', () => {
-            if(engCurrentQuestion && engCurrentQuestion.type === 'read') {
-                playEnglishAudio(engCurrentQuestion.targetText);
-            }
-        });
-
-        // Vynutí načtení hlasů do prohlížeče (někdy to trvá)
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.getVoices();
-            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-        }
-
-        window.showEnglishLevelSelect = function() {
-            engGameScreen.classList.add('hidden');
-            engResultScreen.classList.add('hidden');
-            engLevelSelect.classList.remove('hidden');
-        };
-
-        window.startEnglishLevel = function(level) {
-            engCurrentLevel = level;
-            engScore = 0;
-            engQuestionCount = 0;
-            engMistakesCount = 0;
-            
-            document.getElementById('eng-current-level-display').innerText = level;
-            engScoreDisplay.innerText = "0";
-            
-            engLevelSelect.classList.add('hidden');
-            engResultScreen.classList.add('hidden');
-            engGameScreen.classList.remove('hidden');
-            engGameScreen.classList.add('flex'); // zruší se po vyčištění v hidden
-            
-            nextEnglishQuestion();
-        };
-
-        function nextEnglishQuestion() {
-            if (engQuestionCount >= 10) {
-                endEnglishGame();
-                return;
-            }
-
-            engFirstTry = true;
-            engIsAnswering = false;
-            engQuestionCount++;
-            engQuestionCounter.innerText = engQuestionCount;
-
-            // Vyfiltruj slovíčka pro aktuální a předchozí level, aby se to opakovalo
-            const levelVocab = englishVocab.filter(v => v.level === engCurrentLevel || v.level === engCurrentLevel - 1);
-            
-            // Náhodně vyber správnou odpověď
+        function getEnQuestion(level) {
+            const levelVocab = VOCABULARY.filter(v => v.level <= level);
             const correctItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
             
-            // Urči typ otázky (z EN do CZ, nebo z CZ do EN)
-            const type = Math.random() > 0.5 ? 'read' : 'translate';
+            const types = ['read', 'translate'];
+            if (level >= 3) types.push('listen');
+            const type = types[Math.floor(Math.random() * types.length)];
             
-            // Připrav 3 další náhodné (špatné) možnosti z daného levelu
-            let optionsItems = [correctItem];
-            let attempts = 0;
-            while (optionsItems.length < 4 && attempts < 50) {
+            let options = [correctItem];
+            while (options.length < 4) {
                 const randomItem = levelVocab[Math.floor(Math.random() * levelVocab.length)];
-                // Zajistí, že nepřidáváme duplikáty
-                if (!optionsItems.some(item => item.en === randomItem.en)) {
-                    optionsItems.push(randomItem);
-                }
-                attempts++;
+                if (!options.some(item => item.en === randomItem.en)) options.push(randomItem);
             }
-            
-            // Zamíchej možnosti
-            optionsItems = shuffleArray(optionsItems);
+            options = options.sort(() => Math.random() - 0.5);
 
-            let targetText = "";
-            let correctAnswer = "";
-            let options = [];
-
-            if (type === 'read') {
-                targetText = correctItem.en;
-                correctAnswer = correctItem.cz;
-                options = optionsItems.map(i => i.cz);
-                engTypeBadge.innerText = "Přečti a přelož";
-                engTypeBadge.className = "absolute top-[-12px] bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-bold text-sm shadow-sm";
-                engBtnAudio.classList.remove('hidden');
-                // Automaticky přečte slovíčko při zobrazení otázky
-                setTimeout(() => playEnglishAudio(targetText), 300);
-            } else {
-                targetText = correctItem.cz;
-                correctAnswer = correctItem.en;
-                options = optionsItems.map(i => i.en);
-                engTypeBadge.innerText = "Jak se řekne...";
-                engTypeBadge.className = "absolute top-[-12px] bg-purple-100 text-purple-700 px-4 py-1 rounded-full font-bold text-sm shadow-sm";
-                engBtnAudio.classList.add('hidden');
-            }
-
-            engCurrentQuestion = { type, targetText, correctAnswer, options };
-            
-            // Vykreslení UI
-            engQuestionText.innerText = targetText;
-            renderEnglishOptions();
-        }
-
-        function renderEnglishOptions() {
-            engOptionsGrid.innerHTML = '';
-            const buttonColors = [
-                "bg-red-400 hover:bg-red-500 shadow-[0_4px_0_rgb(239,68,68)]",
-                "bg-blue-400 hover:bg-blue-500 shadow-[0_4px_0_rgb(59,130,246)]",
-                "bg-amber-400 hover:bg-amber-500 shadow-[0_4px_0_rgb(245,158,11)]",
-                "bg-emerald-400 hover:bg-emerald-500 shadow-[0_4px_0_rgb(16,185,129)]"
-            ];
-
-            engCurrentQuestion.options.forEach((option, index) => {
-                const btn = document.createElement('button');
-                btn.className = `text-lg sm:text-xl font-bold py-5 px-4 rounded-2xl text-white transition-all active:translate-y-1 active:shadow-none flex justify-center items-center gap-2 ${buttonColors[index % 4]}`;
-                btn.innerText = option;
-                
-                btn.onclick = () => handleEnglishAnswer(btn, option);
-                engOptionsGrid.appendChild(btn);
-            });
-        }
-
-        function handleEnglishAnswer(btnElement, selectedAnswer) {
-            if (engIsAnswering) return; // Zamezí zběsilému klikání
-
-            const isCorrect = selectedAnswer === engCurrentQuestion.correctAnswer;
-            
-            if (isCorrect) {
-                engIsAnswering = true;
-                
-                // Přečti odpověď, pokud se hádá anglické slovo
-                if (engCurrentQuestion.type === 'translate') {
-                    playEnglishAudio(selectedAnswer);
-                }
-
-                // Vizuální odezva na tlačítku
-                btnElement.classList.remove(...btnElement.className.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('hover:bg-') || c.startsWith('shadow-')));
-                btnElement.classList.add('bg-green-500', 'shadow-none', 'translate-y-1');
-                btnElement.innerHTML = `<i class="fa-solid fa-check mr-2"></i> ${selectedAnswer}`;
-                
-                // Přičti skóre, pokud je to první pokus
-                if (engFirstTry) {
-                    engScore++;
-                    engScoreDisplay.innerText = engScore;
-                    
-                    // Malá animace hvězdičky
-                    engScoreDisplay.classList.add('scale-150', 'text-yellow-500');
-                    setTimeout(() => engScoreDisplay.classList.remove('scale-150', 'text-yellow-500'), 300);
-                }
-
-                // Přejdi na další otázku po krátké prodlevě
-                setTimeout(nextEnglishQuestion, 1200);
-
-            } else {
-                // Špatná odpověď
-                engFirstTry = false;
-                engMistakesCount++;
-                
-                // Zatřesení tlačítka
-                btnElement.classList.add('animate-shake', 'opacity-50');
-                setTimeout(() => btnElement.classList.remove('animate-shake'), 400);
-            }
-        }
-
-        async function endEnglishGame() {
-            engGameScreen.classList.add('hidden');
-            engGameScreen.classList.remove('flex');
-            
-            document.getElementById('eng-result-level').innerText = engCurrentLevel;
-            const finalScoreEl = document.getElementById('eng-final-score');
-            finalScoreEl.innerText = `${engScore} / 10`;
-            
-            const iconContainer = document.getElementById('eng-result-icon');
-            if (engScore >= 8) {
-                iconContainer.innerHTML = '<i class="fa-solid fa-trophy text-6xl text-yellow-500 drop-shadow-md"></i>';
-                finalScoreEl.className = "text-4xl font-black text-green-600";
-            } else {
-                iconContainer.innerHTML = '<i class="fa-solid fa-clipboard-list text-6xl text-slate-400 drop-shadow-md"></i>';
-                finalScoreEl.className = "text-4xl font-black text-orange-500";
-            }
-            
-            engResultScreen.classList.remove('hidden');
-            engResultScreen.classList.add('flex');
-
-            // --- ULOŽENÍ DO DATABÁZE (Stejné jako u Češtiny) ---
-            const isSuccess = engScore >= 8;
-            const statData = {
-                userId: currentUserId || 'local-user',
-                activity: `Angličtina L${engCurrentLevel}`,
-                success: isSuccess,
-                errors: engMistakesCount,
-                score: engScore, // Angličtina ukládá i konkrétní skóre
-                timestamp: new Date().getTime(),
-                role: currentUserRole
+            return {
+                type: type,
+                targetText: type === 'translate' ? correctItem.cz : correctItem.en,
+                correctAnswer: type === 'translate' ? correctItem.en : correctItem.cz,
+                options: options.map(i => type === 'translate' ? i.en : i.cz),
+                originalEn: correctItem.en
             };
-
-            try {
-                if (!auth || !auth.currentUser || !db) throw new Error("Firebase není inicializován.");
-                const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
-                await addDoc(statsRef, statData);
-            } catch (error) {
-                console.warn("Ukládám do LocalStorage (Angličtina).");
-                const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
-                localStats.push(statData);
-                localStorage.setItem('eduAppStats', JSON.stringify(localStats));
-            }
         }
 
-        // ==========================================
-        // STATISTIKY PRO RODIČE
-        // ==========================================
-        function loadLocalStats() {
-            const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
-            localStats.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            renderStatsTable(localStats);
-        }
-
-        function initStatsListener() {
-            const tbody = document.getElementById('stats-table-body');
-            tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Načítám data...</td></tr>';
-
-            if (!auth || !auth.currentUser || !db) {
-                loadLocalStats();
+        function nextEnQuestion() {
+            if (enState.questionCount >= 10) {
+                endEnGame();
                 return;
             }
 
-            const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
+            enState.currentQuestion = getEnQuestion(enState.level);
+            enState.firstTry = true;
             
-            try {
-                unsubscribeStats = onSnapshot(statsRef, (snapshot) => {
-                    const stats = [];
-                    snapshot.forEach(doc => {
-                        stats.push({ id: doc.id, ...doc.data() });
-                    });
+            document.getElementById('en-question-counter').textContent = enState.questionCount + 1;
+            document.getElementById('en-score-display').textContent = enState.score;
+            document.getElementById('en-feedback-area').innerHTML = '';
+            
+            const qText = document.getElementById('en-question-text');
+            const qType = document.getElementById('en-question-type');
+            const btnAudio = document.getElementById('en-btn-audio');
 
-                    // Sloučení s lokálními daty pro offline/bezpečnostní fallback
-                    const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
-                    const combinedStats = [...stats, ...localStats];
+            btnAudio.classList.add('hidden');
+            qText.classList.remove('hidden');
 
-                    // Seřadíme data od nejnovějšího po nejstarší
-                    combinedStats.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-                    renderStatsTable(combinedStats);
-                }, (error) => {
-                    console.warn("Chyba čtení z Firebase (chybí oprávnění). Načítám lokální data z prohlížeče.", error);
-                    loadLocalStats();
-                });
-            } catch (err) {
-                console.warn("Nelze navázat spojení s databází, načítám lokální data.", err);
-                loadLocalStats();
-            }
-        }
-
-        function renderStatsTable(stats) {
-            const tbody = document.getElementById('stats-table-body');
-            tbody.innerHTML = '';
-
-            if (stats.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500">Zatím tu nejsou žádné záznamy. Ať syn začne hrát!</td></tr>';
-                return;
+            if (enState.currentQuestion.type === 'read') {
+                qType.textContent = 'Přečti a přelož';
+                qType.className = 'absolute top-[-12px] bg-blue-100 text-blue-700 border border-blue-200 px-4 py-1 rounded-full font-bold text-xs shadow-sm';
+                qText.textContent = enState.currentQuestion.targetText;
+                btnAudio.classList.remove('hidden');
+                btnAudio.onclick = () => playEnAudio(enState.currentQuestion.targetText);
+            } else if (enState.currentQuestion.type === 'translate') {
+                qType.textContent = 'Jak se to řekne?';
+                qType.className = 'absolute top-[-12px] bg-purple-100 text-purple-700 border border-purple-200 px-4 py-1 rounded-full font-bold text-xs shadow-sm';
+                qText.textContent = enState.currentQuestion.targetText;
+            } else {
+                qType.textContent = 'Poslouchej';
+                qType.className = 'absolute top-[-12px] bg-orange-100 text-orange-700 border border-orange-200 px-4 py-1 rounded-full font-bold text-xs shadow-sm';
+                qText.classList.add('hidden');
+                btnAudio.classList.remove('hidden');
+                btnAudio.innerHTML = '<i class="fa-solid fa-volume-high text-2xl"></i>';
+                btnAudio.className = 'bg-red-500 text-white hover:bg-red-600 p-6 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform animate-pulse';
+                btnAudio.onclick = () => playEnAudio(enState.currentQuestion.targetText);
+                setTimeout(() => playEnAudio(enState.currentQuestion.targetText), 300);
             }
 
-            stats.forEach(stat => {
-                // Přeskočíme záznamy od rodiče, pokud chceme měřit jen syna. Ale necháme vše pro ukázku.
-                const dateObj = new Date(stat.timestamp);
-                const timeString = dateObj.toLocaleDateString('cs-CZ') + ' ' + dateObj.toLocaleTimeString('cs-CZ', {hour: '2-digit', minute:'2-digit'});
-                
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-white/40 transition-colors border-b border-slate-200/50 last:border-0';
-                
-                const resultBadge = stat.success 
-                    ? `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold border border-green-200"><i class="fa-solid fa-check mr-1"></i> Správně</span>` 
-                    : `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold border border-red-200"><i class="fa-solid fa-xmark mr-1"></i> Chyba</span>`;
-
-                tr.innerHTML = `
-                    <td class="p-4 text-sm text-slate-600 font-medium">${timeString}</td>
-                    <td class="p-4 font-semibold text-slate-800">${stat.activity}</td>
-                    <td class="p-4">${resultBadge}</td>
-                    <td class="p-4 font-bold ${stat.errors > 0 ? 'text-red-500' : 'text-green-500'}">${stat.errors}</td>
-                `;
-                tbody.appendChild(tr);
+            const grid = document.getElementById('en-options-grid');
+            grid.innerHTML = '';
+            const colors = ['bg-red-50 text-red-700 border-red-200', 'bg-blue-50 text-blue-700 border-blue-200', 'bg-amber-50 text-amber-700 border-amber-200', 'bg-emerald-50 text-emerald-700 border-emerald-200'];
+            
+            enState.currentQuestion.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `${colors[idx]} border-2 font-bold text-lg py-4 px-2 rounded-2xl shadow-sm hover:brightness-95 active:scale-95 transition-all`;
+                btn.textContent = opt;
+                btn.onclick = () => checkEnAnswer(opt, btn);
+                grid.appendChild(btn);
             });
         }
 
-        // Přidání CSS animace pro fade-in
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: scale(0.95); }
-                to { opacity: 1; transform: scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
+        function checkEnAnswer(selectedOption, btnElement) {
+            const isCorrect = selectedOption === enState.currentQuestion.correctAnswer;
+            const grid = document.getElementById('en-options-grid');
+            const allBtns = grid.querySelectorAll('button');
+            const feedback = document.getElementById('en-feedback-area');
 
+            if (enState.currentQuestion.type === 'translate') playEnAudio(selectedOption);
+
+            if (isCorrect) {
+                btnElement.classList.remove('bg-red-50', 'bg-blue-50', 'bg-amber-50', 'bg-emerald-50', 'text-red-700', 'text-blue-700', 'text-amber-700', 'text-emerald-700');
+                btnElement.classList.add('bg-green-500', 'text-white', 'border-green-600', 'scale-105');
+                allBtns.forEach(b => b.disabled = true);
+                
+                feedback.innerHTML = '<i class="fa-solid fa-face-smile text-4xl text-green-500 animate-bounce"></i>';
+                if (enState.currentQuestion.type !== 'translate') playEnAudio(enState.currentQuestion.originalEn);
+                
+                if (enState.firstTry) {
+                    enState.score++;
+                    document.getElementById('en-score-display').textContent = enState.score;
+                }
+                
+                setTimeout(() => {
+                    enState.questionCount++;
+                    nextEnQuestion();
+                }, 1500);
+            } else {
+                enState.firstTry = false;
+                btnElement.classList.add('opacity-50', 'animate-shake');
+                feedback.innerHTML = '<i class="fa-solid fa-face-frown text-4xl text-red-500 animate-pulse"></i>';
+            }
+        }
+
+        function endEnGame() {
+            document.getElementById('en-game-screen').classList.add('hidden');
+            document.getElementById('en-game-screen').classList.remove('flex');
+            document.getElementById('en-result-screen').classList.remove('hidden');
+            document.getElementById('en-result-screen').classList.add('flex');
+            
+            document.getElementById('en-final-score').textContent = `${enState.score} / 10`;
+            
+            const iconContainer = document.getElementById('en-result-icon');
+            if (enState.score >= 8) {
+                iconContainer.innerHTML = '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>';
+            } else {
+                iconContainer.innerHTML = '<i class="fa-solid fa-clipboard-list text-6xl text-slate-500"></i>';
+            }
+
+            window.saveSession('Angličtina', `Lekce ${enState.level}`, enState.score, 10);
+        }
+
+        // ==========================================
+        // INICIALIZACE PO NAČTENÍ
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCestinaList();
+            
+            // Enter key pro PIN
+            document.getElementById('pin-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') window.checkPin();
+            });
+        });
     </script>
 </body>
 </html>
