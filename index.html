@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Učení hrou</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <style>
+        /* Základní font a skrytí posuvníků pro čistší vzhled */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+        
+        /* Glassmorphism utility třídy */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        .glass-button {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+        .glass-button:hover { background: rgba(255, 255, 255, 0.6); transform: translateY(-2px); }
+        .glass-button:active { transform: translateY(0); }
+
+        /* Sortable drag state */
+        .sortable-ghost { opacity: 0.4; background-color: #f3f4f6; }
+        .sortable-drag { cursor: grabbing !important; }
+    </style>
+</head>
+<body class="bg-cover bg-center bg-fixed min-h-screen text-slate-800 flex items-center justify-center p-4 sm:p-8" 
+      style="background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop');">
+
+    <!-- OVERLAY: Oznámení a zprávy místo alert() -->
+    <div id="toast-container" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- OBRAZOVKA 1: PIN Přihlášení -->
+    <div id="pin-screen" class="glass-panel w-full max-w-sm rounded-3xl p-8 flex flex-col items-center justify-center text-center z-40 transition-opacity duration-500">
+        <div class="w-20 h-20 bg-white/50 rounded-full flex items-center justify-center mb-6 shadow-inner text-4xl text-slate-700">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h1 class="text-3xl font-bold mb-2 text-white drop-shadow-md">Ahoj!</h1>
+        <p class="text-white/90 mb-6 drop-shadow-sm font-medium">Zadej svůj PIN pro vstup.</p>
+        
+        <input type="password" id="pin-input" class="w-full text-center text-3xl tracking-widest p-4 rounded-xl glass-button focus:outline-none focus:ring-4 ring-white/50 mb-4 placeholder-slate-600" placeholder="••••" maxlength="4">
+        
+        <button id="btn-login" class="w-full py-4 rounded-xl bg-blue-600/80 hover:bg-blue-500/90 text-white font-bold text-lg backdrop-blur-md shadow-lg transition-all">
+            Vstoupit <i class="fa-solid fa-arrow-right ml-2"></i>
+        </button>
+        <p class="text-xs text-white/70 mt-4">Nápověda: 1111 (Žák), 1234 (Rodič)</p>
+    </div>
+
+    <!-- OBRAZOVKA 2: Hlavní Aplikace (Skrytá po startu) -->
+    <div id="main-app" class="hidden w-full max-w-5xl h-[85vh] glass-panel rounded-3xl overflow-hidden flex flex-col shadow-2xl relative">
+        
+        <!-- Hlavička a Navigace -->
+        <header class="bg-white/30 border-b border-white/40 p-4 shrink-0">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/50 rounded-full flex items-center justify-center text-blue-600 text-xl">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800 drop-shadow-sm">Škola hrou</h2>
+                </div>
+                
+                <!-- Záložky (Tabs) -->
+                <nav class="flex gap-2 bg-white/20 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
+                    <button class="tab-btn active px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-white shadow-sm text-blue-600" data-target="tab-domu">
+                        <i class="fa-solid fa-house mr-1"></i> Domů
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700" data-target="tab-cestina">
+                        <i class="fa-solid fa-book-open mr-1"></i> Čeština
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700" data-target="tab-matematika">
+                        <i class="fa-solid fa-calculator mr-1"></i> Matematika
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all hover:bg-white/50 text-slate-700" data-target="tab-prvouka">
+                        <i class="fa-solid fa-leaf mr-1"></i> Prvouka
+                    </button>
+                    <!-- Rodičovská záložka (skrytá pro žáka) -->
+                    <button id="nav-rodic" class="hidden tab-btn px-4 py-2 rounded-lg font-bold text-sm transition-all bg-purple-500/20 hover:bg-purple-500/40 text-purple-900 border border-purple-500/30" data-target="tab-rodic">
+                        <i class="fa-solid fa-chart-line mr-1"></i> Rodič
+                    </button>
+                    <button id="btn-logout" class="px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-500/20 transition-all ml-auto">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Obsah aplikací (Tab Contents) -->
+        <main class="flex-1 overflow-y-auto p-6 relative h-full">
+            
+            <!-- OBSAH: Domů -->
+            <section id="tab-domu" class="tab-content h-full flex flex-col justify-center items-center text-center">
+                <h2 class="text-4xl font-extrabold mb-4 text-slate-800">Vítej zpět!</h2>
+                <p class="text-lg text-slate-700 font-medium mb-8 max-w-md">Vyber si předmět v horním menu a pojďme se něco nového naučit. Dneska nám to půjde skvěle!</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
+                    <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer" onclick="switchTab('tab-cestina')">
+                        <i class="fa-solid fa-book-open text-4xl text-blue-500 mb-3"></i>
+                        <h3 class="font-bold text-xl">Čeština</h3>
+                        <p class="text-sm opacity-80 mt-2">Slovní druhy</p>
+                    </div>
+                    <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer opacity-50" onclick="showToast('Matematika se teprve připravuje.', 'info')">
+                        <i class="fa-solid fa-calculator text-4xl text-emerald-500 mb-3"></i>
+                        <h3 class="font-bold text-xl">Matematika</h3>
+                        <p class="text-sm opacity-80 mt-2">Připravujeme</p>
+                    </div>
+                    <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer opacity-50" onclick="showToast('Prvouka se teprve připravuje.', 'info')">
+                        <i class="fa-solid fa-leaf text-4xl text-green-600 mb-3"></i>
+                        <h3 class="font-bold text-xl">Prvouka</h3>
+                        <p class="text-sm opacity-80 mt-2">Připravujeme</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- OBSAH: Čeština (Slovní druhy) -->
+            <section id="tab-cestina" class="tab-content hidden h-full flex flex-col max-w-2xl mx-auto">
+                <div class="mb-6 text-center">
+                    <h2 class="text-3xl font-bold text-slate-800">Slovní druhy</h2>
+                    <p class="text-slate-700 font-medium mt-2">Seřaď je od 1. do 10. správně pod sebe. Chytni je myší (nebo prstem) a přetáhni.</p>
+                </div>
+                
+                <div class="bg-white/40 p-4 rounded-2xl border border-white/50 shadow-inner flex-1 overflow-y-auto mb-4 relative">
+                    <!-- Čísla pozic nalevo -->
+                    <div class="absolute left-6 top-4 bottom-4 flex flex-col justify-between py-2 w-8 text-center font-bold text-slate-400 select-none z-0">
+                        <span>1.</span><span>2.</span><span>3.</span><span>4.</span><span>5.</span><span>6.</span><span>7.</span><span>8.</span><span>9.</span><span>10.</span>
+                    </div>
+                    
+                    <!-- Zde se vygeneruje seznam z JS -->
+                    <ul id="slovni-druhy-list" class="flex flex-col h-full justify-between pl-12 pr-2 relative z-10 gap-2">
+                        <!-- Items injected by JS -->
+                    </ul>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button id="btn-check-cestina" class="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check-circle"></i> Zkontrolovat
+                    </button>
+                    <button id="btn-reset-cestina" class="px-6 py-4 rounded-xl glass-button text-slate-700 font-bold hover:bg-white/60 transition-all">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- OBSAH: Matematika (Placeholder) -->
+            <section id="tab-matematika" class="tab-content hidden h-full flex flex-col justify-center items-center text-center">
+                <i class="fa-solid fa-person-digging text-6xl text-slate-400 mb-4"></i>
+                <h2 class="text-2xl font-bold">Matematika - ve výstavbě</h2>
+                <p>Zde brzy přidáme sčítání a odčítání.</p>
+            </section>
+
+            <!-- OBSAH: Prvouka (Placeholder) -->
+            <section id="tab-prvouka" class="tab-content hidden h-full flex flex-col justify-center items-center text-center">
+                <i class="fa-solid fa-person-digging text-6xl text-slate-400 mb-4"></i>
+                <h2 class="text-2xl font-bold">Prvouka - ve výstavbě</h2>
+                <p>Zde se budeme učit o přírodě a zvířátkách.</p>
+            </section>
+
+            <!-- OBSAH: Rodič (Statistiky) -->
+            <section id="tab-rodic" class="tab-content hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-purple-900">Statistiky učení</h2>
+                        <p class="text-purple-800/80 font-medium mt-1">Sleduj pokrok svého syna v reálném čase.</p>
+                    </div>
+                    <div class="bg-white/50 px-4 py-2 rounded-lg shadow-sm border border-white/60 flex items-center gap-2">
+                        <span class="relative flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-sm font-semibold text-slate-700">Live DB</span>
+                    </div>
+                </div>
+
+                <div class="bg-white/60 rounded-2xl shadow-inner border border-white/60 overflow-hidden flex-1 flex flex-col">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/50 text-slate-800 border-b border-slate-300/50">
+                                    <th class="p-4 font-bold">Datum a čas</th>
+                                    <th class="p-4 font-bold">Aktivita</th>
+                                    <th class="p-4 font-bold">Výsledek</th>
+                                    <th class="p-4 font-bold">Počet chyb</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stats-table-body" class="divide-y divide-slate-200/50">
+                                <!-- Data injected by JS -->
+                                <tr><td colspan="4" class="p-8 text-center text-slate-500">Načítám data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script type="module">
+        // Vkládáme Firebase jako nejnovější modul v12.13.0
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+        // ==========================================
+        // FIREBASE KONFIGURACE (Tvůj projekt tom-learning)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzTErD4ZCo-HCRD9mw4EFKLm8kZKQugqk",
+            authDomain: "tom-learning-996cc.firebaseapp.com",
+            projectId: "tom-learning-996cc",
+            storageBucket: "tom-learning-996cc.firebasestorage.app",
+            messagingSenderId: "1025710047976",
+            appId: "1:1025710047976:web:fcef139057d21ec2e6bf5d"
+        };
+        
+        // Globální proměnné dodané prostředím
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'edu-app-syn';
+
+        // Inicializace
+        let db, auth;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Chyba inicializace Firebase:", e);
+        }
+
+        // ==========================================
+        // STAVOVÉ PROMĚNNÉ A DOM ELEMENTY
+        // ==========================================
+        let currentUserRole = null; // 'student' nebo 'parent'
+        let currentUserId = null;
+        let unsubscribeStats = null;
+
+        // DOM Elementy
+        const pinScreen = document.getElementById('pin-screen');
+        const mainApp = document.getElementById('main-app');
+        const pinInput = document.getElementById('pin-input');
+        const btnLogin = document.getElementById('btn-login');
+        const btnLogout = document.getElementById('btn-logout');
+        const navRodic = document.getElementById('nav-rodic');
+        const toastContainer = document.getElementById('toast-container');
+        
+        // ==========================================
+        // POMOCNÉ FUNKCE (UI)
+        // ==========================================
+        window.showToast = function(message, type = 'info') {
+            const toast = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-500' : (type === 'success' ? 'bg-green-500' : 'bg-slate-800');
+            toast.className = `${bg} text-white px-6 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-y-[-20px] opacity-0 flex items-center gap-3`;
+            
+            let icon = 'fa-info-circle';
+            if(type==='success') icon = 'fa-check-circle';
+            if(type==='error') icon = 'fa-triangle-exclamation';
+
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="font-medium">${message}</span>`;
+            toastContainer.appendChild(toast);
+            
+            // Animace zobrazení
+            setTimeout(() => {
+                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+            }, 10);
+
+            // Zmizení
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-20px]');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        window.switchTab = function(targetId) {
+            // Skryj všechny záložky
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // Zobraz cílovou
+            document.getElementById(targetId).classList.remove('hidden');
+            
+            // Uprav styly tlačítek v navigaci
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if(btn.dataset.target === targetId) {
+                    btn.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
+                    btn.classList.remove('hover:bg-white/50', 'text-slate-700');
+                    // Výjimka pro fialové rodičovské tlačítko
+                    if(targetId === 'tab-rodic') {
+                        btn.classList.add('bg-purple-500/40', 'text-purple-900');
+                        btn.classList.remove('bg-white', 'text-blue-600', 'bg-purple-500/20');
+                    }
+                } else {
+                    btn.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
+                    btn.classList.add('hover:bg-white/50', 'text-slate-700');
+                    if(btn.id === 'nav-rodic') {
+                        btn.classList.remove('bg-purple-500/40');
+                        btn.classList.add('bg-purple-500/20', 'text-purple-900');
+                    }
+                }
+            });
+        };
+
+        // Zpřístupnění do globálního scope pro onClick z HTML
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => switchTab(e.currentTarget.dataset.target));
+        });
+
+        // ==========================================
+        // PŘIHLÁŠENÍ (PIN LOGIKA)
+        // ==========================================
+        async function handleLogin() {
+            const pin = pinInput.value;
+            if (pin === '1111') {
+                currentUserRole = 'student';
+            } else if (pin === '1234') {
+                currentUserRole = 'parent';
+            } else {
+                showToast('Nesprávný PIN!', 'error');
+                pinInput.value = '';
+                return;
+            }
+
+            try {
+                // Přihlášení do Firebase (Anonymní - nevyžaduje hesla, pro účely uložení dat stačí)
+                if (auth) {
+                    const userCredential = await signInAnonymously(auth);
+                    currentUserId = userCredential.user.uid;
+                }
+                
+                // Úprava UI podle role
+                pinScreen.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    pinScreen.classList.add('hidden');
+                    mainApp.classList.remove('hidden');
+                    // Přidáme animaci vstupu
+                    mainApp.classList.add('animate-[fadeIn_0.5s_ease-out]');
+                }, 500);
+
+                if (currentUserRole === 'parent') {
+                    navRodic.classList.remove('hidden');
+                    showToast('Přihlášen jako Rodič', 'success');
+                    initStatsListener(); // Spustíme načítání dat z Firebase
+                } else {
+                    navRodic.classList.add('hidden');
+                    showToast('Přihlášen jako Žák', 'success');
+                }
+                
+                // Vyčisti a resetuj na Domů
+                pinInput.value = '';
+                switchTab('tab-domu');
+                initCestinaGame();
+
+            } catch (error) {
+                console.error("Auth error:", error);
+                showToast('Chyba spojení s databází.', 'error');
+            }
+        }
+
+        btnLogin.addEventListener('click', handleLogin);
+        pinInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+        
+        btnLogout.addEventListener('click', () => {
+            mainApp.classList.add('hidden');
+            pinScreen.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            currentUserRole = null;
+            if(unsubscribeStats) {
+                unsubscribeStats(); // Přestat poslouchat DB
+            }
+            showToast('Odhlášeno', 'info');
+        });
+
+        // ==========================================
+        // LOGIKA - ČEŠTINA (SLOVNÍ DRUHY)
+        // ==========================================
+        const correctOrder = [
+            "Podstatná jména", "Přídavná jména", "Zájmena", "Číslovky", "Slovesa",
+            "Příslovce", "Předložky", "Spojky", "Částice", "Citoslovce"
+        ];
+        
+        const listEl = document.getElementById('slovni-druhy-list');
+        const btnCheckCestina = document.getElementById('btn-check-cestina');
+        const btnResetCestina = document.getElementById('btn-reset-cestina');
+        let sortableInstance = null;
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            // Zabraň tomu, aby to náhodou bylo správně hned na začátku
+            if(JSON.stringify(arr) === JSON.stringify(correctOrder)) return shuffleArray(arr);
+            return arr;
+        }
+
+        function initCestinaGame() {
+            listEl.innerHTML = '';
+            const randomized = shuffleArray(correctOrder);
+            
+            randomized.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'glass-button py-2 px-4 rounded-xl font-semibold text-slate-800 cursor-grab flex items-center justify-between shadow-sm';
+                li.innerHTML = `<span>${item}</span> <i class="fa-solid fa-grip-lines text-slate-400"></i>`;
+                li.dataset.value = item;
+                listEl.appendChild(li);
+            });
+
+            if (sortableInstance) sortableInstance.destroy();
+            
+            sortableInstance = new Sortable(listEl, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag'
+            });
+        }
+
+        btnResetCestina.addEventListener('click', initCestinaGame);
+
+        btnCheckCestina.addEventListener('click', async () => {
+            const currentItems = Array.from(listEl.children);
+            let errorsCount = 0;
+
+            currentItems.forEach((li, index) => {
+                const value = li.dataset.value;
+                const correctValue = correctOrder[index];
+                
+                // Reset styling
+                li.classList.remove('bg-red-100', 'border-red-400', 'bg-green-100', 'border-green-400');
+                
+                if (value !== correctValue) {
+                    errorsCount++;
+                    li.classList.add('bg-red-100', 'border-red-400');
+                } else {
+                    li.classList.add('bg-green-100', 'border-green-400');
+                }
+            });
+
+            const isSuccess = errorsCount === 0;
+
+            if (isSuccess) {
+                showToast('Výborně! Vše je správně.', 'success');
+                // Přidání konfet efektu pro děti
+                btnCheckCestina.innerHTML = '<i class="fa-solid fa-star text-yellow-300"></i> Skvělá práce!';
+                setTimeout(() => {
+                    btnCheckCestina.innerHTML = '<i class="fa-solid fa-check-circle"></i> Zkontrolovat';
+                }, 2000);
+            } else {
+                showToast(`Chybička se vloudila. Počet chyb: ${errorsCount}`, 'error');
+            }
+
+            // Data pro uložení
+            const statData = {
+                userId: currentUserId || 'local-user',
+                activity: 'Slovní druhy',
+                success: isSuccess,
+                errors: errorsCount,
+                timestamp: new Date().getTime(),
+                role: currentUserRole
+            };
+
+            // Uložení statistiky do Firebase s fallbackem na LocalStorage
+            try {
+                if (!auth || !auth.currentUser || !db) throw new Error("Firebase není inicializován.");
+                
+                // MANDATORY PATH: /artifacts/{appId}/public/data/{collectionName}
+                const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
+                await addDoc(statsRef, statData);
+            } catch (error) {
+                console.warn("Firebase uložení selhalo (chybí oprávnění), ukládám lokálně do prohlížeče.");
+                const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
+                localStats.push(statData);
+                localStorage.setItem('eduAppStats', JSON.stringify(localStats));
+            }
+        });
+
+        // ==========================================
+        // STATISTIKY PRO RODIČE
+        // ==========================================
+        function loadLocalStats() {
+            const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
+            localStats.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            renderStatsTable(localStats);
+        }
+
+        function initStatsListener() {
+            const tbody = document.getElementById('stats-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Načítám data...</td></tr>';
+
+            if (!auth || !auth.currentUser || !db) {
+                loadLocalStats();
+                return;
+            }
+
+            const statsRef = collection(db, 'artifacts', appId, 'public', 'data', 'learning_stats');
+            
+            try {
+                unsubscribeStats = onSnapshot(statsRef, (snapshot) => {
+                    const stats = [];
+                    snapshot.forEach(doc => {
+                        stats.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    // Sloučení s lokálními daty pro offline/bezpečnostní fallback
+                    const localStats = JSON.parse(localStorage.getItem('eduAppStats') || '[]');
+                    const combinedStats = [...stats, ...localStats];
+
+                    // Seřadíme data od nejnovějšího po nejstarší
+                    combinedStats.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                    renderStatsTable(combinedStats);
+                }, (error) => {
+                    console.warn("Chyba čtení z Firebase (chybí oprávnění). Načítám lokální data z prohlížeče.", error);
+                    loadLocalStats();
+                });
+            } catch (err) {
+                console.warn("Nelze navázat spojení s databází, načítám lokální data.", err);
+                loadLocalStats();
+            }
+        }
+
+        function renderStatsTable(stats) {
+            const tbody = document.getElementById('stats-table-body');
+            tbody.innerHTML = '';
+
+            if (stats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500">Zatím tu nejsou žádné záznamy. Ať syn začne hrát!</td></tr>';
+                return;
+            }
+
+            stats.forEach(stat => {
+                // Přeskočíme záznamy od rodiče, pokud chceme měřit jen syna. Ale necháme vše pro ukázku.
+                const dateObj = new Date(stat.timestamp);
+                const timeString = dateObj.toLocaleDateString('cs-CZ') + ' ' + dateObj.toLocaleTimeString('cs-CZ', {hour: '2-digit', minute:'2-digit'});
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-white/40 transition-colors border-b border-slate-200/50 last:border-0';
+                
+                const resultBadge = stat.success 
+                    ? `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold border border-green-200"><i class="fa-solid fa-check mr-1"></i> Správně</span>` 
+                    : `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold border border-red-200"><i class="fa-solid fa-xmark mr-1"></i> Chyba</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-4 text-sm text-slate-600 font-medium">${timeString}</td>
+                    <td class="p-4 font-semibold text-slate-800">${stat.activity}</td>
+                    <td class="p-4">${resultBadge}</td>
+                    <td class="p-4 font-bold ${stat.errors > 0 ? 'text-red-500' : 'text-green-500'}">${stat.errors}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Přidání CSS animace pro fade-in
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+</body>
+</html>
