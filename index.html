@@ -1,1006 +1,753 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Škola hrou</title>
-    
-    <!-- Tailwind CSS přes CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- SortableJS pro Drag & Drop -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
-    <!-- Font Awesome pro ikony -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Konfigurace Tailwindu a vlastní styly -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .glass-button {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        /* Skrývání záložek */
-        .tab-content { display: none; }
-        .tab-content.active { display: flex; }
-
-        /* Čeština - Drag & Drop styly */
-        .sortable-ghost { opacity: 0.4; }
-        .sortable-drag { cursor: grabbing !important; }
-        .word-card { touch-action: manipulation; }
-
-        /* Čeština - Duhové barvy kartiček */
-        .card-1 { border-left: 6px solid #ef4444; background: linear-gradient(to right, #fef2f2, #ffffff); }
-        .card-2 { border-left: 6px solid #f97316; background: linear-gradient(to right, #fff7ed, #ffffff); }
-        .card-3 { border-left: 6px solid #f59e0b; background: linear-gradient(to right, #fffbeb, #ffffff); }
-        .card-4 { border-left: 6px solid #84cc16; background: linear-gradient(to right, #f7fee7, #ffffff); }
-        .card-5 { border-left: 6px solid #10b981; background: linear-gradient(to right, #ecfdf5, #ffffff); }
-        .card-6 { border-left: 6px solid #06b6d4; background: linear-gradient(to right, #ecfeff, #ffffff); }
-        .card-7 { border-left: 6px solid #3b82f6; background: linear-gradient(to right, #eff6ff, #ffffff); }
-        .card-8 { border-left: 6px solid #8b5cf6; background: linear-gradient(to right, #f5f3ff, #ffffff); }
-        .card-9 { border-left: 6px solid #d946ef; background: linear-gradient(to right, #fdf4ff, #ffffff); }
-        .card-10 { border-left: 6px solid #f43f5e; background: linear-gradient(to right, #fff1f2, #ffffff); }
-
-        /* Animace obecné */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-        }
-        .animate-shake { animation: shake 0.4s ease-in-out; }
-
-        @keyframes shuffle {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        .animate-shuffle { animation: shuffle 0.6s ease-in-out; }
-
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Škola hrou</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#1e3a8a,#0f172a);-webkit-tap-highlight-color:transparent}
+.glass{background:rgba(255,255,255,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.5)}
+.tab{display:none}.tab.active{display:flex}
+.sortable-ghost{opacity:.4}
+.word-card{touch-action:manipulation;border-left:6px solid var(--c);background:linear-gradient(to right,color-mix(in srgb,var(--c) 10%,white),#fff)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-5px)}}
+.shake{animation:shake .4s}
+.noscroll::-webkit-scrollbar{display:none}.noscroll{scrollbar-width:none}
+button:focus-visible,input:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+body.fish{background:linear-gradient(180deg,#0e7490,#164e63 60%,#0f172a)}
+</style>
 </head>
-<body class="h-[100dvh] w-screen overflow-hidden text-slate-800 bg-slate-900">
+<body class="h-[100dvh] w-screen overflow-hidden text-slate-800">
 
-    <!-- 1. ZAMYKACÍ (PIN) OBRAZOVKA -->
-    <div id="pin-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-500">
-        <div class="glass-panel p-8 rounded-[2rem] shadow-2xl max-w-sm w-[90%] text-center transform transition-all">
-            <div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                <i class="fa-solid fa-lock text-2xl text-slate-600"></i>
-            </div>
-            <h2 class="text-3xl font-extrabold mb-2 text-slate-800">Ahoj!</h2>
-            <p class="text-slate-500 mb-8 font-medium">Zadej svůj PIN pro vstup.</p>
-            
-            <input type="password" id="pin-input" class="w-full text-center text-4xl tracking-[1em] font-black bg-slate-100 rounded-xl py-4 outline-none text-slate-700 shadow-inner mb-6 border-2 border-transparent focus:border-blue-400 transition-colors" maxlength="4" placeholder="••••">
-            
-            <button onclick="checkPin()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
-                Vstoupit <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <p class="mt-4 text-xs text-slate-400">Nápověda: 1111 (Žák), 1234 (Rodič)</p>
-        </div>
+<!-- PIN -->
+<div id="pin-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+  <div class="glass p-8 rounded-[2rem] shadow-2xl max-w-sm w-[90%] text-center">
+    <h2 class="text-3xl font-extrabold mb-2">Ahoj!</h2>
+    <p class="text-slate-500 mb-5 font-medium">Zadej svůj PIN.</p>
+    <input type="password" id="pin-input" inputmode="numeric" aria-label="PIN" maxlength="4" placeholder="••••" class="w-full text-center text-4xl tracking-[.6em] font-black bg-slate-100 rounded-xl py-4 mb-4">
+    <input type="text" id="family-input" aria-label="Kód rodiny" placeholder="Kód rodiny (např. novak2026)" class="w-full text-center bg-slate-100 rounded-xl py-3 mb-2 text-sm">
+    <p class="text-xs text-slate-400 mb-4">Kód rodiny spojí výsledky dítěte a rodiče napříč zařízeními. Na všech zařízeních zadejte stejný.</p>
+    <p id="pin-err" role="alert" class="text-red-600 font-bold text-sm mb-3 min-h-[1.25rem]"></p>
+    <button id="pin-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-xl active:scale-95 transition">Vstoupit</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden h-[100dvh] w-full sm:p-6 items-center justify-center">
+ <div class="glass w-full h-[100dvh] sm:h-[90vh] sm:max-h-[850px] max-w-4xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative">
+  <header class="bg-white/50 border-b border-white/40 p-4 flex justify-between items-center shrink-0">
+    <h1 class="font-extrabold text-xl">Škola <span class="text-blue-600">hrou</span><span id="fish-ic"></span></h1>
+    <div class="flex items-center gap-3">
+      <button id="fish-btn" aria-label="Rybářský mód" aria-pressed="false" class="bg-cyan-100 hover:bg-cyan-200 text-cyan-800 px-3 py-2 rounded-xl font-bold">🎣 <span class="hidden sm:inline">Rybářský mód</span></button><span id="user-name" class="text-sm font-bold text-slate-600"></span>
+      <button id="logout-btn" aria-label="Odhlásit" class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-xl font-bold"><i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">Odhlásit</span></button>
     </div>
+  </header>
 
-    <!-- 2. HLAVNÍ APLIKACE (Po přihlášení) -->
-    <div id="app-container" class="hidden h-[100dvh] sm:h-screen w-full sm:p-4 md:p-6 lg:p-8 flex items-center justify-center">
-        <!-- Hlavní okno (Na mobilu bez oblých rohů a paddingů) -->
-        <div class="glass-panel w-full h-[100dvh] sm:h-[90vh] sm:max-h-[850px] max-w-4xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative border-0 sm:border">
-            
-            <!-- HORNÍ NAVIGACE -->
-            <header class="bg-white/50 backdrop-blur-md border-b border-white/40 p-4 flex justify-between items-center shrink-0 z-20 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="bg-blue-500 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md">
-                        <i class="fa-solid fa-graduation-cap text-xl"></i>
-                    </div>
-                    <h1 class="font-extrabold text-xl tracking-tight text-slate-800">Škola <span class="text-blue-500">hrou</span></h1>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                    <span id="user-badge" class="hidden md:flex items-center gap-2 bg-slate-200/50 px-3 py-1.5 rounded-full text-sm font-bold text-slate-600">
-                        <i class="fa-solid fa-user"></i> <span id="user-name">Žák</span>
-                    </span>
-                    <!-- Odhlášení mobil (jen ikona) -->
-                    <button onclick="logout()" class="md:hidden w-10 h-10 flex items-center justify-center bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-colors">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                    <!-- Odhlášení PC (s textem) -->
-                    <button onclick="logout()" class="hidden md:flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded-xl font-bold transition-colors">
-                        <i class="fa-solid fa-power-off"></i> Odhlásit
-                    </button>
-                </div>
-            </header>
-
-            <!-- LIŠTA ZÁLOŽEK -->
-            <nav class="bg-slate-50/50 border-b border-white/30 px-2 sm:px-4 py-2 shrink-0 overflow-x-auto hide-scrollbar z-10">
-                <div class="flex gap-2 min-w-max">
-                    <button onclick="switchTab('tab-domu')" class="nav-tab active px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-domu">
-                        <i class="fa-solid fa-house"></i> <span class="hidden sm:inline">Domů</span>
-                    </button>
-                    <button onclick="switchTab('tab-cestina')" class="nav-tab px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-cestina">
-                        <i class="fa-solid fa-book-open text-orange-500"></i> Čeština
-                    </button>
-                    <button onclick="switchTab('tab-anglictina')" class="nav-tab px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-anglictina">
-                        <i class="fa-solid fa-language text-red-500"></i> Angličtina
-                    </button>
-                    <button onclick="switchTab('tab-matematika')" class="nav-tab px-4 sm:px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all flex items-center gap-2" data-target="tab-matematika">
-                        <i class="fa-solid fa-calculator text-blue-500"></i> Matematika
-                    </button>
-                    <button onclick="switchTab('tab-rodic')" id="nav-rodic" class="nav-tab hidden px-4 sm:px-5 py-2.5 rounded-xl font-bold text-purple-600 hover:bg-purple-100 transition-all flex items-center gap-2" data-target="tab-rodic">
-                        <i class="fa-solid fa-chart-pie"></i> Rodič
-                    </button>
-                </div>
-            </nav>
-
-            <!-- OBSAH APLIKACÍ (Tab Contents) -->
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 relative">
-                
-                <!-- Toast notifikace -->
-                <div id="toast" class="absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform -translate-y-20 opacity-0 bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border">
-                    <span id="toast-icon"></span>
-                    <span id="toast-msg"></span>
-                </div>
-
-                <!-- OBSAH: Domů (Rozcestník) -->
-                <section id="tab-domu" class="tab-content active h-full flex-col">
-                    <div class="mb-8">
-                        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Vyber si předmět</h2>
-                        <p class="text-slate-500 font-medium">Co se dnes budeme učit?</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-cestina')">
-                            <i class="fa-solid fa-book-open text-4xl text-orange-500 mb-3"></i>
-                            <h3 class="font-bold text-xl">Čeština</h3>
-                            <p class="text-sm text-slate-500 mt-2">Slovní druhy (Přesouvání)</p>
-                        </div>
-                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-anglictina')">
-                            <i class="fa-solid fa-language text-4xl text-red-500 mb-3"></i>
-                            <h3 class="font-bold text-xl">Angličtina</h3>
-                            <p class="text-sm text-slate-500 mt-2">Slovíčka (Happy House)</p>
-                        </div>
-                        <div class="glass-button p-6 rounded-2xl flex flex-col items-center cursor-pointer hover:-translate-y-1 transition-transform" onclick="switchTab('tab-matematika')">
-                            <i class="fa-solid fa-calculator text-4xl text-blue-500 mb-3"></i>
-                            <h3 class="font-bold text-xl">Matematika</h3>
-                            <p class="text-sm text-slate-500 mt-2">Násobky 3 a Dělení</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- OBSAH: Čeština -->
-                <section id="tab-cestina" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full pb-20 sm:pb-0">
-                    <div class="mb-4 text-center shrink-0">
-                        <h2 class="text-2xl font-extrabold text-slate-800">Slovní druhy</h2>
-                        <p class="text-slate-500 text-sm">Seřaď je od 1 do 10! Dlouhý stisk pro přesun.</p>
-                    </div>
-
-                    <div id="word-types-list" class="flex-1 overflow-y-auto hide-scrollbar space-y-2 px-2 pb-4">
-                        <!-- Generováno přes JS -->
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 mt-4 px-2">
-                        <button id="btn-check-cestina" class="w-full sm:flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-check-circle"></i> Zkontrolovat
-                        </button>
-                        <button id="btn-reset-cestina" class="w-full sm:w-auto px-6 py-4 rounded-xl glass-button bg-white text-slate-700 font-bold hover:bg-white/60 transition-all flex items-center justify-center gap-2 border-2 border-slate-200">
-                            <i class="fa-solid fa-shuffle text-blue-500"></i> Zamíchat
-                        </button>
-                    </div>
-                </section>
-
-                <!-- OBSAH: Angličtina -->
-                <section id="tab-anglictina" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full">
-                    <!-- Výběr levelu -->
-                    <div id="en-level-select" class="flex flex-col w-full my-auto py-8">
-                        <div class="text-center mb-8">
-                            <i class="fa-solid fa-language text-5xl text-red-500 mb-2"></i>
-                            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Happy House 2</h2>
-                            <p class="text-slate-500 font-medium">Vyber si lekci k procvičení</p>
-                        </div>
-                        <div class="space-y-3 px-2">
-                            <button onclick="startEnLevel(1)" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(194,65,12)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
-                                <span>Lekce 1: Zvířátka</span> <i class="fa-solid fa-play opacity-70"></i>
-                            </button>
-                            <button onclick="startEnLevel(2)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(29,78,216)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
-                                <span>Lekce 2: Rodina</span> <i class="fa-solid fa-play opacity-70"></i>
-                            </button>
-                            <button onclick="startEnLevel(3)" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(4,120,87)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
-                                <span>Lekce 3: Náš dům</span> <i class="fa-solid fa-play opacity-70"></i>
-                            </button>
-                            <button onclick="startEnLevel(4)" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(126,34,206)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
-                                <span>Lekce 4: Kde to je?</span> <i class="fa-solid fa-play opacity-70"></i>
-                            </button>
-                            <button onclick="startEnLevel(5)" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(190,24,93)] active:translate-y-1 active:shadow-none transition-all flex justify-between px-6 items-center">
-                                <span>Lekce 5: Vybavení</span> <i class="fa-solid fa-play opacity-70"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Hra -->
-                    <div id="en-game-screen" class="hidden flex-col h-full w-full">
-                        <div class="flex justify-between items-center mb-6 bg-white/70 p-3 rounded-2xl shadow-sm">
-                            <button onclick="showEnLevelSelect()" class="text-slate-500 hover:text-slate-800 font-bold px-2 py-1"><i class="fa-solid fa-arrow-left"></i> Zpět</button>
-                            <div class="text-center font-bold text-slate-700">Lekce <span id="en-current-level">1</span> • <span id="en-question-counter" class="text-red-500">1</span>/10</div>
-                            <div class="flex items-center gap-1 text-yellow-600 font-black text-xl"><i class="fa-solid fa-star"></i> <span id="en-score-display">0</span></div>
-                        </div>
-
-                        <div class="bg-white/80 p-6 rounded-3xl shadow-inner border-2 border-slate-100 flex flex-col items-center justify-center min-h-[160px] mb-6 relative">
-                            <div id="en-question-type" class="absolute top-[-12px] bg-slate-200 text-slate-700 px-4 py-1 rounded-full font-bold text-xs shadow-sm">Typ otázky</div>
-                            <div id="en-question-text" class="text-3xl sm:text-4xl font-black text-center text-slate-800 drop-shadow-sm mt-2">...</div>
-                            <button id="en-btn-audio" class="mt-4 bg-red-100 text-red-600 hover:bg-red-200 p-2 px-4 rounded-full flex items-center gap-2 font-bold transition-colors hidden">
-                                <i class="fa-solid fa-volume-high"></i> Přehrát
-                            </button>
-                        </div>
-
-                        <div id="en-feedback-area" class="h-10 flex justify-center items-center mb-4"></div>
-
-                        <div id="en-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto pb-4">
-                            <!-- Odpovědi JS -->
-                        </div>
-                    </div>
-
-                    <!-- Výsledky -->
-                    <div id="en-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center">
-                        <div id="en-result-icon" class="mb-4"></div>
-                        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Hotovo!</h2>
-                        <p class="text-sm font-bold text-green-600 mb-6 bg-green-100 px-4 py-2 rounded-full border border-green-200">✔️ Uloženo do statistik</p>
-                        
-                        <div class="bg-slate-50 rounded-2xl p-6 mb-8 w-full border-2 border-slate-200">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="font-bold text-slate-700">Skóre:</span>
-                                <span id="en-final-score" class="text-3xl font-black">0 / 10</span>
-                            </div>
-                        </div>
-                        <button onclick="showEnLevelSelect()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xl font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(15,23,42)] active:translate-y-1 active:shadow-none transition-all">
-                            Zpět na výběr lekcí
-                        </button>
-                    </div>
-                </section>
-
-                <!-- OBSAH: Matematika (Čisté textové pole) -->
-                <section id="tab-matematika" class="tab-content hidden h-full flex-col max-w-md mx-auto w-full">
-                    
-                    <!-- Úvodní obrazovka Matematiky -->
-                    <div id="math-level-select" class="flex flex-col w-full my-auto py-8">
-                        <div class="text-center mb-6">
-                            <i class="fa-solid fa-calculator text-6xl text-blue-500 mb-4 drop-shadow-md"></i>
-                            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Násobky a Dělení</h2>
-                            <p class="text-slate-500 font-medium">Vyber si úroveň obtížnosti</p>
-                        </div>
-                        
-                        <div class="space-y-4 px-4 w-full">
-                            <button onclick="startMathLevel(1)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-blue-400">
-                                <span>Level 1: Klasické násobky</span>
-                                <span class="text-sm font-normal opacity-90">Např. 3 × 5</span>
-                            </button>
-                            
-                            <button onclick="startMathLevel(2)" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_6px_0_rgb(147,51,234)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-purple-400">
-                                <span>Level 2: Těžší kombinace</span>
-                                <span class="text-sm font-normal opacity-90">Např. (5 × 3) + 2</span>
-                            </button>
-
-                            <button onclick="startMathLevel(3)" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_6px_0_rgb(16,185,129)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-emerald-400">
-                                <span>Level 3: Dělení 3 (Sprint!)</span>
-                                <span class="text-sm font-normal opacity-90">Např. 15 : 3</span>
-                            </button>
-
-                            <button onclick="startMathLevel(4)" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-xl py-4 rounded-2xl shadow-[0_6px_0_rgb(234,88,12)] active:translate-y-2 active:shadow-none transition-all flex flex-col items-center gap-1 border-2 border-orange-400">
-                                <span>Level 4: Mix všeho!</span>
-                                <span class="text-sm font-normal opacity-90">Ultimátní výzva na čas</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Herní obrazovka Matematiky -->
-                    <div id="math-game-screen" class="hidden flex-col h-full w-full pb-4">
-                        <div class="flex justify-between items-center mb-4 bg-white/70 p-3 rounded-2xl shadow-sm border border-slate-200">
-                            <button onclick="showMathLevelSelect()" class="text-slate-500 font-bold px-2 py-1"><i class="fa-solid fa-arrow-left"></i> Zpět</button>
-                            <div class="text-center font-bold text-slate-700">Příklad <span id="math-question-counter" class="text-blue-500">1</span>/10</div>
-                            <div class="flex items-center gap-1 text-green-600 font-black text-xl"><i class="fa-solid fa-check"></i> <span id="math-score-display">0</span></div>
-                        </div>
-
-                        <!-- Časovač -->
-                        <div class="mb-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4 shrink-0">
-                            <i class="fa-solid fa-stopwatch text-2xl text-slate-400"></i>
-                            <div class="flex-1 bg-slate-100 h-4 rounded-full overflow-hidden">
-                                <div id="math-timer-bar" class="h-full bg-blue-500 w-full transition-all duration-1000"></div>
-                            </div>
-                            <span id="math-timer-text" class="font-black text-xl text-slate-700 w-10 text-right">10s</span>
-                        </div>
-
-                        <!-- Zadávací karta -->
-                        <div id="math-card" class="bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[220px] mb-4 transition-colors duration-300">
-                            <div id="math-question-text" class="text-5xl sm:text-6xl font-black text-center text-slate-800 tracking-widest mb-8">
-                                ...
-                            </div>
-                            
-                            <input 
-                                type="number" 
-                                id="math-answer-input" 
-                                inputmode="numeric" 
-                                pattern="[0-9]*" 
-                                class="w-full max-w-[200px] text-center text-5xl font-black bg-slate-100 rounded-2xl py-4 outline-none text-blue-600 shadow-inner border-4 border-slate-200 focus:border-blue-400 focus:bg-white transition-all" 
-                                placeholder="?" 
-                                autocomplete="off"
-                            >
-                        </div>
-
-                        <div id="math-feedback" class="h-8 text-center font-bold text-xl mb-2 text-slate-500 shrink-0">
-                            Zadej číslo a potvrď
-                        </div>
-
-                        <button onclick="checkMathTextAnswer()" id="math-submit-btn" class="w-full mt-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-2xl py-5 rounded-2xl shadow-[0_6px_0_rgb(37,99,235)] active:translate-y-2 active:shadow-none transition-all flex justify-center items-center gap-3 shrink-0">
-                            Zkontrolovat <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-
-                    <!-- Výsledky Matematiky -->
-                    <div id="math-result-screen" class="hidden flex-col h-full w-full justify-center items-center text-center">
-                        <div id="math-result-icon" class="mb-4"></div>
-                        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Konec počítání!</h2>
-                        <p class="text-sm font-bold text-green-600 mb-6 bg-green-100 px-4 py-2 rounded-full border border-green-200">✔️ Uloženo do statistik</p>
-                        
-                        <div class="bg-slate-50 rounded-2xl p-6 mb-8 w-full border-2 border-slate-200">
-                            <div class="flex justify-between items-center text-xl">
-                                <span class="font-bold text-slate-700">Správně napoprvé:</span>
-                                <span id="math-final-score" class="text-3xl font-black text-blue-600">0 / 10</span>
-                            </div>
-                        </div>
-
-                        <button onclick="showMathLevelSelect()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xl font-bold py-4 rounded-2xl shadow-[0_4px_0_rgb(15,23,42)] active:translate-y-1 active:shadow-none transition-all">
-                            Zpět na výběr levelu
-                        </button>
-                    </div>
-                </section>
-
-                <!-- OBSAH: Rodič (Statistiky a Slovíčka) -->
-                <section id="tab-rodic" class="tab-content hidden h-full flex-col max-w-2xl mx-auto w-full">
-                    <div class="flex justify-between items-center mb-6 bg-purple-50 p-4 rounded-2xl border border-purple-100 shrink-0">
-                        <div>
-                            <h2 class="text-2xl font-extrabold text-slate-800">Rodičovský panel</h2>
-                            <p class="text-sm text-slate-500">Statistiky a nastavení</p>
-                        </div>
-                        <div class="text-right text-xs text-slate-400 font-mono">
-                            DB: <span id="db-status-indicator" class="font-bold text-orange-500">Připojuji...</span>
-                        </div>
-                    </div>
-
-                    <div class="flex-1 overflow-y-auto hide-scrollbar pb-4 space-y-6">
-                        <!-- Sekce Historie -->
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Historie tréninků</h3>
-                            <div id="stats-container" class="space-y-3">
-                                <div class="text-center py-10 text-slate-400">
-                                    <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
-                                    <p>Načítám historii...</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Sekce Slovní zásoba -->
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-book"></i> Slovní zásoba (K procvičení)</h3>
-                            <div id="vocab-container" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                                <!-- Vygeneruje JS -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-            </main>
-        </div>
+  <nav class="bg-slate-50/50 border-b border-white/30 px-2 py-2 shrink-0 overflow-x-auto noscroll" aria-label="Předměty">
+    <div class="flex gap-2 min-w-max" id="nav">
+      <button data-t="domu" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-house"></i> <span class="hidden sm:inline">Domů</span></button>
+      <button data-t="cestina" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-book-open text-orange-500"></i> Čeština</button>
+      <button data-t="anglictina" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-language text-red-500"></i> Angličtina</button>
+      <button data-t="matematika" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-calculator text-blue-500"></i> Matematika</button>
+      <button data-t="rodic" id="nav-rodic" class="nav-tab hidden px-4 py-2.5 rounded-xl font-bold text-purple-700"><i class="fa-solid fa-chart-pie"></i> Rodič</button>
     </div>
+  </nav>
 
-    <!-- 3. FIREBASE A JS LOGIKA -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+  <main class="flex-1 overflow-y-auto p-4 sm:p-6 relative">
+    <div id="toast" role="status" class="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-white px-6 py-3 rounded-full shadow-xl font-bold border opacity-0 -translate-y-20 transition-all duration-300"></div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzTErD4ZCo-HCRD9mw4EFKLm8kZKQugqk",
-            authDomain: "tom-learning-996cc.firebaseapp.com",
-            projectId: "tom-learning-996cc",
-            storageBucket: "tom-learning-996cc.firebasestorage.app",
-            messagingSenderId: "1025710047976",
-            appId: "1:1025710047976:web:fcef139057d21ec2e6bf5d"
-        };
+    <!-- Domů -->
+    <section id="tab-domu" class="tab active flex-col">
+      <h2 class="text-3xl font-extrabold mb-1">Vyber si předmět</h2>
+      <p class="text-slate-500 font-medium mb-6">Co se dnes budeme učit?</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button data-go="cestina" class="bg-white/80 p-6 rounded-2xl shadow hover:-translate-y-1 transition"><i class="fa-solid fa-book-open text-4xl text-orange-500 mb-2"></i><h3 class="font-bold text-xl">Čeština</h3><p class="text-sm text-slate-500">Slovní druhy</p></button>
+        <button data-go="anglictina" class="bg-white/80 p-6 rounded-2xl shadow hover:-translate-y-1 transition"><i class="fa-solid fa-language text-4xl text-red-500 mb-2"></i><h3 class="font-bold text-xl">Angličtina</h3><p class="text-sm text-slate-500">Slovíčka (Happy House)</p></button>
+        <button data-go="matematika" class="bg-white/80 p-6 rounded-2xl shadow hover:-translate-y-1 transition"><i class="fa-solid fa-calculator text-4xl text-blue-500 mb-2"></i><h3 class="font-bold text-xl">Matematika</h3><p class="text-sm text-slate-500">Násobky 3 a dělení</p></button>
+      </div>
+      <div id="streak" class="mt-6 text-center font-bold text-orange-600"></div>
+      <div id="daily" class="mt-4 text-center font-bold text-slate-700"></div>
+      <div id="catch" class="mt-2 text-center text-xl font-bold text-cyan-800"></div>
+    </section>
 
-        // ==========================================
-        // SDÍLENÁ DATA: ANGLIČTINA
-        // ==========================================
-        const VOCABULARY = [
-            // Level 1: Zvířátka
-            { en: "cat", cz: "kočka", level: 1 }, { en: "dog", cz: "pes", level: 1 }, { en: "mouse", cz: "myš", level: 1 }, { en: "bird", cz: "pták", level: 1 }, { en: "snake", cz: "had", level: 1 }, { en: "tiger", cz: "tygr", level: 1 }, { en: "monkey", cz: "opice", level: 1 },
-            // Level 2: Rodina
-            { en: "mum", cz: "maminka", level: 2 }, { en: "dad", cz: "tatínek", level: 2 }, { en: "brother", cz: "bratr", level: 2 }, { en: "sister", cz: "sestra", level: 2 }, { en: "grandma", cz: "babička", level: 2 }, { en: "grandpa", cz: "dědeček", level: 2 },
-            // Level 3: Náš dům
-            { en: "kitchen", cz: "kuchyně", level: 3 }, { en: "bedroom", cz: "ložnice", level: 3 }, { en: "bathroom", cz: "koupelna", level: 3 }, { en: "living room", cz: "obývací pokoj", level: 3 }, { en: "garden", cz: "zahrada", level: 3 }, { en: "hall", cz: "chodba", level: 3 },
-            // Level 4: Fráze a otázky
-            { en: "Where is my book?", cz: "Kde je moje kniha?", level: 4 }, { en: "Yes, it is.", cz: "Ano, to je.", level: 4 }, { en: "No, it isn't.", cz: "Ne, to není.", level: 4 }, { en: "in the box", cz: "v krabici", level: 4 }, { en: "on the table", cz: "na stole", level: 4 },
-            // Level 5: Vybavení
-            { en: "bed", cz: "postel", level: 5 }, { en: "table", cz: "stůl", level: 5 }, { en: "chair", cz: "židle", level: 5 }, { en: "window", cz: "okno", level: 5 }, { en: "door", cz: "dveře", level: 5 }, { en: "picture", cz: "obrázek", level: 5 }
-        ];
+    <!-- Čeština -->
+    <section id="tab-cestina" class="tab flex-col max-w-md mx-auto w-full">
+      <div class="mb-3 text-center"><h2 class="text-2xl font-extrabold">Slovní druhy</h2><p class="text-slate-500 text-sm">Seřaď je od 1 do 10. Přetahuj (na mobilu podrž prst).</p></div>
+      <div id="word-list" class="flex-1 overflow-y-auto noscroll space-y-2 px-1 pb-3"></div>
+      <div class="flex flex-col sm:flex-row gap-3 mt-2">
+        <button id="cz-check" class="w-full sm:flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg"><i class="fa-solid fa-check-circle"></i> Zkontrolovat</button>
+        <button id="cz-solve" class="w-full sm:w-auto px-5 py-4 rounded-xl bg-white border-2 border-slate-200 font-bold">Ukázat řešení</button>
+        <button id="cz-shuffle" class="w-full sm:w-auto px-5 py-4 rounded-xl bg-white border-2 border-slate-200 font-bold"><i class="fa-solid fa-shuffle text-blue-500"></i> Zamíchat</button>
+      </div>
+    </section>
 
-        // ==========================================
-        // FIREBASE PŘIPOJENÍ
-        // ==========================================
-        let app, auth, db, isDbConnected = false, currentUserUid = null;
+    <!-- Angličtina -->
+    <section id="tab-anglictina" class="tab flex-col max-w-md mx-auto w-full">
+      <div id="en-select" class="w-full my-auto py-6">
+        <div class="text-center mb-6"><h2 class="text-3xl font-extrabold">Happy House 2</h2><p class="text-slate-500 font-medium">Vyber si lekci</p></div>
+        <div id="en-levels" class="space-y-3"></div>
+      </div>
+      <div id="en-game" class="hidden flex-col h-full w-full">
+        <div class="flex justify-between items-center mb-4 bg-white/70 p-3 rounded-2xl">
+          <button id="en-back" class="font-bold px-2"><i class="fa-solid fa-arrow-left"></i> Zpět</button>
+          <div class="font-bold">Lekce <span id="en-lvl"></span> • <span id="en-n" class="text-red-500"></span>/10</div>
+          <div class="text-yellow-600 font-black text-xl"><i class="fa-solid fa-star"></i> <span id="en-score">0</span></div>
+        </div>
+        <div class="bg-white/80 p-6 rounded-3xl border-2 border-slate-100 flex flex-col items-center justify-center min-h-[170px] mb-4 relative">
+          <div id="en-type" class="absolute -top-3 bg-slate-200 px-4 py-1 rounded-full font-bold text-xs"></div>
+          <div id="en-q" class="text-3xl sm:text-4xl font-black text-center mt-2"></div>
+          <button id="en-audio" class="mt-4 bg-red-100 text-red-700 hover:bg-red-200 py-2 px-4 rounded-full font-bold hidden"><i class="fa-solid fa-volume-high"></i> Přehrát</button>
+        </div>
+        <div id="en-fb" class="h-10 flex justify-center items-center mb-3" aria-live="polite"></div>
+        <div id="en-opts" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto pb-4"></div>
+      </div>
+      <div id="en-result" class="hidden flex-col h-full w-full justify-center items-center text-center">
+        <div id="en-icon" class="mb-3"></div>
+        <h2 class="text-3xl font-extrabold mb-2">Hotovo!</h2>
+        <p class="text-sm font-bold text-green-700 mb-5 bg-green-100 px-4 py-2 rounded-full">Uloženo do statistik</p>
+        <div class="bg-slate-50 rounded-2xl p-5 mb-3 w-full border-2 border-slate-200 flex justify-between"><span class="font-bold">Skóre:</span><span id="en-final" class="text-3xl font-black"></span></div>
+        <div id="en-wrong" class="text-sm text-slate-600 mb-5"></div>
+        <button class="play-game w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xl font-bold py-4 rounded-2xl mb-3">🎣 Zahrát si hru (1 min)</button>
+        <button class="en-back2 w-full bg-slate-800 text-white text-xl font-bold py-4 rounded-2xl">Zpět na výběr lekcí</button>
+      </div>
+    </section>
 
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-            
-            signInAnonymously(auth).then((userCredential) => {
-                currentUserUid = userCredential.user.uid;
-                isDbConnected = true;
-                updateDbStatus('Připojeno', 'text-green-500');
-                loadStatsFromCloud();
-            }).catch((error) => {
-                console.warn("Chyba Auth:", error);
-                useLocalFallback();
-            });
-        } catch (e) {
-            console.warn("Chyba Firebase:", e);
-            useLocalFallback();
-        }
+    <!-- Matematika -->
+    <section id="tab-matematika" class="tab flex-col max-w-md mx-auto w-full">
+      <div id="m-select" class="w-full my-auto py-4"></div>
+      <div id="m-game" class="hidden flex-col h-full w-full pb-3">
+        <div class="flex justify-between items-center mb-3 bg-white/70 p-3 rounded-2xl">
+          <button id="m-back" class="font-bold px-2"><i class="fa-solid fa-arrow-left"></i> Zpět</button>
+          <div class="font-bold">Příklad <span id="m-n" class="text-blue-600"></span>/<span id="m-total"></span></div>
+          <div class="text-green-700 font-black text-xl"><i class="fa-solid fa-check"></i> <span id="m-score">0</span></div>
+        </div>
+        <div id="m-timerbox" class="mb-3 bg-white p-3 rounded-2xl flex items-center gap-3">
+          <i class="fa-solid fa-stopwatch text-2xl text-slate-400"></i>
+          <div class="flex-1 bg-slate-100 h-4 rounded-full overflow-hidden"><div id="m-bar" class="h-full bg-blue-500 transition-all duration-1000"></div></div>
+          <span id="m-time" class="font-black text-xl w-10 text-right"></span>
+        </div>
+        <div id="m-card" class="bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[240px] mb-3 transition-colors">
+          <div id="m-q" class="text-5xl sm:text-6xl font-black text-center tracking-widest mb-6"></div>
+          <input id="m-in" type="number" inputmode="numeric" aria-label="Tvoje odpověď" placeholder="?" autocomplete="off" class="w-full max-w-[200px] text-center text-5xl font-black bg-slate-100 rounded-2xl py-4 text-blue-700 border-4 border-slate-200">
+        </div>
+        <div class="mb-2 shrink-0"><button id="m-note-btn" type="button" class="text-sm font-bold bg-white/80 px-4 py-2 rounded-xl border-2 border-slate-200">✏️ Poznámky</button>
+          <div id="m-note" class="hidden mt-2"><canvas id="m-pad" aria-label="Poznámky, kreslení prstem" class="w-full h-36 bg-yellow-50 border-2 border-yellow-300 rounded-xl touch-none"></canvas>
+          <button id="m-pad-clear" type="button" class="text-xs font-bold text-slate-600 mt-1">Smazat poznámky</button></div></div>
+        <div id="m-fb" class="h-8 text-center font-bold text-xl mb-2 text-slate-500" aria-live="polite"></div>
+        <div class="flex gap-2 mt-auto"><button id="m-idk" class="px-5 rounded-2xl bg-slate-200 hover:bg-slate-300 font-bold text-lg">Nevím</button><button id="m-ok" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-2xl py-5 rounded-2xl">Zkontrolovat</button></div>
+      </div>
+      <div id="m-result" class="hidden flex-col h-full w-full justify-center items-center text-center">
+        <div id="m-icon" class="mb-3"></div>
+        <div id="m-tip" class="mb-3 text-sm font-bold text-center"></div>
+        <h2 class="text-3xl font-extrabold mb-2">Konec počítání!</h2>
+        <p class="text-sm font-bold text-green-700 mb-5 bg-green-100 px-4 py-2 rounded-full">Uloženo do statistik</p>
+        <div class="bg-slate-50 rounded-2xl p-5 mb-5 w-full border-2 border-slate-200 flex justify-between text-xl"><span class="font-bold">Správně napoprvé:</span><span id="m-final" class="text-3xl font-black text-blue-600"></span></div>
+        <button class="play-game w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xl font-bold py-4 rounded-2xl mb-3">🎣 Zahrát si hru (1 min)</button>
+        <button class="m-back2 w-full bg-slate-800 text-white text-xl font-bold py-4 rounded-2xl">Zpět na výběr levelu</button>
+      </div>
+    </section>
 
-        function updateDbStatus(text, colorClass) {
-            const el = document.getElementById('db-status-indicator');
-            if(el) {
-                el.textContent = text;
-                el.className = `font-bold ${colorClass}`;
-            }
-        }
+    <!-- Rodič -->
+    <section id="tab-rodic" class="tab flex-col max-w-2xl mx-auto w-full">
+      <div class="flex justify-between items-center mb-4 bg-purple-50 p-4 rounded-2xl border border-purple-100">
+        <div><h2 class="text-2xl font-extrabold">Rodičovský panel</h2><p class="text-sm text-slate-500">Rodina: <b id="fam-label"></b></p></div>
+        <div class="text-xs text-slate-500">DB: <b id="db-status" class="text-orange-600">Připojuji…</b></div>
+      </div>
+      <div class="space-y-6 pb-4">
+        <div><h3 class="font-bold text-lg mb-2">Průměr podle předmětů</h3><div id="averages" class="grid grid-cols-3 gap-2"></div></div>
+        <div><h3 class="font-bold text-lg mb-2">Nejčastější chyby</h3><div id="weak-list" class="bg-white rounded-2xl border p-4 text-sm"></div></div>
+        <details class="bg-white rounded-2xl border p-4 text-sm"><summary class="font-bold cursor-pointer">Jak se příklady vybírají</summary>
+<ul class="list-disc pl-5 mt-2 space-y-1 text-slate-600">
+<li><b>Násobilka:</b> vybraná čísla × 1 až 10, v obou směrech (3 × 7 i 7 × 3). Dělení se odvozuje ze stejných dvojic. Při volbě „Všechny“ dostane syn úplně všechny kombinace, jinak ty, které procvičil nejméně.</li>
+<li><b>Sčítání a odčítání:</b> náhodně v rozsahu 20, 50 nebo 100. Výsledek nikdy není záporný ani nad limit.</li>
+<li><b>Těžší kombinace:</b> (a × b) ± c, kde a a b jsou 2 až 10 a c je nejvýš 20 (a ne víc než a × b).</li>
+<li><b>Chyba:</b> příklad se v téže lekci objeví ještě 2×. Do „Moje chyby“ se vrací za 1 den, 3 dny a 7 dní. Po třech správných odpovědích napoprvé zmizí. Chyba začíná od začátku.</li><li><b>Chytré úlohy:</b> chybějící číslo (□ × 4 = 28) a jednoduché slovní úlohy o rybách.</li>
+<li><b>Přesně dané příklady:</b> zadejte je níže v části „Vlastní příklady“.</li></ul></details>
+<div><h3 class="font-bold text-lg mb-2">Matematika: poslední týden</h3><div id="week" class="bg-white rounded-2xl border p-4"></div></div>
+<div><h3 class="font-bold text-lg mb-2">Pokrytí násobilky</h3><div id="cover" class="bg-white rounded-2xl border p-3 overflow-x-auto"></div>
+<p class="text-xs text-slate-500 mt-1">Řádek × sloupec. Šedá = ještě nezkoušeno, zelená = bez chyby, žlutá = správně, ale pomalu (průměr nad 5 s), červená = někdy chyba. Číslo = počet pokusů.</p></div>
+<div><h3 class="font-bold text-lg mb-2">Vlastní příklady pro syna</h3><div class="bg-white rounded-2xl border p-4">
+<p class="text-xs text-slate-500 mb-2">Jeden příklad na řádek ve tvaru <b>příklad = výsledek</b>, např. <b>7 × 8 = 56</b> nebo <b>45 + 38 = 83</b>. Max. 50 řádků.</p>
+<textarea id="custom-text" rows="6" class="w-full bg-slate-100 rounded-xl p-3 text-sm font-mono" aria-label="Vlastní příklady"></textarea>
+<button id="custom-save" class="mt-2 bg-purple-600 hover:bg-purple-700 text-white font-bold px-5 py-3 rounded-xl">Uložit příklady</button></div></div>
+<div><h3 class="font-bold text-lg mb-2">Historie tréninků (klikni pro detail)</h3>
+<div id="stat-tabs" class="flex gap-2 mb-3 flex-wrap"><button data-f="Vše"></button><button data-f="Matematika"></button><button data-f="Angličtina"></button><button data-f="Čeština"></button></div><div id="stats" class="space-y-2"></div></div>
+        <div><h3 class="font-bold text-lg mb-2">Slovní zásoba</h3><div id="vocab" class="bg-white rounded-2xl border overflow-hidden"></div></div>
+      </div>
+    </section>
+  </main>
+ </div>
+</div>
 
-        function useLocalFallback() {
-            isDbConnected = false;
-            updateDbStatus('Lokální paměť', 'text-slate-500');
-            loadStatsFromLocal();
-        }
+<div id="game" class="hidden fixed inset-0 z-[60] bg-gradient-to-b from-cyan-600 to-blue-900 flex-col items-center justify-center select-none text-white">
+ <div class="w-[288px] flex justify-between font-black text-xl mb-2"><span>🐟 Rybka</span><span>⏱ <b id="g-time">60</b></span><span>🪱 <b id="g-score">0</b></span></div>
+ <canvas id="g-cv" width="288" height="288" class="rounded-xl border-4 border-cyan-300 bg-cyan-800 touch-none"></canvas>
+ <div class="grid grid-cols-3 gap-1 mt-3 w-44 text-2xl"><span></span><button data-d="u" aria-label="nahoru" class="bg-white/25 rounded-lg py-2">▲</button><span></span><button data-d="l" aria-label="doleva" class="bg-white/25 rounded-lg py-2">◀</button><button data-d="d" aria-label="dolů" class="bg-white/25 rounded-lg py-2">▼</button><button data-d="r" aria-label="doprava" class="bg-white/25 rounded-lg py-2">▶</button></div>
+ <div id="g-msg" class="h-8 font-bold mt-2"></div>
+ <button id="g-close" class="bg-white text-slate-900 px-8 py-3 rounded-xl font-bold">Zavřít</button>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, where, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-        window.saveSession = async function(subject, detail, score, maxScore) {
-            const record = { timestamp: new Date().getTime(), subject, detail, score, maxScore };
-            if (isDbConnected && currentUserUid) {
-                try {
-                    await addDoc(collection(db, "stats"), { ...record, timestamp: serverTimestamp(), userId: currentUserUid });
-                } catch (e) { saveToLocal(record); }
-            } else { saveToLocal(record); }
-        };
+/* =====================================================================
+   FIRESTORE PRAVIDLA (vložte v konzoli Firebase > Firestore > Rules):
 
-        function saveToLocal(record) {
-            let localStats = JSON.parse(localStorage.getItem('eduStats') || '[]');
-            localStats.push(record);
-            localStorage.setItem('eduStats', JSON.stringify(localStats));
-            if(document.getElementById('tab-rodic').classList.contains('active')) loadStatsFromLocal();
-        }
+   rules_version = '2';
+   service cloud.firestore { match /databases/{db}/documents {
+     match /stats/{id} {
+       allow create: if request.auth != null
+         && request.resource.data.familyCode is string
+         && request.resource.data.familyCode.size() >= 6
+         && request.resource.data.score is int
+         && request.resource.data.maxScore is int;
+       allow read: if request.auth != null;   // viz poznámka níže
+       allow update, delete: if false;
+     }}}
 
-        function loadStatsFromCloud() {
-            if (!isDbConnected) return;
-            const q = query(collection(db, "stats"), orderBy("timestamp", "desc"));
-            onSnapshot(q, (snapshot) => {
-                const stats = [];
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    let ts = data.timestamp ? data.timestamp.toMillis() : new Date().getTime();
-                    stats.push({ id: doc.id, ...data, timestamp: ts });
-                });
-                renderStats(stats);
-            }, () => loadStatsFromLocal());
-        }
+   Přidejte ještě pravidlo pro vlastní příklady:
+     match /custom/{code} { allow read, write: if request.auth != null; }
 
-        function loadStatsFromLocal() {
-            let stats = JSON.parse(localStorage.getItem('eduStats') || '[]');
-            stats.sort((a, b) => b.timestamp - a.timestamp);
-            renderStats(stats);
-        }
+   Poznámka: kód rodiny funguje jako sdílené "heslo". Čtení je omezeno
+   dotazem na familyCode (klient jiný kód nezná). Pro skutečnou ochranu
+   použijte Firebase Auth s e-mailem rodiče a pravidlo
+   "resource.data.familyUid == request.auth.uid".
+   ===================================================================== */
 
-        // ==========================================
-        // VYKRESLOVÁNÍ STATISTIK A SLOVÍČEK
-        // ==========================================
-        function renderStats(stats) {
-            const container = document.getElementById('stats-container');
-            if (stats.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-white rounded-2xl border"><p>Zatím žádná historie.</p></div>`;
-                return;
-            }
-            const icons = {
-                'Čeština': '<i class="fa-solid fa-book-open text-orange-500"></i>',
-                'Angličtina': '<i class="fa-solid fa-language text-red-500"></i>',
-                'Matematika': '<i class="fa-solid fa-calculator text-blue-500"></i>'
-            };
-            container.innerHTML = stats.map(s => {
-                const date = new Date(s.timestamp).toLocaleString('cs-CZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-                const percent = Math.round((s.score / s.maxScore) * 100);
-                const color = percent >= 80 ? 'text-green-600 bg-green-100' : (percent >= 50 ? 'text-orange-600 bg-orange-100' : 'text-red-600 bg-red-100');
-                return `
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border">${icons[s.subject] || '<i class="fa-solid fa-star"></i>'}</div>
-                        <div>
-                            <div class="font-bold text-slate-800">${s.subject} <span class="text-xs font-normal text-slate-500 ml-1">(${s.detail})</span></div>
-                            <div class="text-xs text-slate-400">${date}</div>
-                        </div>
-                    </div>
-                    <div class="font-black px-3 py-1 rounded-lg ${color}">${s.score}/${s.maxScore}</div>
-                </div>`;
-            }).join('');
-        }
+const firebaseConfig = {
+  apiKey: "AIzaSyBzTErD4ZCo-HCRD9mw4EFKLm8kZKQugqk",
+  authDomain: "tom-learning-996cc.firebaseapp.com",
+  projectId: "tom-learning-996cc",
+  storageBucket: "tom-learning-996cc.firebasestorage.app",
+  messagingSenderId: "1025710047976",
+  appId: "1:1025710047976:web:fcef139057d21ec2e6bf5d"
+};
 
-        function renderVocabularyList() {
-            const container = document.getElementById('vocab-container');
-            if(!container) return;
-            
-            let html = '';
-            const levelNames = ["", "Lekce 1: Zvířátka", "Lekce 2: Rodina", "Lekce 3: Náš dům", "Lekce 4: Kde to je?", "Lekce 5: Vybavení"];
-            
-            for(let i = 1; i <= 5; i++) {
-                const words = VOCABULARY.filter(v => v.level === i);
-                html += `
-                <div class="border-b last:border-b-0 border-slate-100">
-                    <div class="bg-slate-50 px-4 py-2 font-bold text-slate-700 text-sm border-b border-slate-100 flex justify-between items-center">
-                        <span>${levelNames[i]}</span>
-                        <span class="text-slate-400 font-normal text-xs bg-slate-200 px-2 py-0.5 rounded-full">${words.length} slov</span>
-                    </div>
-                    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-                        ${words.map(w => `
-                            <div class="flex justify-between items-center text-sm border-b border-slate-50 pb-1">
-                                <span class="font-bold text-slate-800">${w.en}</span>
-                                <span class="text-slate-500">${w.cz}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>`;
-            }
-            container.innerHTML = html;
-        }
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const ls = { get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
 
-        // ==========================================
-        // UI LOGIKA (Navigace, PIN)
-        // ==========================================
-        window.checkPin = function() {
-            const pin = document.getElementById('pin-input').value;
-            if (pin === '1111' || pin === '1234') {
-                const isParent = pin === '1234';
-                document.getElementById('user-name').textContent = isParent ? 'Rodič' : 'Žák';
-                document.getElementById('user-badge').className = `hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold ${isParent ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`;
-                
-                const rodicTab = document.getElementById('nav-rodic');
-                isParent ? rodicTab.classList.remove('hidden') : rodicTab.classList.add('hidden');
-                
-                document.getElementById('pin-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('pin-screen').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('hidden');
-                    window.switchTab('tab-domu');
-                }, 500);
-            } else {
-                window.showToast('Špatný PIN!', 'error');
-                document.getElementById('pin-input').value = '';
-            }
-        };
+/* ---------- DATA ---------- */
+const LEVEL_NAMES = ["", "Zvířátka", "Rodina", "Náš dům", "Kde to je?", "Vybavení"];
+const LEVEL_COLORS = ["", "orange", "blue", "emerald", "purple", "pink"];
+const V = [
+ [1,"cat","kočka"],[1,"dog","pes"],[1,"mouse","myš"],[1,"bird","pták"],[1,"snake","had"],[1,"tiger","tygr"],[1,"monkey","opice"],
+ [2,"mum","maminka"],[2,"dad","tatínek"],[2,"brother","bratr"],[2,"sister","sestra"],[2,"grandma","babička"],[2,"grandpa","dědeček"],
+ [3,"kitchen","kuchyně"],[3,"bedroom","ložnice"],[3,"bathroom","koupelna"],[3,"living room","obývací pokoj"],[3,"garden","zahrada"],[3,"hall","chodba"],
+ [4,"Where is my book?","Kde je moje kniha?"],[4,"Yes, it is.","Ano, to je."],[4,"No, it isn't.","Ne, to není."],[4,"in the box","v krabici"],[4,"on the table","na stole"],
+ [5,"bed","postel"],[5,"table","stůl"],[5,"chair","židle"],[5,"window","okno"],[5,"door","dveře"],[5,"picture","obrázek"]
+].map(([level, en, cz]) => ({ level, en, cz }));
+const WORD_TYPES = ["Podstatná jména","Přídavná jména","Zájmena","Číslovky","Slovesa","Příslovce","Předložky","Spojky","Částice","Citoslovce"];
+const WT_COLORS = ["#ef4444","#f97316","#f59e0b","#84cc16","#10b981","#06b6d4","#3b82f6","#8b5cf6","#d946ef","#f43f5e"];
 
-        window.logout = function() {
-            document.getElementById('pin-input').value = '';
-            document.getElementById('app-container').classList.add('hidden');
-            const pinScreen = document.getElementById('pin-screen');
-            pinScreen.classList.remove('hidden');
-            setTimeout(() => pinScreen.style.opacity = '1', 50);
-        };
+/* ---------- STAV ---------- */
+let role = null, familyCode = ls.get('familyCode', ''), db = null, uid = null, cloud = false, unsub = null;
 
-        window.switchTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(el => {
-                el.classList.remove('bg-white/50', 'text-slate-800');
-                if (el.dataset.target === tabId) el.classList.add('bg-white/50', 'text-slate-800');
-            });
-            document.getElementById(tabId).classList.add('active');
-        };
+/* ---------- UI ---------- */
+function toast(msg, ok = true) {
+  const t = $('toast'); t.textContent = msg;
+  t.className = `absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-white px-6 py-3 rounded-full shadow-xl font-bold border transition-all duration-300 translate-y-0 opacity-100 ${ok ? 'border-green-300' : 'border-red-300'}`;
+  clearTimeout(toast.h);
+  toast.h = setTimeout(() => { t.classList.replace('translate-y-0', '-translate-y-20'); t.classList.replace('opacity-100', 'opacity-0'); }, 2500);
+}
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
+  $('tab-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.toggle('bg-white', b.dataset.t === id));
+  if (id !== 'matematika') clearInterval(mTimer);
+}
+document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => switchTab(b.dataset.t));
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => switchTab(b.dataset.go));
 
-        window.showToast = function(msg, type = 'success') {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').textContent = msg;
-            const icon = document.getElementById('toast-icon');
-            if(type === 'success') {
-                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xl"></i>';
-                toast.className = 'absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border border-green-200 text-slate-700 translate-y-0 opacity-100';
-            } else if (type === 'error') {
-                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500 text-xl"></i>';
-                toast.className = 'absolute top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform bg-white px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-3 border border-red-200 text-slate-700 translate-y-0 opacity-100';
-            }
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('-translate-y-20', 'opacity-0');
-            }, 3000);
-        };
+/* ---------- PIN ---------- */
+function login() {
+  const pin = $('pin-input').value.trim(), fam = $('family-input').value.trim().toLowerCase(), err = $('pin-err');
+  err.textContent = '';
+  if (pin !== '1111' && pin !== '1234') { err.textContent = 'Špatný PIN. Zkus znovu.'; $('pin-input').value = ''; return; }
+  if (fam.length < 6) { err.textContent = 'Kód rodiny musí mít aspoň 6 znaků (např. novak2026).'; return; }
+  familyCode = fam; ls.set('familyCode', fam);
+  role = pin === '1234' ? 'parent' : 'child';
+  $('user-name').textContent = role === 'parent' ? 'Rodič' : 'Žák';
+  $('nav-rodic').classList.toggle('hidden', role !== 'parent');
+  $('fam-label').textContent = fam;
+  $('pin-screen').classList.add('hidden');
+  $('app').classList.remove('hidden'); $('app').classList.add('flex');
+  switchTab('domu'); showStreak(); startCloud();
+}
+function logout() {
+  if (unsub) { unsub(); unsub = null; }
+  role = null; $('pin-input').value = '';
+  $('app').classList.add('hidden'); $('app').classList.remove('flex');
+  $('pin-screen').classList.remove('hidden');
+}
+$('pin-btn').onclick = login; $('logout-btn').onclick = logout;
+['pin-input', 'family-input'].forEach(i => $(i).addEventListener('keydown', e => e.key === 'Enter' && login()));
+$('family-input').value = familyCode;
 
-        // ==========================================
-        // ČEŠTINA
-        // ==========================================
-        const spravnePoradi = ["Podstatná jména", "Přídavná jména", "Zájmena", "Číslovky", "Slovesa", "Příslovce", "Předložky", "Spojky", "Částice", "Citoslovce"];
-        let sortableInstance = null;
+/* ---------- FIREBASE ---------- */
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  signInAnonymously(getAuth(app)).then(c => { uid = c.user.uid; cloud = true; setDb('Připojeno', 'text-green-600'); if (role) startCloud(); })
+    .catch(() => setDb('Lokální paměť', 'text-slate-500'));
+} catch { setDb('Lokální paměť', 'text-slate-500'); }
+function setDb(t, c) { const e = $('db-status'); e.textContent = t; e.className = c; }
 
-        function renderCestinaList() {
-            const container = document.getElementById('word-types-list');
-            let currentItems = Array.from(container.children).map(el => el.querySelector('span').textContent);
-            if (currentItems.length === 0) currentItems = [...spravnePoradi].sort(() => Math.random() - 0.5);
-            container.innerHTML = '';
-            
-            currentItems.forEach((text) => {
-                const originalIndex = spravnePoradi.indexOf(text) + 1;
-                const div = document.createElement('div');
-                div.className = `word-card card-${originalIndex} p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between font-bold text-slate-700 transition-all cursor-grab`;
-                div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-grip-vertical text-slate-300"></i>
-                        <span>${text}</span>
-                    </div>
-                    <div class="status-icon"></div>
-                `;
-                container.appendChild(div);
-            });
+function startCloud() {
+  loadCustom();
+  if (unsub) { unsub(); unsub = null; }
+  if (role !== 'parent') return renderLocal();
+  if (!cloud) return renderLocal();
+  // Dotaz bez orderBy => nevyžaduje složený index; řadíme na klientovi.
+  unsub = onSnapshot(query(collection(db, 'stats'), where('familyCode', '==', familyCode)), snap => {
+    renderAll(snap.docs.map(d => { const x = d.data(); return { ...x, timestamp: x.timestamp?.toMillis?.() ?? Date.now() }; }));
+  }, () => { setDb('Lokální paměť', 'text-slate-500'); renderLocal(); });
+}
+function renderLocal() { renderAll(ls.get('eduStats', [])); }
 
-            if (sortableInstance) sortableInstance.destroy();
-            sortableInstance = new Sortable(container, {
-                animation: 250,
-                ghostClass: 'sortable-ghost',
-                delay: 200, 
-                delayOnTouchOnly: true
-            });
-        }
+async function saveSession(subject, detail, score, maxScore, wrong = [], items = []) {
+  const rec = { subject, detail, score, maxScore, wrong, items, familyCode };
+  const days = ls.get('days', []); const today = new Date().toDateString();
+  if (!days.includes(today)) { days.push(today); ls.set('days', days.slice(-60)); }
+  if (cloud && db) {
+    try { await addDoc(collection(db, 'stats'), { ...rec, timestamp: serverTimestamp(), userId: uid }); return; } catch {}
+  }
+  const l = ls.get('eduStats', []); l.push({ ...rec, timestamp: Date.now() }); ls.set('eduStats', l);
+  if (role === 'parent') renderLocal();
+}
 
-        document.getElementById('btn-reset-cestina').addEventListener('click', () => {
-            const container = document.getElementById('word-types-list');
-            container.classList.add('animate-shuffle');
-            setTimeout(() => { container.innerHTML = ''; renderCestinaList(); container.classList.remove('animate-shuffle'); }, 300);
-        });
+/* ---------- SERIE DNÍ ---------- */
+function dailyState() { const t = new Date().toDateString(); let d = ls.get('daily', {}); if (d.date !== t) d = { date: t, tab: false, mist: false, claimed: false }; return d; }
+function markDaily(mode) {
+  const d = dailyState(); if (mode === 'tab') d.tab = true; if (mode === 'mist') d.mist = true;
+  const dueN = Object.values(mistakes()).filter(isDue).length;
+  if (d.tab && (d.mist || !dueN) && !d.claimed) { d.claimed = true; const c = ls.get('fish', {}); c['🏆'] = (c['🏆'] || 0) + 1; ls.set('fish', c); toast('Denní úkol splněn! 🏆'); }
+  ls.set('daily', d);
+}
+function showDaily() { const d = dailyState(), dueN = Object.values(mistakes()).filter(isDue).length; $('daily').textContent = `Denní úkol: ${d.tab ? '✅' : '⬜'} lekce násobilky   ${d.mist || !dueN ? '✅' : '⬜'} opakování chyb${d.claimed ? '  🏆' : ''}`; }
+function showStreak() {
+  showDaily();
+  showCatch();
+  const days = new Set(ls.get('days', [])); let n = 0; const d = new Date();
+  if (!days.has(d.toDateString())) d.setDate(d.getDate() - 1);
+  while (days.has(d.toDateString())) { n++; d.setDate(d.getDate() - 1); }
+  $('streak').innerHTML = n ? `<i class="fa-solid fa-fire"></i> Série: ${n} ${n === 1 ? 'den' : n < 5 ? 'dny' : 'dní'} po sobě!` : 'Zahraj si dnes a začni sérii!';
+}
 
-        document.getElementById('btn-check-cestina').addEventListener('click', () => {
-            const items = document.querySelectorAll('#word-types-list .word-card');
-            let score = 0;
-            items.forEach((item, index) => {
-                const text = item.querySelector('span').textContent;
-                const statusDiv = item.querySelector('.status-icon');
-                if (text === spravnePoradi[index]) {
-                    score++;
-                    statusDiv.innerHTML = '<i class="fa-solid fa-check text-green-500 text-xl"></i>';
-                    item.classList.remove('animate-shake');
-                } else {
-                    statusDiv.innerHTML = '<i class="fa-solid fa-xmark text-red-500 text-xl"></i>';
-                    item.classList.remove('animate-shake'); void item.offsetWidth; item.classList.add('animate-shake');
-                }
-            });
-            score === 10 ? window.showToast('Všechno správně!', 'success') : window.showToast(`Správně ${score} z 10.`, 'error');
-            window.saveSession('Čeština', 'Slovní druhy', score, 10);
-        });
+/* ---------- PANEL RODIČE ---------- */
+let lastStats = [], statFilter = 'Vše';
+function renderAll(stats) {
+  lastStats = stats;
+  document.querySelectorAll('#stat-tabs button').forEach(b => { b.textContent = b.dataset.f; b.className = 'px-4 py-2 rounded-xl font-bold border ' + (b.dataset.f === statFilter ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-slate-600'); });
+  stats.sort((a, b) => b.timestamp - a.timestamp);
+  const icons = { 'Čeština': 'book-open text-orange-500', 'Angličtina': 'language text-red-500', 'Matematika': 'calculator text-blue-500' };
+  const list = stats.filter(s => statFilter === 'Vše' || s.subject === statFilter);
+  $('stats').innerHTML = list.length ? list.slice(0, 60).map(s => {
+    const p = Math.round(s.score / s.maxScore * 100);
+    const c = p >= 80 ? 'text-green-700 bg-green-100' : p >= 50 ? 'text-orange-700 bg-orange-100' : 'text-red-700 bg-red-100';
+    const date = new Date(s.timestamp).toLocaleString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const items = (s.items || []).map(i => `<div class="flex justify-between text-sm py-1 border-b last:border-0 ${i.ok ? '' : 'text-red-700 font-bold'}"><span>${esc(i.q)} = ${esc(i.a)}${i.rep ? ' <small>(opakování)</small>' : ''}</span><span>${i.ok ? '✓' : '✗ ' + esc((i.w || []).join(', ') || 'čas')} · ${esc(i.t)} s</span></div>`).join('');
+    const body = items || `<span class="text-sm text-slate-500">${(s.wrong || []).length ? 'Chyby: ' + s.wrong.map(esc).join(', ') : 'Bez chyb.'}</span>`;
+    return `<details class="bg-white rounded-xl border"><summary class="p-3 flex items-center justify-between cursor-pointer"><div><div class="font-bold">${esc(s.subject)} <span class="text-xs font-normal text-slate-500">(${esc(s.detail)})</span></div><div class="text-xs text-slate-400">${date}</div></div><div class="font-black px-3 py-1 rounded-lg ${c}">${s.score}/${s.maxScore}</div></summary><div class="px-4 pb-3">${body}</div></details>`;
+  }).join('') : '<div class="text-center py-8 text-slate-500 bg-white rounded-2xl border">Zatím žádná historie.</div>';
 
-        // ==========================================
-        // LOGIKA - ANGLIČTINA
-        // ==========================================
-        let enState = { level: 1, qCount: 0, score: 0, currentQ: null, firstTry: true };
+  const cv = {};
+  stats.forEach(s => (s.items || []).forEach(i => { const mt = /^(\d+) × (\d+)$/.exec(i.q); if (mt) { const o = cv[mt[1] + '-' + mt[2]] ||= { n: 0, w: 0, t: 0 }; o.n++; o.t += i.t || 0; if (!i.ok) o.w++; } }));
+  const R = [1,2,3,4,5,6,7,8,9,10];
+  $('cover').innerHTML = '<table class="text-xs text-center mx-auto"><tr><th></th>' + R.map(y => `<th class="p-1">${y}</th>`).join('') + '</tr>' + R.map(x => `<tr><th class="p-1">${x}</th>` + R.map(y => { const o = cv[x + '-' + y]; return `<td title="${x} × ${y}${o ? ', průměr ' + (o.t / o.n).toFixed(1) + ' s' : ''}" class="w-8 h-8 rounded ${!o ? 'bg-slate-100 text-slate-400' : o.w ? 'bg-red-200 text-red-800 font-bold' : o.t / o.n > 5 ? 'bg-amber-200 text-amber-800' : 'bg-green-200 text-green-800'}">${o ? o.n : '·'}</td>`; }).join('') + '</tr>').join('') + '</table>';
+  const DAY = 864e5, t0 = new Date().setHours(0, 0, 0, 0), ms = stats.filter(s => s.subject === 'Matematika');
+  const bars = [0,1,2,3,4,5,6].map(k => { const d0 = t0 - (6 - k) * DAY, r = ms.filter(s => s.timestamp >= d0 && s.timestamp < d0 + DAY), mx = r.reduce((a, s) => a + s.maxScore, 0);
+    return { l: new Date(d0).toLocaleDateString('cs-CZ', { weekday: 'short' }), p: mx ? Math.round(r.reduce((a, s) => a + s.score, 0) / mx * 100) : null }; });
+  const avgT = (f, to) => { const t = ms.filter(s => s.timestamp >= f && s.timestamp < to).flatMap(s => (s.items || []).filter(i => !i.rep).map(i => i.t)); return t.length ? (t.reduce((a, b) => a + b, 0) / t.length).toFixed(1) + ' s' : '–'; };
+  $('week').innerHTML = `<div class="flex items-end gap-2 h-28">${bars.map(b => `<div class="flex-1 flex flex-col items-center justify-end h-full"><div class="text-xs">${b.p === null ? '' : b.p + ' %'}</div><div class="w-full rounded-t ${b.p === null ? 'bg-slate-200' : 'bg-blue-500'}" style="height:${b.p === null ? 4 : Math.max(b.p * .7, 4)}%"></div><div class="text-xs text-slate-500">${b.l}</div></div>`).join('')}</div><p class="text-sm mt-2">Průměrný čas na příklad: <b>${avgT(t0 - 6 * DAY, t0 + DAY)}</b> (týden předtím: ${avgT(t0 - 13 * DAY, t0 - 6 * DAY)})</p>`;
+  const subs = ['Čeština', 'Angličtina', 'Matematika'];
+  $('averages').innerHTML = subs.map(sub => {
+    const r = stats.filter(s => s.subject === sub);
+    const avg = r.length ? Math.round(r.reduce((a, s) => a + s.score / s.maxScore, 0) / r.length * 100) + ' %' : '–';
+    return `<div class="bg-white rounded-xl border p-3 text-center"><div class="text-xs text-slate-500">${sub}</div><div class="text-2xl font-black">${avg}</div></div>`;
+  }).join('');
 
-        window.startEnLevel = function(level) {
-            enState = { level, qCount: 0, score: 0, currentQ: null, firstTry: true };
-            document.getElementById('en-level-select').classList.add('hidden');
-            document.getElementById('en-result-screen').classList.add('hidden');
-            document.getElementById('en-game-screen').classList.remove('hidden');
-            document.getElementById('en-game-screen').classList.add('flex');
-            document.getElementById('en-current-level').textContent = level;
-            nextEnQuestion();
-        };
+  const cnt = {};
+  list.forEach(s => (s.wrong || []).forEach(w => cnt[w] = (cnt[w] || 0) + 1));
+  const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  $('weak-list').innerHTML = top.length ? top.map(([w, n]) => `<div class="flex justify-between border-b last:border-0 py-1"><b>${esc(w)}</b><span class="text-slate-500">${n}× chyba</span></div>`).join('') : '<span class="text-slate-500">Zatím žádné chyby, super!</span>';
+}
+$('vocab').innerHTML = [1, 2, 3, 4, 5].map(i => {
+  const w = V.filter(v => v.level === i);
+  return `<div class="border-b last:border-0"><div class="bg-slate-50 px-4 py-2 font-bold text-sm flex justify-between"><span>Lekce ${i}: ${LEVEL_NAMES[i]}</span><span class="text-slate-400 font-normal">${w.length} slov</span></div>
+  <div class="p-4 grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm">${w.map(x => `<div class="flex justify-between"><b>${esc(x.en)}</b><span class="text-slate-500">${esc(x.cz)}</span></div>`).join('')}</div></div>`;
+}).join('');
 
-        window.showEnLevelSelect = function() {
-            document.getElementById('en-game-screen').classList.add('hidden');
-            document.getElementById('en-game-screen').classList.remove('flex');
-            document.getElementById('en-result-screen').classList.add('hidden');
-            document.getElementById('en-level-select').classList.remove('hidden');
-        };
+/* ---------- ČEŠTINA ---------- */
+let sortable;
+function renderCz(order) {
+  const list = $('word-list'); list.innerHTML = '';
+  order.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'word-card p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between font-bold cursor-grab';
+    d.style.setProperty('--c', WT_COLORS[WORD_TYPES.indexOf(t)]);
+    d.innerHTML = `<div class="flex items-center gap-3"><i class="fa-solid fa-grip-vertical text-slate-300"></i><span>${t}</span></div><div class="st"></div>`;
+    list.appendChild(d);
+  });
+  sortable?.destroy();
+  sortable = new Sortable(list, { animation: 250, ghostClass: 'sortable-ghost', delay: 200, delayOnTouchOnly: true });
+}
+$('cz-shuffle').onclick = () => renderCz(shuffle(WORD_TYPES));
+$('cz-solve').onclick = () => { renderCz(WORD_TYPES); document.querySelectorAll('#word-list .st').forEach(s => s.innerHTML = '<i class="fa-solid fa-check text-green-600 text-xl"></i>'); };
+$('cz-check').onclick = () => {
+  let score = 0; const wrong = [];
+  document.querySelectorAll('#word-list .word-card').forEach((it, i) => {
+    const t = it.querySelector('span').textContent, ok = t === WORD_TYPES[i];
+    it.querySelector('.st').innerHTML = ok ? '<i class="fa-solid fa-check text-green-600 text-xl"></i>' : '<i class="fa-solid fa-xmark text-red-600 text-xl"></i>';
+    it.classList.remove('shake'); if (!ok) { void it.offsetWidth; it.classList.add('shake'); wrong.push(t); } else score++;
+  });
+  toast(score === 10 ? 'Všechno správně!' : `Správně ${score} z 10.`, score === 10);
+  saveSession('Čeština', 'Slovní druhy', score, 10, wrong);
+};
+renderCz(shuffle(WORD_TYPES));
 
-        function playEnAudio(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(text); u.lang = 'en-GB'; u.rate = 0.9;
-                window.speechSynthesis.speak(u);
-            }
-        }
+/* ---------- ANGLIČTINA ---------- */
+const weakMap = () => ls.get('weakWords', {});
+let en;
+$('en-levels').innerHTML = [1, 2, 3, 4, 5].map(i => `<button data-el="${i}" class="w-full bg-${LEVEL_COLORS[i]}-600 hover:bg-${LEVEL_COLORS[i]}-700 text-white font-bold py-4 rounded-2xl flex justify-between px-6"><span>Lekce ${i}: ${LEVEL_NAMES[i]}</span><i class="fa-solid fa-play opacity-70"></i></button>`).join('');
+document.querySelectorAll('[data-el]').forEach(b => b.onclick = () => startEn(+b.dataset.el));
+const show = (ids, flexIds = []) => ['en-select', 'en-game', 'en-result'].forEach(i => { const on = ids.includes(i); $(i).classList.toggle('hidden', !on); if (i !== 'en-select') $(i).classList.toggle('flex', on); });
+const enMenu = () => show(['en-select']);
+$('en-back').onclick = enMenu; document.querySelector('.en-back2').onclick = enMenu;
 
-        function nextEnQuestion() {
-            if (enState.qCount >= 10) { endEnGame(); return; }
-            
-            // Jistota, že to bere JEN daný level
-            const lvlVocab = VOCABULARY.filter(v => v.level === enState.level);
-            
-            const correct = lvlVocab[Math.floor(Math.random() * lvlVocab.length)];
-            const type = Math.random() > 0.5 ? 'read' : 'translate';
-            
-            let options = [correct];
-            while (options.length < 4) {
-                const rand = lvlVocab[Math.floor(Math.random() * lvlVocab.length)];
-                if (!options.some(i => i.en === rand.en)) options.push(rand);
-            }
-            options = options.sort(() => Math.random() - 0.5);
+function buildQueue(level) {
+  // Slovíčka, která dítě dříve pokazilo, se zařadí dvakrát => větší šance, že přijdou.
+  const vocab = V.filter(v => v.level === level), weak = weakMap();
+  const pool = shuffle([...vocab, ...vocab.filter(v => weak[v.en] > 0)]);
+  const q = [];
+  for (const v of pool) if (!q.includes(v) && q.length < 10) q.push(v);
+  while (q.length < 10) { const extra = shuffle(vocab).filter(v => v !== q[q.length - 1]); q.push(extra[0]); }
+  return q;
+}
+function startEn(level) {
+  en = { level, i: 0, score: 0, queue: buildQueue(level), wrong: [], first: true, locked: false };
+  $('en-lvl').textContent = level; show(['en-game']); nextEn();
+}
+function speak(t) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'en-GB'; u.rate = .9; speechSynthesis.speak(u);
+}
+function nextEn() {
+  if (en.i >= 10) return endEn();
+  const c = en.queue[en.i], type = Math.random() > .5 ? 'read' : 'translate';
+  const vocab = V.filter(v => v.level === en.level);
+  const opts = shuffle([c, ...shuffle(vocab.filter(v => v !== c)).slice(0, 3)]);
+  en.q = { c, type, answer: type === 'translate' ? c.en : c.cz };
+  en.first = true; en.locked = false;
+  $('en-n').textContent = en.i + 1; $('en-score').textContent = en.score; $('en-fb').innerHTML = '';
+  $('en-q').textContent = type === 'translate' ? c.cz : c.en;
+  const t = $('en-type'); t.textContent = type === 'read' ? 'Přelož' : 'Jak se řekne?';
+  t.className = `absolute -top-3 px-4 py-1 rounded-full font-bold text-xs ${type === 'read' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`;
+  const a = $('en-audio'); a.classList.toggle('hidden', type !== 'read'); a.onclick = () => speak(c.en);
+  const g = $('en-opts'); g.innerHTML = '';
+  opts.forEach(o => {
+    const txt = type === 'translate' ? o.en : o.cz, b = document.createElement('button');
+    b.className = 'bg-slate-50 border-2 border-slate-200 font-bold text-lg py-4 px-2 rounded-2xl hover:bg-slate-100 active:scale-95 transition';
+    b.textContent = txt; b.onclick = () => answerEn(txt, b); g.appendChild(b);
+  });
+}
+function answerEn(sel, btn) {
+  if (en.locked) return;
+  const c = en.q.c, weak = weakMap();
+  if (en.q.type === 'translate') speak(sel);
+  if (sel === en.q.answer) {
+    en.locked = true;
+    btn.className = 'bg-green-600 text-white font-bold text-lg py-4 px-2 rounded-2xl';
+    document.querySelectorAll('#en-opts button').forEach(b => b.disabled = true);
+    $('en-fb').innerHTML = '<i class="fa-solid fa-face-smile text-4xl text-green-500"></i>';
+    if (en.q.type === 'read') speak(c.en);
+    if (en.first) { en.score++; $('en-score').textContent = en.score; if (weak[c.en] > 0) { weak[c.en]--; ls.set('weakWords', weak); } }
+    setTimeout(() => { en.i++; nextEn(); }, 1400);
+  } else {
+    en.first = false; btn.disabled = true; btn.classList.add('opacity-50', 'shake');
+    if (!en.wrong.includes(c.en)) { en.wrong.push(c.en); weak[c.en] = (weak[c.en] || 0) + 2; ls.set('weakWords', weak); }
+    $('en-fb').innerHTML = '<i class="fa-solid fa-face-frown text-4xl text-red-500"></i>';
+  }
+}
+function endEn() {
+  show(['en-result']);
+  $('en-final').textContent = `${en.score} / 10`;
+  $('en-icon').innerHTML = en.score >= 8 ? '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>' : '<i class="fa-solid fa-clipboard-list text-6xl text-slate-500"></i>';
+  $('en-wrong').textContent = en.wrong.length ? 'Na procvičení: ' + en.wrong.join(', ') : 'Bez jediné chyby!';
+  saveSession('Angličtina', `Lekce ${en.level}`, en.score, 10, en.wrong); fishResult('en-icon', en.score, 10); showStreak();
+}
 
-            enState.currentQ = {
-                type, target: type === 'translate' ? correct.cz : correct.en,
-                answer: type === 'translate' ? correct.en : correct.cz,
-                options: options.map(i => type === 'translate' ? i.en : i.cz),
-                enWord: correct.en
-            };
-            enState.firstTry = true;
-            
-            document.getElementById('en-question-counter').textContent = enState.qCount + 1;
-            document.getElementById('en-score-display').textContent = enState.score;
-            document.getElementById('en-feedback-area').innerHTML = '';
-            
-            const qText = document.getElementById('en-question-text');
-            const qType = document.getElementById('en-question-type');
-            const btnAudio = document.getElementById('en-btn-audio');
+/* ---------- MATEMATIKA ---------- */
+let m, mTimer = null, mLeft = 10, mLimit = 10, mStart = 0, custom = ls.get('custom', []), mv = 'hub';
+let mc = { nums: [2, 3], kind: 'mul', len: 20, max: 100, as: 'both', hard: 'both', speed: 10, ...ls.get('mc', {}) };
+const rnd = (a, b) => a + (Math.random() * (b - a + 1) | 0);
+const BOX_DAYS = [0, 1, 3, 7];
+const newMist = (c, box = 0) => ({ q: c.q, a: c.a, box, due: Date.now() + BOX_DAYS[box] * 864e5 });
+const isDue = x => (x.due || 0) <= Date.now();
+const mistakes = () => ls.get('mistakes', {});
+const dd = arr => { const seen = new Set(); return arr.filter(x => !seen.has(x.q) && seen.add(x.q)); };
+const mShow = id => ['m-select', 'm-game', 'm-result'].forEach(i => { const on = i === id; $(i).classList.toggle('hidden', !on); if (i !== 'm-select') $(i).classList.toggle('flex', on); });
+const CARD = 'bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[240px] mb-3 transition-colors';
 
-            qText.textContent = enState.currentQ.target;
-            if (type === 'read') {
-                qType.textContent = 'Přelož'; qType.className = 'absolute top-[-12px] bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-bold text-xs';
-                btnAudio.classList.remove('hidden'); btnAudio.onclick = () => playEnAudio(enState.currentQ.target);
-            } else {
-                qType.textContent = 'Jak se řekne?'; qType.className = 'absolute top-[-12px] bg-purple-100 text-purple-700 px-4 py-1 rounded-full font-bold text-xs';
-                btnAudio.classList.add('hidden');
-            }
+/* generátory příkladů */
+const genTab = (ns, kind) => { const o = []; ns.forEach(x => { for (let y = 1; y <= 10; y++) {
+  if (kind !== 'div') { o.push({ q: `${x} × ${y}`, a: x * y }); if (x !== y) o.push({ q: `${y} × ${x}`, a: x * y }); }
+  if (kind !== 'mul') { o.push({ q: `${x * y} : ${x}`, a: y }); if (x !== y) o.push({ q: `${x * y} : ${y}`, a: x }); } } }); return dd(o); };
+const genAS = (mx, kind, n) => { const o = []; for (let k = 0; k < n * 3; k++) {
+  if (kind === 'plus' || (kind === 'both' && Math.random() > .5)) { const a = rnd(2, mx - 2), b = rnd(2, mx - a); o.push({ q: `${a} + ${b}`, a: a + b }); }
+  else { const a = rnd(3, mx), b = rnd(1, a - 1); o.push({ q: `${a} − ${b}`, a: a - b }); } } return dd(o); };
+const genHard = (kind, n) => { const o = []; for (let k = 0; k < n * 3; k++) { const x = rnd(2, 10), y = rnd(2, 10), c = rnd(1, Math.min(20, x * y)), pl = kind === 'plus' || (kind === 'both' && Math.random() > .5);
+  o.push({ q: `(${x} × ${y}) ${pl ? '+' : '−'} ${c}`, a: x * y + (pl ? c : -c) }); } return dd(o); };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const wp = () => { const a = rnd(3, 12), b = rnd(2, 9), c = rnd(2, 10); return [
+  { q: `Chytil jsi ${a + b} ryb a ${b} pustil zpět. Kolik ti zůstalo?`, a },
+  { q: `Do každého z ${c} kbelíků dáš ${b} ryb. Kolik ryb je celkem?`, a: b * c },
+  { q: `${b * c} červů rozdělíš do ${c} krabiček stejně. Kolik červů je v jedné krabičce?`, a: b },
+  { q: `Ráno jsi chytil ${a} ryb a odpoledne ${b + c}. Kolik ryb máš celkem?`, a: a + b + c }][rnd(0, 3)]; };
+const genSmart = n => { const o = []; for (let k = 0; k < n * 3; k++) { const t = rnd(0, 5), x = rnd(2, 10), y = rnd(2, 10), b = rnd(2, 9), a = rnd(10, 60), c = rnd(15, 90);
+  o.push(t === 0 ? { q: `□ × ${y} = ${x * y}`, a: x } : t === 1 ? { q: `${x} × □ = ${x * y}`, a: y } : t === 2 ? { q: `□ + ${b} = ${a + b}`, a } : t === 3 ? { q: `${c} − □ = ${c - b}`, a: b } : wp()); } return dd(o); };
+/* Vlastní test z bloků */
+let blocks = ls.get('blocks', []), bd = { t: 'tab', nums: [2], kind: 'div', max: 50, as: 'both', hard: 'both', n: 10 };
+const sel = (it, n) => { const cov = ls.get('cov', {}); return shuffle(it).sort((a, b) => (cov[a.q] || 0) - (cov[b.q] || 0)).slice(0, n); };
+const genBlock = b => b.t === 'tab' ? sel(genTab(b.nums, b.kind), b.n) : b.t === 'addsub' ? sel(genAS(b.max, b.as, b.n), b.n) : sel(genHard(b.hard, b.n), b.n);
+const bdesc = b => (b.t === 'tab' ? `${{ mul: 'Násobení', div: 'Dělení', both: 'Násobení a dělení' }[b.kind]} ${b.nums.join(', ')}`
+  : b.t === 'addsub' ? `${{ plus: 'Sčítání', minus: 'Odčítání', both: 'Sčítání a odčítání' }[b.as]} do ${b.max}`
+  : `Těžší kombinace (${{ plus: '+', minus: '−', both: '+ a −' }[b.hard]})`) + ` × ${b.n}`;
+const NAMES = { tab: () => `Násobilka ${mc.nums.join(', ')} (${{ mul: '×', div: ':', both: '× a :' }[mc.kind]})`, addsub: () => `Sčítání/odčítání do ${mc.max}`, hard: () => 'Těžší kombinace', mix: () => 'Mix všeho', mist: () => 'Opakování chyb', smart: () => 'Chytré úlohy', build: () => 'Vlastní test', custom: () => 'Příklady od rodiče' };
 
-            const grid = document.getElementById('en-options-grid');
-            grid.innerHTML = '';
-            enState.currentQ.options.forEach((opt) => {
-                const btn = document.createElement('button');
-                btn.className = `bg-slate-50 border-2 border-slate-200 text-slate-700 font-bold text-lg py-4 px-2 rounded-2xl hover:bg-slate-100 active:scale-95 transition-all`;
-                btn.textContent = opt;
-                btn.onclick = () => checkEnAnswer(opt, btn);
-                grid.appendChild(btn);
-            });
-        }
+/* menu */
+const chip = (t, on, attr) => `<button ${attr} class="px-4 py-2 rounded-xl font-bold border-2 ${on ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200'}">${t}</button>`;
+const grp = (t, h) => `<div class="mb-3"><div class="font-bold text-sm mb-1">${t}</div><div class="flex flex-wrap gap-2">${h}</div></div>`;
+const opts = (key, list) => list.map(([v, t]) => chip(t, mc[key] === v, `data-set="${key}:${v}"`)).join('');
+const lenG = () => grp('Počet příkladů', opts('len', [[10, '10'], [20, '20'], [30, '30'], [0, 'Všechny']]));
+const card = (emoji, t, sub, attr, bg) => `<button ${attr} class="${bg} text-white text-left p-4 rounded-2xl shadow active:scale-95 transition"><div class="text-3xl">${emoji}</div><div class="font-bold text-lg leading-tight">${t}</div><div class="text-xs opacity-90">${sub}</div></button>`;
+const startBtn = mode => `<button data-start="${mode}" class="w-full bg-green-600 hover:bg-green-700 text-white font-black text-xl py-4 rounded-2xl mt-2">Začít <i class="fa-solid fa-play"></i></button>`;
+function renderMathMenu() {
+  const nm = Object.values(mistakes()).filter(isDue).length, back = '<button data-view="hub" class="font-bold mb-3"><i class="fa-solid fa-arrow-left"></i> Rozcestník</button>';
+  let h;
+  if (mv === 'tab') h = back + '<h2 class="text-2xl font-extrabold mb-3">Malá násobilka</h2>'
+    + grp('Která čísla? (můžeš vybrat víc)', [1,2,3,4,5,6,7,8,9,10].map(n => chip(n, mc.nums.includes(n), `data-num="${n}"`)).join('') + chip('Všechna', false, 'data-nums="all"') + chip('Zrušit', false, 'data-nums="none"'))
+    + grp('Druh', opts('kind', [['mul', 'Násobení'], ['div', 'Dělení'], ['both', 'Obojí']])) + lenG()
+    + `<p class="text-sm text-slate-500">Kombinací k dispozici: <b>${genTab(mc.nums, mc.kind).length}</b></p>` + startBtn('tab');
+  else if (mv === 'addsub') h = back + '<h2 class="text-2xl font-extrabold mb-3">Sčítání a odčítání</h2>'
+    + grp('Rozsah čísel', opts('max', [[20, 'do 20'], [50, 'do 50'], [100, 'do 100']])) + grp('Druh', opts('as', [['plus', 'Sčítání'], ['minus', 'Odčítání'], ['both', 'Obojí']])) + lenG() + startBtn('addsub');
+  else if (mv === 'hard') h = back + '<h2 class="text-2xl font-extrabold mb-3">Těžší kombinace</h2>'
+    + grp('Typ', opts('hard', [['plus', '(a × b) + c'], ['minus', '(a × b) − c'], ['both', 'Obojí']])) + lenG() + startBtn('hard');
+  else if (mv === 'build') {
+    const total = blocks.reduce((a, b) => a + b.n, 0);
+    h = back + '<h2 class="text-2xl font-extrabold mb-3">Vlastní test z bloků</h2>'
+      + `<div class="bg-white/80 rounded-2xl p-3 mb-3">${blocks.length ? blocks.map((b, i) => `<div class="flex justify-between items-center py-1 border-b last:border-0 text-sm"><span>${i + 1}. ${bdesc(b)}</span><button data-bdel="${i}" aria-label="Smazat blok" class="text-red-600 font-bold px-2">✕</button></div>`).join('') : '<span class="text-sm text-slate-500">Zatím žádný blok. Přidej první níže.</span>'}</div>`
+      + '<div class="font-bold mb-2">Nový blok</div>'
+      + grp('Typ', [['tab', 'Násobilka / dělení'], ['addsub', '+ a −'], ['hard', 'Těžší']].map(([v, t]) => chip(t, bd.t === v, `data-bset="t:${v}"`)).join(''))
+      + (bd.t === 'tab' ? grp('Čísla (můžeš víc)', [1,2,3,4,5,6,7,8,9,10].map(n => chip(n, bd.nums.includes(n), `data-bnum="${n}"`)).join('')) + grp('Druh', [['mul', 'Násobení'], ['div', 'Dělení'], ['both', 'Obojí']].map(([v, t]) => chip(t, bd.kind === v, `data-bset="kind:${v}"`)).join(''))
+        : bd.t === 'addsub' ? grp('Rozsah', [20, 50, 100].map(v => chip('do ' + v, bd.max === v, `data-bset="max:${v}"`)).join('')) + grp('Druh', [['plus', 'Sčítání'], ['minus', 'Odčítání'], ['both', 'Obojí']].map(([v, t]) => chip(t, bd.as === v, `data-bset="as:${v}"`)).join(''))
+        : grp('Typ', [['plus', '(a × b) + c'], ['minus', '(a × b) − c'], ['both', 'Obojí']].map(([v, t]) => chip(t, bd.hard === v, `data-bset="hard:${v}"`)).join('')))
+      + grp('Počet příkladů v bloku', [5, 10, 15, 20].map(n => chip(n, bd.n === n, `data-bset="n:${n}"`)).join(''))
+      + '<button data-badd="1" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl mb-2">+ Přidat blok</button>'
+      + (blocks.length ? startBtn('build').replace('>Začít', `>Spustit test (${total})`) + '<button data-bclear="1" class="w-full text-red-600 font-bold py-2 mt-1">Smazat všechny bloky</button>' : '');
+  }
+  else h = '<h2 class="text-3xl font-extrabold text-center mb-3">Co budeme počítat?</h2><div class="grid grid-cols-2 gap-3">'
+    + card('✖️', 'Malá násobilka', 'vyber si čísla', 'data-view="tab"', 'bg-blue-600') + card('➕', 'Sčítání a odčítání', 'do 20, 50, 100', 'data-view="addsub"', 'bg-emerald-600')
+    + card('🧩', 'Těžší kombinace', '(7 × 6) + 9', 'data-view="hard"', 'bg-purple-600') + card('🎲', 'Mix všeho', '15 příkladů', 'data-start="mix"', 'bg-indigo-600')
+    + card('🔁', 'Moje chyby', `k opakování: ${nm}`, 'data-start="mist"', 'bg-red-600') + card('👪', 'Od rodiče', `příkladů: ${custom.length}`, 'data-start="custom"', 'bg-orange-600') + card('🧱', 'Vlastní test', 'sestav z bloků', 'data-view="build"', 'bg-slate-700') + card('🧠', 'Chytré úlohy', 'chybějící číslo, úlohy o rybách', 'data-start="smart"', 'bg-teal-600') + '</div>';
+  $('m-select').innerHTML = `<div class="bg-white/80 rounded-2xl p-3 mb-4"><label for="m-speed" class="font-bold text-sm">Čas na příklad: <span id="m-speed-l">${mc.notime ? 'bez limitu' : mc.speed + ' s'}</span></label><input id="m-speed" type="range" min="3" max="10" step="1" value="${mc.speed}" ${mc.notime ? 'disabled' : ''} class="w-full"><label class="flex items-center gap-2 mt-1 text-sm font-bold"><input type="checkbox" id="m-notime" ${mc.notime ? 'checked' : ''}> Bez časového limitu</label></div>` + h;
+}
+$('m-select').oninput = e => {
+  if (e.target.id === 'm-speed') { mc.speed = +e.target.value; $('m-speed-l').textContent = mc.speed + ' s'; }
+  else if (e.target.id === 'm-notime') { mc.notime = e.target.checked; $('m-speed').disabled = mc.notime; $('m-speed-l').textContent = mc.notime ? 'bez limitu' : mc.speed + ' s'; }
+  ls.set('mc', mc);
+};
+$('m-select').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+  if (d.bset || d.bnum || 'badd' in d || d.bdel || 'bclear' in d) {
+    if (d.bset) { const [k, v] = d.bset.split(':'); bd[k] = isNaN(v) ? v : +v; }
+    else if (d.bnum) { const n = +d.bnum; bd.nums = (bd.nums.includes(n) ? bd.nums.filter(x => x !== n) : [...bd.nums, n]).sort((a, b) => a - b); }
+    else if ('badd' in d) { if (bd.t === 'tab' && !bd.nums.length) return toast('Vyber aspoň jedno číslo.', false); if (blocks.length >= 10) return toast('Max. 10 bloků.', false); blocks.push({ ...bd, nums: [...bd.nums] }); }
+    else if (d.bdel) blocks.splice(+d.bdel, 1);
+    else blocks = [];
+    ls.set('blocks', blocks); syncUp({ blocks }); return renderMathMenu();
+  }
+  if (d.start) return startM(d.start);
+  if (d.view) mv = d.view;
+  else if (d.num) { const n = +d.num; mc.nums = (mc.nums.includes(n) ? mc.nums.filter(x => x !== n) : [...mc.nums, n]).sort((a, b) => a - b); }
+  else if (d.nums) mc.nums = d.nums === 'all' ? [1,2,3,4,5,6,7,8,9,10] : [];
+  else if (d.set) { const [k, v] = d.set.split(':'); mc[k] = isNaN(v) ? v : +v; }
+  ls.set('mc', mc); renderMathMenu();
+};
 
-        function checkEnAnswer(sel, btn) {
-            const isCorrect = sel === enState.currentQ.answer;
-            const allBtns = document.getElementById('en-options-grid').querySelectorAll('button');
-            const feedback = document.getElementById('en-feedback-area');
-            if (enState.currentQ.type === 'translate') playEnAudio(sel);
+function startM(mode) {
+  let it = [], len = mc.len;
+  if (mode === 'tab') { if (!mc.nums.length) return toast('Vyber aspoň jedno číslo.', false); it = genTab(mc.nums, mc.kind); }
+  else if (mode === 'addsub') it = genAS(mc.max, mc.as, len || 30);
+  else if (mode === 'hard') it = genHard(mc.hard, len || 24);
+  else if (mode === 'mix') { len = 15; it = [...pick(genTab([1,2,3,4,5,6,7,8,9,10], 'both'), 5), ...pick(genAS(100, 'both', 8), 5), ...pick(genHard('both', 8), 5)]; }
+  else if (mode === 'mist') { len = 15; it = Object.values(mistakes()).filter(isDue).map(({ q, a }) => ({ q, a })); }
+  else if (mode === 'smart') { len = 15; it = genSmart(20); }
+  else if (mode === 'build') { len = 0; it = dd(blocks.flatMap(genBlock)); }
+  else { len = 30; it = custom; }
+  if (!it.length) return toast(mode === 'mist' ? 'Zatím žádné chyby, super!' : 'Zatím tu nic není.', false);
+  const cov = ls.get('cov', {});   // co bylo procvičeno nejméně, jde první => nic se nezapomene
+  it = shuffle(it).sort((a, b) => (cov[a.q] || 0) - (cov[b.q] || 0));
+  it = shuffle(it.slice(0, len || it.length));
+  m = { mode, label: `${NAMES[mode]()} · ${mc.notime ? 'bez času' : mc.speed + ' s'}`, nt: !!mc.notime, queue: it, orig: it.length, i: 0, score: 0, log: [], wrong: [], wrongs: [], first: true };
+  mLimit = mc.speed; $('m-total').textContent = it.length; mShow('m-game'); nextM();
+}
+const mMenu = () => { clearInterval(mTimer); renderMathMenu(); mShow('m-select'); };
+$('m-back').onclick = mMenu; document.querySelector('.m-back2').onclick = mMenu;
 
-            if (isCorrect) {
-                btn.className = 'bg-green-500 text-white font-bold text-lg py-4 px-2 rounded-2xl scale-105 transition-all';
-                allBtns.forEach(b => b.disabled = true);
-                feedback.innerHTML = '<i class="fa-solid fa-face-smile text-4xl text-green-500"></i>';
-                if (enState.currentQ.type !== 'translate') playEnAudio(enState.currentQ.enWord);
-                if (enState.firstTry) { enState.score++; document.getElementById('en-score-display').textContent = enState.score; }
-                setTimeout(() => { enState.qCount++; nextEnQuestion(); }, 1500);
-            } else {
-                enState.firstTry = false;
-                btn.classList.add('opacity-50', 'animate-shake');
-                feedback.innerHTML = '<i class="fa-solid fa-face-frown text-4xl text-red-500"></i>';
-            }
-        }
+function nextM() {
+  if (m.i >= m.queue.length) return endM();
+  const cur = m.queue[m.i]; m.answer = cur.a; m.first = true; m.wrongs = []; m.dk = false;
+  $('m-card').className = CARD; $('m-q').textContent = cur.q;
+  $('m-q').className = cur.q.length > 16 ? 'text-xl sm:text-2xl font-bold text-center mb-6' : 'text-5xl sm:text-6xl font-black text-center tracking-widest mb-6';
+  const inp = $('m-in'); inp.disabled = false; inp.value = '';
+  $('m-fb').textContent = cur.rep ? 'Tenhle příklad ti nešel, zkus ho teď!' : 'Zadej číslo a potvrď'; $('m-fb').className = 'h-8 text-center font-bold text-xl mb-2 text-slate-500';
+  $('m-n').textContent = m.i + 1; $('m-total').textContent = m.queue.length; $('m-score').textContent = m.score;
+  pc.clearRect(0, 0, pad.width, pad.height); mLeft = mLimit; mStart = Date.now(); $('m-timerbox').classList.toggle('hidden', !!m.nt); if (!m.nt) runTimer(); setTimeout(() => inp.focus(), 100);
+}
+function runTimer() {
+  clearInterval(mTimer); drawTimer();
+  mTimer = setInterval(() => { mLeft = Math.max(0, mLeft - 1); drawTimer(); if (mLeft === 0) { clearInterval(mTimer); timeout(); } }, 1000);
+}
+function drawTimer() {
+  $('m-time').textContent = mLeft + ' s'; $('m-bar').style.width = mLeft / mLimit * 100 + '%';
+  const low = mLeft <= 2;
+  $('m-time').className = `font-black text-xl w-12 text-right ${low ? 'text-red-600' : ''}`;
+  $('m-bar').className = `h-full transition-all duration-1000 ${low ? 'bg-red-500' : 'bg-blue-500'}`;
+}
+function timeout() {
+  $('m-card').className = CARD.replace('border-slate-200', 'border-orange-400 bg-orange-50');
+  $('m-fb').innerHTML = '<span class="text-orange-700"><i class="fa-solid fa-clock"></i> Čas vypršel, ještě to dopočítej!</span>';
+  m.first = false; $('m-in').focus();
+}
+function checkM() {
+  const inp = $('m-in'); if (inp.value === '' || inp.disabled) return;
+  clearInterval(mTimer);
+  if (parseInt(inp.value, 10) === m.answer) {
+    inp.disabled = true; inp.blur();
+    const cur = m.queue[m.i], ok = m.first, mb = mistakes(), cov = ls.get('cov', {});
+    m.log.push({ q: cur.q, a: cur.a, w: m.wrongs, t: Math.round((Date.now() - mStart) / 100) / 10, ok, rep: cur.rep ? 1 : 0 });
+    if (!cur.rep) {
+      cov[cur.q] = (cov[cur.q] || 0) + 1; ls.set('cov', cov);
+      if (ok) { m.score++; const e = mb[cur.q]; if (e) { const bx = (e.box || 0) + 1; if (bx >= BOX_DAYS.length) delete mb[cur.q]; else mb[cur.q] = newMist(e, bx); } }
+      else {
+        mb[cur.q] = newMist(cur); m.wrong.push(cur.q);
+        // chyba => příklad se v této lekci vrátí ještě 2×
+        m.queue.splice(Math.min(m.queue.length, m.i + 3), 0, { ...cur, rep: true });
+        m.queue.splice(Math.min(m.queue.length, m.i + 7), 0, { ...cur, rep: true });
+      }
+    } else if (!ok) mb[cur.q] = newMist(cur);
+    ls.set('mistakes', mb);
+    $('m-card').className = CARD.replace('bg-white', 'bg-green-100').replace('border-slate-200', 'border-green-400');
+    $('m-fb').innerHTML = '' + (m.dk ? `<span class="text-slate-700">Správně je <b>${m.answer}</b>. Vrátí se ještě 2×.</span>` : '<span class="text-green-700"><i class="fa-solid fa-check"></i> Správně!</span>');
+    setTimeout(() => { m.i++; nextM(); }, m.dk ? 2500 : 1000);
+  } else {
+    m.first = false; m.wrongs.push(inp.value);
+    $('m-card').className = CARD.replace('bg-white', 'bg-red-50').replace('border-slate-200', 'border-red-400') + ' shake';
+    $('m-fb').innerHTML = '<span class="text-red-600"><i class="fa-solid fa-xmark"></i> Zkus to znovu</span>';
+    setTimeout(() => { $('m-card').className = CARD; inp.value = ''; inp.focus(); if (!m.nt && mLeft > 0) runTimer(); }, 600);
+  }
+}
+/* poznámky: kreslení prstem nebo myší, mažou se při dalším příkladu */
+const pad = $('m-pad'), pc = pad.getContext('2d'); let drawing = false;
+const padSize = () => { const r = pad.getBoundingClientRect(); pad.width = r.width; pad.height = r.height; pc.lineWidth = 3; pc.lineCap = 'round'; pc.strokeStyle = '#1e293b'; };
+const padXY = e => { const r = pad.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+$('m-note-btn').onclick = () => { $('m-note').classList.toggle('hidden'); if (!$('m-note').classList.contains('hidden')) padSize(); };
+pad.onpointerdown = e => { drawing = true; pad.setPointerCapture(e.pointerId); const [x, y] = padXY(e); pc.beginPath(); pc.moveTo(x, y); };
+pad.onpointermove = e => { if (!drawing) return; const [x, y] = padXY(e); pc.lineTo(x, y); pc.stroke(); };
+pad.onpointerup = pad.onpointercancel = () => { drawing = false; };
+$('m-pad-clear').onclick = () => pc.clearRect(0, 0, pad.width, pad.height);
+$('m-ok').onclick = checkM;
+$('m-idk').onclick = () => { if ($('m-in').disabled) return; m.dk = true; m.first = false; m.wrongs.push('nevím'); $('m-in').value = m.answer; checkM(); };
+$('m-in').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); checkM(); } });
+function endM() {
+  clearInterval(mTimer); mShow('m-result');
+  $('m-final').textContent = `${m.score} / ${m.orig}`;
+  $('m-icon').innerHTML = m.score >= m.orig * .8 ? '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>' : '<i class="fa-solid fa-star-half-stroke text-6xl text-blue-400"></i>';
+  saveSession('Matematika', m.label, m.score, m.orig, m.wrong, m.log); fishResult('m-icon', m.score, m.orig);
+  const good = m.score >= m.orig * .9 && !m.nt, fn = ls.get('fastN', 0) + 1; ls.set('fastN', good ? fn : 0); $('m-tip').textContent = '';
+  if (good && fn >= 3 && mc.speed > 3) { ls.set('fastN', 0); $('m-tip').innerHTML = `Tři výborné lekce za sebou! <button id="m-faster" class="ml-1 bg-blue-600 text-white px-3 py-1 rounded-lg">Zkrátit limit na ${mc.speed - 1} s</button>`; }
+  syncUp({ mistakes: mistakes(), cov: ls.get('cov', {}) }); markDaily(m.mode); showStreak();
+}
+$('m-tip').onclick = e => { if (e.target.id === 'm-faster') { mc.speed--; ls.set('mc', mc); $('m-tip').textContent = `Limit je teď ${mc.speed} s.`; } };
+renderMathMenu();
+$('stat-tabs').onclick = e => { const b = e.target.closest('button'); if (b) { statFilter = b.dataset.f; renderAll(lastStats); } };
 
-        function endEnGame() {
-            document.getElementById('en-game-screen').classList.add('hidden');
-            document.getElementById('en-game-screen').classList.remove('flex');
-            document.getElementById('en-result-screen').classList.remove('hidden');
-            document.getElementById('en-result-screen').classList.add('flex');
-            document.getElementById('en-final-score').textContent = `${enState.score} / 10`;
-            document.getElementById('en-result-icon').innerHTML = enState.score >= 8 ? '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>' : '<i class="fa-solid fa-clipboard-list text-6xl text-slate-500"></i>';
-            window.saveSession('Angličtina', `Lekce ${enState.level}`, enState.score, 10);
-        }
+/* ---------- VLASTNÍ PŘÍKLADY (rodič) ---------- */
+const fillCustom = () => { $('custom-text').value = custom.map(c => `${c.q} = ${c.a}`).join('\n'); };
+async function syncUp(o) { if (cloud && db && familyCode) { try { await setDoc(doc(db, 'custom', familyCode), { familyCode, ...o }, { merge: true }); } catch {} } }
+async function loadCustom() {
+  fillCustom();
+  if (!cloud || !db) return;
+  try { const d = await getDoc(doc(db, 'custom', familyCode)); if (d.exists()) { const x = d.data(); custom = x.items || []; ls.set('custom', custom); if (x.blocks) { blocks = x.blocks; ls.set('blocks', blocks); } if (x.mistakes) ls.set('mistakes', x.mistakes); if (x.cov) ls.set('cov', x.cov); renderMathMenu(); fillCustom(); } } catch {}
+}
+$('custom-save').onclick = async () => {
+  custom = $('custom-text').value.split('\n').map(l => { const p = l.split('='); if (p.length < 2) return null; const a = parseInt(p.pop().trim(), 10), q = p.join('=').trim(); return q && !isNaN(a) ? { q, a } : null; }).filter(Boolean).slice(0, 50);
+  ls.set('custom', custom); renderMathMenu();
+  if (cloud && db) { try { await setDoc(doc(db, 'custom', familyCode), { items: custom, familyCode }, { merge: true }); return toast(`Uloženo (${custom.length})`); } catch {} }
+  toast('Uloženo jen v tomto zařízení', false);
+};
 
-        // ==========================================
-        // MATEMATIKA (Textové zadávání a odpočet)
-        // ==========================================
-        let mathState = { level: 1, qCount: 0, score: 0, answer: 0, firstTry: true };
-        let mathTimerInterval = null;
-        let mathTimeLeft = 10;
+/* ---------- RYBÁŘSKÝ MÓD ---------- */
+const isFish = () => document.body.classList.contains('fish');
+function applyFish() { $('fish-ic').textContent = isFish() ? ' 🎣' : ''; $('fish-btn').setAttribute('aria-pressed', isFish()); showCatch(); }
+$('fish-btn').onclick = () => { document.body.classList.toggle('fish'); ls.set('fishMode', isFish()); applyFish(); };
+if (ls.get('fishMode', false)) document.body.classList.add('fish');
+function showCatch() {
+  const c = ls.get('fish', {}), e = Object.entries(c);
+  $('catch').textContent = isFish() && e.length ? 'Rybí deník: ' + e.map(([f, n]) => `${f}×${n}`).join('  ') : '';
+}
+function fishResult(id, sc, tot) {   // v rybářském módu se za lekci "chytí" ryba podle úspěšnosti
+  if (!isFish()) return;
+  const r = sc / tot, f = r === 1 ? '🦈' : r >= .8 ? '🐠' : r >= .5 ? '🐟' : '👢', c = ls.get('fish', {});
+  c[f] = (c[f] || 0) + 1; ls.set('fish', c);
+  $(id).innerHTML = `<div class="text-7xl">${f}</div><div class="font-bold mt-1">${f === '👢' ? 'Chytil jsi jen starou botu. Zkus to znovu!' : 'Chytil jsi rybu!'}</div>`;
+}
+applyFish();
 
-        const mathInput = document.getElementById('math-answer-input');
-        const mathCard = document.getElementById('math-card');
-        const mathFeedback = document.getElementById('math-feedback');
-
-        window.startMathLevel = function(level) {
-            mathState = { level, qCount: 0, score: 0, answer: 0, firstTry: true };
-            document.getElementById('math-level-select').classList.add('hidden');
-            document.getElementById('math-result-screen').classList.add('hidden');
-            document.getElementById('math-game-screen').classList.remove('hidden');
-            document.getElementById('math-game-screen').classList.add('flex');
-            nextMathQuestion();
-        };
-
-        window.showMathLevelSelect = function() {
-            clearInterval(mathTimerInterval);
-            document.getElementById('math-game-screen').classList.add('hidden');
-            document.getElementById('math-game-screen').classList.remove('flex');
-            document.getElementById('math-result-screen').classList.add('hidden');
-            document.getElementById('math-level-select').classList.remove('hidden');
-        };
-
-        function nextMathQuestion() {
-            if (mathState.qCount >= 10) { endMathGame(); return; }
-            mathState.firstTry = true;
-            mathInput.disabled = false;
-            mathInput.value = '';
-            mathCard.className = 'bg-white p-8 rounded-3xl shadow-xl border-4 border-slate-200 flex flex-col items-center justify-center min-h-[220px] mb-4 transition-colors duration-300';
-            mathFeedback.textContent = 'Zadej číslo a potvrď';
-            mathFeedback.className = 'h-8 text-center font-bold text-xl mb-2 text-slate-500';
-            document.getElementById('math-question-counter').textContent = mathState.qCount + 1;
-            document.getElementById('math-score-display').textContent = mathState.score;
-
-            let qText = "";
-            let currentLvl = mathState.level;
-            
-            // Level 4 je náhodný mix levelů 1 až 3
-            if (currentLvl === 4) {
-                currentLvl = Math.floor(Math.random() * 3) + 1;
-            }
-
-            if (currentLvl === 1) {
-                // Klasika násobky 3
-                let num = Math.floor(Math.random() * 11);
-                mathState.answer = num * 3;
-                qText = Math.random() > 0.5 ? `${num} × 3` : `3 × ${num}`;
-            } else if (currentLvl === 2) {
-                // Těžší kombinace
-                let base = Math.floor(Math.random() * 10) + 1;
-                let offset = Math.floor(Math.random() * 5) + 1;
-                if (Math.random() > 0.5) {
-                    mathState.answer = (base * 3) + offset;
-                    qText = `(${base} × 3) + ${offset}`;
-                } else {
-                    mathState.answer = (base * 3) - offset;
-                    qText = `(${base} × 3) - ${offset}`;
-                }
-            } else if (currentLvl === 3) {
-                // Dělení 3
-                let num = Math.floor(Math.random() * 11); // 0 až 10
-                let dividend = num * 3;
-                mathState.answer = num;
-                qText = `${dividend} : 3`;
-            }
-            
-            document.getElementById('math-question-text').textContent = qText;
-            
-            startMathTimer();
-
-            // Focus pro psaní (zpožděno kvůli vykreslení na mobilu)
-            setTimeout(() => mathInput.focus(), 100);
-        }
-
-        function startMathTimer() {
-            clearInterval(mathTimerInterval);
-            mathTimeLeft = 10;
-            updateMathTimerUI();
-            
-            mathTimerInterval = setInterval(() => {
-                mathTimeLeft--;
-                updateMathTimerUI();
-                
-                if (mathTimeLeft <= 0) {
-                    clearInterval(mathTimerInterval);
-                    handleMathTimeout();
-                }
-            }, 1000);
-        }
-
-        function updateMathTimerUI() {
-            const textEl = document.getElementById('math-timer-text');
-            const barEl = document.getElementById('math-timer-bar');
-            if(!textEl || !barEl) return;
-            
-            textEl.textContent = `${mathTimeLeft}s`;
-            barEl.style.width = `${(mathTimeLeft / 10) * 100}%`;
-            
-            if (mathTimeLeft <= 3) {
-                textEl.classList.remove('text-slate-700');
-                textEl.classList.add('text-red-600', 'animate-pulse');
-                barEl.classList.remove('bg-blue-500');
-                barEl.classList.add('bg-red-500');
-            } else {
-                textEl.classList.add('text-slate-700');
-                textEl.classList.remove('text-red-600', 'animate-pulse');
-                barEl.classList.add('bg-blue-500');
-                barEl.classList.remove('bg-red-500');
-            }
-        }
-
-        function handleMathTimeout() {
-            // Zrušeno přeskakování! Políčko zůstává aktivní.
-            mathCard.classList.remove('border-slate-200');
-            mathCard.classList.add('border-orange-400', 'bg-orange-50');
-            mathFeedback.innerHTML = '<span class="text-orange-600 font-bold"><i class="fa-solid fa-clock"></i> Čas je pryč! Rychle to dopočítej!</span>';
-            
-            // Vrátíme focus do políčka, aby mohl dál psát
-            mathInput.focus();
-        }
-
-        // Kontrola odpovědi po stisku Enter nebo kliknutí na tlačítko
-        window.checkMathTextAnswer = function() {
-            if (mathInput.value === '') return;
-            clearInterval(mathTimerInterval); // Zastaví odpočet po zadání
-            const userAnswer = parseInt(mathInput.value, 10);
-            
-            if (userAnswer === mathState.answer) {
-                // Správně
-                mathCard.className = 'bg-green-100 p-8 rounded-3xl shadow-xl border-4 border-green-400 flex flex-col items-center justify-center min-h-[250px] mb-6 transition-colors duration-300';
-                mathFeedback.innerHTML = '<span class="text-green-600"><i class="fa-solid fa-check"></i> Správně!</span>';
-                if (mathState.firstTry) { mathState.score++; document.getElementById('math-score-display').textContent = mathState.score; }
-                
-                // Pauza před dalším
-                mathInput.blur(); // schováme klávesnici na mobilu
-                setTimeout(() => { mathState.qCount++; nextMathQuestion(); }, 1200);
-            } else {
-                // Špatně
-                mathState.firstTry = false;
-                mathCard.classList.remove('border-slate-200', 'border-orange-400', 'bg-orange-50'); // Odstraní oranžovou z případného timeoutu
-                mathCard.classList.add('border-red-400', 'bg-red-50', 'animate-shake');
-                mathFeedback.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Zkus to znovu</span>';
-                
-                setTimeout(() => { 
-                    mathCard.classList.remove('animate-shake', 'border-red-400', 'bg-red-50'); 
-                    mathCard.classList.add('border-slate-200', 'bg-white');
-                    mathInput.value = '';
-                    mathInput.focus();
-                    startMathTimer(); // Zapne časovač znova pro nový pokus
-                }, 600);
-            }
-        };
-
-        // Podpora klávesy ENTER v políčku
-        mathInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                checkMathTextAnswer();
-            }
-        });
-
-        function endMathGame() {
-            clearInterval(mathTimerInterval);
-            document.getElementById('math-game-screen').classList.add('hidden');
-            document.getElementById('math-game-screen').classList.remove('flex');
-            document.getElementById('math-result-screen').classList.remove('hidden');
-            document.getElementById('math-result-screen').classList.add('flex');
-            document.getElementById('math-final-score').textContent = `${mathState.score} / 10`;
-            document.getElementById('math-result-icon').innerHTML = mathState.score >= 8 ? '<i class="fa-solid fa-trophy text-6xl text-yellow-500"></i>' : '<i class="fa-solid fa-star-half-stroke text-6xl text-blue-400"></i>';
-            window.saveSession('Matematika', `Level ${mathState.level}`, mathState.score, 10);
-        }
-
-        // ==========================================
-        // INIT PŘI NAČTENÍ STRÁNKY
-        // ==========================================
-        window.addEventListener('DOMContentLoaded', () => {
-            renderCestinaList();
-            renderVocabularyList(); // Zaručí vykreslení slovíček do rodičovské sekce
-            document.getElementById('pin-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') window.checkPin(); });
-        });
-    </script>
+/* ---------- HRA: RYBKA (had), 1 minuta, pole 12×12 ---------- */
+let gT, gL, G;
+const GD = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] }, N = 12, C = 24;
+const gStart = () => [[5, 6], [4, 6], [3, 6]];
+function gTurn(k) { const [x, y] = GD[k]; if (x + G.d[0] === 0 && y + G.d[1] === 0) return; G.n = [x, y]; }
+function gKey(e) { const k = { ArrowUp: 'u', ArrowDown: 'd', ArrowLeft: 'l', ArrowRight: 'r' }[e.key]; if (k) { e.preventDefault(); gTurn(k); } }
+function gFood() { do { G.f = [rnd(0, N - 1), rnd(0, N - 1)]; } while (G.s.some(c => c[0] === G.f[0] && c[1] === G.f[1])); }
+function gDraw() {
+  const c = $('g-cv').getContext('2d'); c.clearRect(0, 0, N * C, N * C); c.font = '20px serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('🪱', G.f[0] * C + 12, G.f[1] * C + 13);
+  G.s.forEach((p, i) => { if (i === 0) c.fillText('🐟', p[0] * C + 12, p[1] * C + 13); else { c.fillStyle = '#fbbf24'; c.beginPath(); c.arc(p[0] * C + 12, p[1] * C + 12, i % 2 ? 8 : 7, 0, 7); c.fill(); } });
+}
+function gStep() {
+  G.d = G.n; const h = [G.s[0][0] + G.d[0], G.s[0][1] + G.d[1]];
+  if (h[0] < 0 || h[1] < 0 || h[0] >= N || h[1] >= N || G.s.some(c => c[0] === h[0] && c[1] === h[1])) { G.s = gStart(); G.d = G.n = [1, 0]; $('g-msg').textContent = 'Au! Plav dál.'; return gDraw(); }
+  G.s.unshift(h);
+  if (h[0] === G.f[0] && h[1] === G.f[1]) { G.sc++; $('g-score').textContent = G.sc; $('g-msg').textContent = ''; gFood(); } else G.s.pop();
+  gDraw();
+}
+function gStop() { clearInterval(gT); clearInterval(gL); }
+function closeGame() { gStop(); document.removeEventListener('keydown', gKey); $('game').classList.add('hidden'); $('game').classList.remove('flex'); }
+function playGame() {
+  gStop(); $('game').classList.remove('hidden'); $('game').classList.add('flex');
+  G = { s: gStart(), d: [1, 0], n: [1, 0], sc: 0, t: 60 }; gFood();
+  $('g-score').textContent = 0; $('g-time').textContent = 60; $('g-msg').textContent = 'Plav šipkami nebo přejetím prstu.';
+  document.removeEventListener('keydown', gKey); document.addEventListener('keydown', gKey);
+  gL = setInterval(gStep, 180);
+  gT = setInterval(() => { $('g-time').textContent = --G.t; if (G.t <= 0) { gStop(); $('g-msg').textContent = `Konec! Ulovil jsi ${G.sc} 🪱`; } }, 1000);
+  gDraw();
+}
+document.querySelectorAll('.play-game').forEach(b => b.onclick = playGame);
+document.querySelectorAll('#game [data-d]').forEach(b => b.onclick = () => G && gTurn(b.dataset.d));
+let tx, ty;
+$('g-cv').addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+$('g-cv').addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; if (G && Math.max(Math.abs(dx), Math.abs(dy)) > 20) gTurn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'r' : 'l') : (dy > 0 ? 'd' : 'u')); });
+$('g-close').onclick = closeGame;
+</script>
 </body>
 </html>
