@@ -24,27 +24,13 @@ body.fish{background:linear-gradient(180deg,#0e7490,#164e63 60%,#0f172a)}
 </head>
 <body class="h-[100dvh] w-screen overflow-hidden text-slate-800">
 
-<!-- PIN -->
-<div id="pin-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-  <div class="glass p-8 rounded-[2rem] shadow-2xl max-w-sm w-[90%] text-center">
-    <h2 class="text-3xl font-extrabold mb-2">Ahoj!</h2>
-    <p class="text-slate-500 mb-5 font-medium">Zadej svůj PIN.</p>
-    <input type="password" id="pin-input" inputmode="numeric" aria-label="PIN" maxlength="4" placeholder="••••" class="w-full text-center text-4xl tracking-[.6em] font-black bg-slate-100 rounded-xl py-4 mb-4">
-    <input type="text" id="family-input" aria-label="Kód rodiny" placeholder="Kód rodiny (např. novak2026)" class="w-full text-center bg-slate-100 rounded-xl py-3 mb-2 text-sm">
-    <p class="text-xs text-slate-400 mb-4">Kód rodiny spojí výsledky dítěte a rodiče napříč zařízeními. Na všech zařízeních zadejte stejný.</p>
-    <p id="pin-err" role="alert" class="text-red-600 font-bold text-sm mb-3 min-h-[1.25rem]"></p>
-    <button id="pin-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-xl active:scale-95 transition">Vstoupit</button>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="app" class="hidden h-[100dvh] w-full sm:p-6 items-center justify-center">
+<!-- APP (Bez přihlašování) -->
+<div id="app" class="flex h-[100dvh] w-full sm:p-6 items-center justify-center">
  <div class="glass w-full h-[100dvh] sm:h-[90vh] sm:max-h-[850px] max-w-4xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative">
   <header class="bg-white/50 border-b border-white/40 p-4 flex justify-between items-center shrink-0">
     <h1 class="font-extrabold text-xl">Škola <span class="text-blue-600">hrou</span><span id="fish-ic"></span></h1>
     <div class="flex items-center gap-3">
-      <button id="fish-btn" aria-label="Rybářský mód" aria-pressed="false" class="bg-cyan-100 hover:bg-cyan-200 text-cyan-800 px-3 py-2 rounded-xl font-bold">🎣 <span class="hidden sm:inline">Rybářský mód</span></button><span id="user-name" class="text-sm font-bold text-slate-600"></span>
-      <button id="logout-btn" aria-label="Odhlásit" class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-xl font-bold"><i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">Odhlásit</span></button>
+      <button id="fish-btn" aria-label="Rybářský mód" aria-pressed="false" class="bg-cyan-100 hover:bg-cyan-200 text-cyan-800 px-3 py-2 rounded-xl font-bold">🎣 <span class="hidden sm:inline">Rybářský mód</span></button>
     </div>
   </header>
 
@@ -55,7 +41,7 @@ body.fish{background:linear-gradient(180deg,#0e7490,#164e63 60%,#0f172a)}
       <button data-t="anglictina" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-language text-red-500"></i> Angličtina</button>
       <button data-t="matematika" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-calculator text-blue-500"></i> Matematika</button>
       <button data-t="prvouka" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-earth-europe text-green-500"></i> Prvouka</button>
-      <button data-t="rodic" id="nav-rodic" class="nav-tab hidden px-4 py-2.5 rounded-xl font-bold text-purple-700"><i class="fa-solid fa-chart-pie"></i> Rodič</button>
+      <button data-t="rodic" id="nav-rodic" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-purple-700"><i class="fa-solid fa-chart-pie"></i> Rodič</button>
     </div>
   </nav>
 
@@ -277,7 +263,7 @@ const WORD_TYPES = ["Podstatná jména","Přídavná jména","Zájmena","Číslo
 const WT_COLORS = ["#ef4444","#f97316","#f59e0b","#84cc16","#10b981","#06b6d4","#3b82f6","#8b5cf6","#d946ef","#f43f5e"];
 
 /* ---------- STAV ---------- */
-let role = null, familyCode = ls.get('familyCode', ''), db = null, uid = null, cloud = false, unsub = null;
+let role = 'parent', familyCode = ls.get('familyCode', 'michal2026'), db = null, uid = null, cloud = false, unsub = null;
 
 /* ---------- UI ---------- */
 function toast(msg, ok = true) {
@@ -295,32 +281,12 @@ function switchTab(id) {
 document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => switchTab(b.dataset.t));
 document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => switchTab(b.dataset.go));
 
-/* ---------- PIN ---------- */
-function login() {
-  const pin = $('pin-input').value.trim(), fam = $('family-input').value.trim().toLowerCase(), err =$('pin-err');
-  err.textContent = '';
-  if (pin !== '1111' && pin !== '1234') { err.textContent = 'Špatný PIN. Zkus znovu.'; $('pin-input').value = ''; return; }
-  if (fam.length < 6) { err.textContent = 'Kód rodiny musí mít aspoň 6 znaků (např. novak2026).'; return; }
-  familyCode = fam; ls.set('familyCode', fam);
-  role = pin === '1234' ? 'parent' : 'child';
-  $('user-name').textContent = role === 'parent' ? 'Rodič' : 'Žák';
-  $('nav-rodic').classList.toggle('hidden', role !== 'parent');$('fam-label').textContent = fam;
-  $('pin-screen').classList.add('hidden');
-  $('app').classList.remove('hidden');$('app').classList.add('flex');
-  switchTab('domu'); showStreak(); startCloud();
-}
-function logout() {
-  if (unsub) { unsub(); unsub = null; }
-  role = null; $('pin-input').value = '';$('app').classList.add('hidden'); $('app').classList.remove('flex');$('pin-screen').classList.remove('hidden');
-}
-$('pin-btn').onclick = login; $('logout-btn').onclick = logout;
-['pin-input', 'family-input'].forEach(i => $(i).addEventListener('keydown', e => e.key === 'Enter' && login()));$('family-input').value = familyCode;
 
 /* ---------- FIREBASE ---------- */
 try {
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
-  signInAnonymously(getAuth(app)).then(c => { uid = c.user.uid; cloud = true; setDb('Připojeno', 'text-green-600'); if (role) startCloud(); })
+  signInAnonymously(getAuth(app)).then(c => { uid = c.user.uid; cloud = true; setDb('Připojeno', 'text-green-600'); startCloud(); })
     .catch(() => setDb('Lokální paměť', 'text-slate-500'));
 } catch { setDb('Lokální paměť', 'text-slate-500'); }
 function setDb(t, c) { const e = $('db-status'); e.textContent = t; e.className = c; }
@@ -328,7 +294,6 @@ function setDb(t, c) { const e = $('db-status'); e.textContent = t; e.className 
 function startCloud() {
   loadCustom();
   if (unsub) { unsub(); unsub = null; }
-  if (role !== 'parent') return renderLocal();
   if (!cloud) return renderLocal();
   unsub = onSnapshot(query(collection(db, 'stats'), where('familyCode', '==', familyCode)), snap => {
     renderAll(snap.docs.map(d => { const x = d.data(); return { ...x, timestamp: x.timestamp?.toMillis?.() ?? Date.now() }; }));
@@ -344,7 +309,7 @@ async function saveSession(subject, detail, score, maxScore, wrong = [], items =
     try { await addDoc(collection(db, 'stats'), { ...rec, timestamp: serverTimestamp(), userId: uid }); return; } catch {}
   }
   const l = ls.get('eduStats', []); l.push({ ...rec, timestamp: Date.now() }); ls.set('eduStats', l);
-  if (role === 'parent') renderLocal();
+  renderLocal();
 }
 
 /* ---------- SERIE DNÍ ---------- */
@@ -361,4 +326,69 @@ function showStreak() {
   showCatch();
   const days = new Set(ls.get('days', [])); let n = 0; const d = new Date();
   if (!days.has(d.toDateString())) d.setDate(d.getDate() - 1);
-  while (days.has(d.toDateString())) { n++; d
+  while (days.has(d.toDateString())) { n++; d.setDate(d.getDate() - 1); }
+  $('streak').innerHTML = n ? `<i class="fa-solid fa-fire"></i> Série: ${n} ${n === 1 ? 'den' : n < 5 ? 'dny' : 'dní'} po sobě!` : 'Zahraj si dnes a začni sérii!';
+}
+
+/* ---------- PANEL RODIČE ---------- */
+let lastStats = [], statFilter = 'Vše';
+function renderAll(stats) {
+  lastStats = stats;
+  document.querySelectorAll('#stat-tabs button').forEach(b => { b.textContent = b.dataset.f; b.className = 'px-4 py-2 rounded-xl font-bold border ' + (b.dataset.f === statFilter ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-slate-600'); });
+  stats.sort((a, b) => b.timestamp - a.timestamp);
+  const icons = { 'Čeština': 'book-open text-orange-500', 'Angličtina': 'language text-red-500', 'Matematika': 'calculator text-blue-500', 'Prvouka': 'earth-europe text-green-500' };
+  const list = stats.filter(s => statFilter === 'Vše' || s.subject === statFilter);
+  $('stats').innerHTML = list.length ? list.slice(0, 60).map(s => {
+    const p = Math.round(s.score / s.maxScore * 100);
+    const c = p >= 80 ? 'text-green-700 bg-green-100' : p >= 50 ? 'text-orange-700 bg-orange-100' : 'text-red-700 bg-red-100';
+    const date = new Date(s.timestamp).toLocaleString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const items = (s.items || []).map(i => `<div class="flex justify-between text-sm py-1 border-b last:border-0 ${i.ok ? '' : 'text-red-700 font-bold'}"><span>${esc(i.q)} = ${esc(i.a)}${i.rep ? ' <small>(opakování)</small>' : ''}</span><span>${i.ok ? '✓' : '✗ ' + esc((i.w || []).join(', ') || 'čas')} · ${esc(i.t)} s</span></div>`).join('');
+    const body = items || `<span class="text-sm text-slate-500">${(s.wrong || []).length ? 'Chyby: ' + s.wrong.map(esc).join(', ') : 'Bez chyb.'}</span>`;
+    return `<details class="bg-white rounded-xl border"><summary class="p-3 flex items-center justify-between cursor-pointer"><div><div class="font-bold">${esc(s.subject)} <span class="text-xs font-normal text-slate-500">(${esc(s.detail)})</span></div><div class="text-xs text-slate-400">${date}</div></div><div class="font-black px-3 py-1 rounded-lg ${c}">${s.score}/${s.maxScore}</div></summary><div class="px-4 pb-3">${body}</div></details>`;
+  }).join('') : '<div class="text-center py-8 text-slate-500 bg-white rounded-2xl border">Zatím žádná historie.</div>';
+
+  const cv = {};
+  stats.forEach(s => (s.items || []).forEach(i => { const mt = /^(\d+) × (\d+)$/.exec(i.q); if (mt) { const o = cv[mt[1] + '-' + mt[2]] ||= { n: 0, w: 0, t: 0 }; o.n++; o.t += i.t || 0; if (!i.ok) o.w++; } }));
+  const R = [1,2,3,4,5,6,7,8,9,10];
+  $('cover').innerHTML = '<table class="text-xs text-center mx-auto"><tr><th></th>' + R.map(y => `<th class="p-1">${y}</th>`).join('') + '</tr>' + R.map(x => `<tr><th class="p-1">${x}</th>` + R.map(y => { const o = cv[x + '-' + y]; return `<td title="${x} × ${y}${o ? ', průměr ' + (o.t / o.n).toFixed(1) + ' s' : ''}" class="w-8 h-8 rounded ${!o ? 'bg-slate-100 text-slate-400' : o.w ? 'bg-red-200 text-red-800 font-bold' : o.t / o.n > 5 ? 'bg-amber-200 text-amber-800' : 'bg-green-200 text-green-800'}">${o ? o.n : '·'}</td>`; }).join('') + '</tr>').join('') + '</table>';
+  const DAY = 864e5, t0 = new Date().setHours(0, 0, 0, 0), ms = stats.filter(s => s.subject === 'Matematika');
+  const bars = [0,1,2,3,4,5,6].map(k => { const d0 = t0 - (6 - k) * DAY, r = ms.filter(s => s.timestamp >= d0 && s.timestamp < d0 + DAY), mx = r.reduce((a, s) => a + s.maxScore, 0);
+    return { l: new Date(d0).toLocaleDateString('cs-CZ', { weekday: 'short' }), p: mx ? Math.round(r.reduce((a, s) => a + s.score, 0) / mx * 100) : null }; });
+  const avgT = (f, to) => { const t = ms.filter(s => s.timestamp >= f && s.timestamp < to).flatMap(s => (s.items || []).filter(i => !i.rep).map(i => i.t)); return t.length ? (t.reduce((a, b) => a + b, 0) / t.length).toFixed(1) + ' s' : '–'; };
+  $('week').innerHTML = `<div class="flex items-end gap-2 h-28">${bars.map(b => `<div class="flex-1 flex flex-col items-center justify-end h-full"><div class="text-xs">${b.p === null ? '' : b.p + ' %'}</div><div class="w-full rounded-t ${b.p === null ? 'bg-slate-200' : 'bg-blue-500'}" style="height:${b.p === null ? 4 : Math.max(b.p * .7, 4)}%"></div><div class="text-xs text-slate-500">${b.l}</div></div>`).join('')}</div><p class="text-sm mt-2">Průměrný čas na příklad: <b>${avgT(t0 - 6 * DAY, t0 + DAY)}</b> (týden předtím: ${avgT(t0 - 13 * DAY, t0 - 6 * DAY)})</p>`;
+  const subs = ['Čeština', 'Angličtina', 'Matematika', 'Prvouka'];
+  $('averages').innerHTML = subs.map(sub => {
+    const r = stats.filter(s => s.subject === sub);
+    const avg = r.length ? Math.round(r.reduce((a, s) => a + s.score / s.maxScore, 0) / r.length * 100) + ' %' : '–';
+    return `<div class="bg-white rounded-xl border p-3 text-center"><div class="text-xs text-slate-500 font-bold break-words">${sub}</div><div class="text-2xl font-black">${avg}</div></div>`;
+  }).join('');
+
+  const cnt = {};
+  list.forEach(s => (s.wrong || []).forEach(w => cnt[w] = (cnt[w] || 0) + 1));
+  const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  $('weak-list').innerHTML = top.length ? top.map(([w, n]) => `<div class="flex justify-between border-b last:border-0 py-1"><b>${esc(w)}</b><span class="text-slate-500">${n}× chyba</span></div>`).join('') : '<span class="text-slate-500">Zatím žádné chyby, super!</span>';
+}
+$('vocab').innerHTML = [1, 2, 3, 4, 5].map(i => {
+  const w = V.filter(v => v.level === i);
+  return `<div class="border-b last:border-0"><div class="bg-slate-50 px-4 py-2 font-bold text-sm flex justify-between"><span>Lekce ${i}: ${LEVEL_NAMES[i]}</span><span class="text-slate-400 font-normal">${w.length} slov</span></div>
+  <div class="p-4 grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm">${w.map(x => `<div class="flex justify-between"><b>${esc(x.en)}</b><span class="text-slate-500">${esc(x.cz)}</span></div>`).join('')}</div></div>`;
+}).join('');
+
+/* ---------- ČEŠTINA ---------- */
+let sortable;
+function renderCz(order) {
+  const list = $('word-list'); list.innerHTML = '';
+  order.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'word-card p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between font-bold cursor-grab';
+    d.style.setProperty('--c', WT_COLORS[WORD_TYPES.indexOf(t)]);
+    d.innerHTML = `<div class="flex items-center gap-3"><i class="fa-solid fa-grip-vertical text-slate-300"></i><span>${t}</span></div><div class="st"></div>`;
+    list.appendChild(d);
+  });
+  sortable?.destroy();
+  sortable = new Sortable(list, { animation: 250, ghostClass: 'sortable-ghost', delay: 200, delayOnTouchOnly: true });
+}
+$('cz-shuffle').onclick = () => renderCz(shuffle(WORD_TYPES));$('cz-solve').onclick = () => { renderCz(WORD_TYPES); document.querySelectorAll('#word-list .st').forEach(s => s.innerHTML = '<i class="fa-solid fa-check text-green-600 text-xl"></i>'); };
+$('cz-check').onclick = () => {
+  let score = 0; const wrong = [];
+  document.querySelectorAll('#word-list .word-card').forEach((it, i) => {
