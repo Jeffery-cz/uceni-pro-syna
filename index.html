@@ -24,19 +24,20 @@ body.fish{background:linear-gradient(180deg,#0e7490,#164e63 60%,#0f172a)}
 </head>
 <body class="h-[100dvh] w-screen overflow-hidden text-slate-800">
 
-<!-- APP (Bez přihlašování) -->
+<!-- APP -->
 <div id="app" class="flex h-[100dvh] w-full sm:p-6 items-center justify-center">
  <div class="glass w-full h-[100dvh] sm:h-[90vh] sm:max-h-[850px] max-w-4xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative">
   <header class="bg-white/50 border-b border-white/40 p-4 flex justify-between items-center shrink-0">
     <h1 class="font-extrabold text-xl">Škola <span class="text-blue-600">hrou</span><span id="fish-ic"></span></h1>
     <div class="flex items-center gap-3">
       <button id="fish-btn" aria-label="Rybářský mód" aria-pressed="false" class="bg-cyan-100 hover:bg-cyan-200 text-cyan-800 px-3 py-2 rounded-xl font-bold">🎣 <span class="hidden sm:inline">Rybářský mód</span></button>
+      <span id="user-name" class="text-sm font-bold text-slate-600">Tomášek</span>
     </div>
   </header>
 
   <nav class="bg-slate-50/50 border-b border-white/30 px-2 py-2 shrink-0 overflow-x-auto noscroll" aria-label="Předměty">
     <div class="flex gap-2 min-w-max" id="nav">
-      <button data-t="domu" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-house"></i> <span class="hidden sm:inline">Domů</span></button>
+      <button data-t="domu" class="nav-tab bg-white px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-house"></i> <span class="hidden sm:inline">Domů</span></button>
       <button data-t="cestina" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-book-open text-orange-500"></i> Čeština</button>
       <button data-t="anglictina" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-language text-red-500"></i> Angličtina</button>
       <button data-t="matematika" class="nav-tab px-4 py-2.5 rounded-xl font-bold text-slate-500"><i class="fa-solid fa-calculator text-blue-500"></i> Matematika</button>
@@ -194,7 +195,7 @@ body.fish{background:linear-gradient(180deg,#0e7490,#164e63 60%,#0f172a)}
     <!-- Rodič -->
     <section id="tab-rodic" class="tab flex-col max-w-2xl mx-auto w-full">
       <div class="flex justify-between items-center mb-4 bg-purple-50 p-4 rounded-2xl border border-purple-100">
-        <div><h2 class="text-2xl font-extrabold">Rodičovský panel</h2><p class="text-sm text-slate-500">Rodina: <b id="fam-label"></b></p></div>
+        <div><h2 class="text-2xl font-extrabold">Rodičovský panel</h2><p class="text-sm text-slate-500">Rodina: <b id="fam-label">michal2026</b></p></div>
         <div class="text-xs text-slate-500">DB: <b id="db-status" class="text-orange-600">Připojuji…</b></div>
       </div>
       <div class="space-y-6 pb-4">
@@ -263,7 +264,7 @@ const WORD_TYPES = ["Podstatná jména","Přídavná jména","Zájmena","Číslo
 const WT_COLORS = ["#ef4444","#f97316","#f59e0b","#84cc16","#10b981","#06b6d4","#3b82f6","#8b5cf6","#d946ef","#f43f5e"];
 
 /* ---------- STAV ---------- */
-let role = 'parent', familyCode = ls.get('familyCode', 'michal2026'), db = null, uid = null, cloud = false, unsub = null;
+let role = 'parent', familyCode = 'michal2026', db = null, uid = null, cloud = false, unsub = null;
 
 /* ---------- UI ---------- */
 function toast(msg, ok = true) {
@@ -281,14 +282,24 @@ function switchTab(id) {
 document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => switchTab(b.dataset.t));
 document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => switchTab(b.dataset.go));
 
+/* ---------- INIT (BEZ PINU) ---------- */
+ls.set('familyCode', familyCode);
+switchTab('domu');
+showStreak();
 
 /* ---------- FIREBASE ---------- */
 try {
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
-  signInAnonymously(getAuth(app)).then(c => { uid = c.user.uid; cloud = true; setDb('Připojeno', 'text-green-600'); startCloud(); })
-    .catch(() => setDb('Lokální paměť', 'text-slate-500'));
-} catch { setDb('Lokální paměť', 'text-slate-500'); }
+  signInAnonymously(getAuth(app)).then(c => { 
+    uid = c.user.uid; cloud = true; setDb('Připojeno', 'text-green-600'); startCloud(); 
+  }).catch(() => { 
+    setDb('Lokální paměť', 'text-slate-500'); startCloud(); 
+  });
+} catch { 
+  setDb('Lokální paměť', 'text-slate-500'); startCloud(); 
+}
+
 function setDb(t, c) { const e = $('db-status'); e.textContent = t; e.className = c; }
 
 function startCloud() {
@@ -692,4 +703,151 @@ function fishResult(id, sc, tot) {
   if (!isFish()) return;
   const r = sc / tot, f = r === 1 ? '🦈' : r >= .8 ? '🐠' : r >= .5 ? '🐟' : '👢', c = ls.get('fish', {});
   c[f] = (c[f] || 0) + 1; ls.set('fish', c);
-  $(id).innerHTML = `<div class="text-7xl">${f}</div><div class="font-bold mt-1">${f === '👢' ? 'Chytil jsi jen starou botu.
+  $(id).innerHTML = `<div class="text-7xl">${f}</div><div class="font-bold mt-1">${f === '👢' ? 'Chytil jsi jen starou botu. Zkus to znovu!' : 'Chytil jsi rybu!'}</div>`;
+}
+applyFish();
+
+/* ---------- PRVOUKA ---------- */
+const PRV_DATA = {
+  staty: [
+    { q: "Jaké je hlavní město Slovenska?", a: "Bratislava", o: ["Bratislava", "Vídeň", "Varšava", "Berlín"] },
+    { q: "Jaká řeka protéká Bratislavou (Slovensko)?", a: "Dunaj", o: ["Dunaj", "Vltava", "Visla", "Spréva"] },
+    { q: "Nejvyšší hora Slovenska?", a: "Gerlachovský štít", o: ["Gerlachovský štít", "Rysy", "Sněžka", "Grossglockner"] },
+    { q: "Jaké je hlavní město Rakouska?", a: "Vídeň", o: ["Vídeň", "Berlín", "Varšava", "Bratislava"] },
+    { q: "Jaká řeka protéká Vídní (Rakousko)?", a: "Dunaj", o: ["Dunaj", "Rýn", "Labe", "Spréva"] },
+    { q: "Nejvyšší hora Rakouska?", a: "Grossglockner", o: ["Grossglockner", "Zugspitze", "Rysy", "Gerlachovský štít"] },
+    { q: "Jaké je hlavní město Německa?", a: "Berlín", o: ["Berlín", "Mnichov", "Drážďany", "Hamburk"] },
+    { q: "Jaká řeka protéká Berlínem (Německo)?", a: "Spréva", o: ["Spréva", "Rýn", "Dunaj", "Labe"] },
+    { q: "Nejvyšší hora Německa?", a: "Zugspitze", o: ["Zugspitze", "Grossglockner", "Sněžka", "Rysy"] },
+    { q: "Jaké je hlavní město Polska?", a: "Varšava", o: ["Varšava", "Krakov", "Vratislav", "Bratislava"] },
+    { q: "Jaká řeka protéká Varšavou (Polsko)?", a: "Visla", o: ["Visla", "Odra", "Labe", "Dunaj"] },
+    { q: "Nejvyšší hora Polska?", a: "Rysy", o: ["Rysy", "Gerlachovský štít", "Sněžka", "Zugspitze"] }
+  ],
+  symboly: [
+    { q: "Který z těchto patří mezi státní symboly ČR?", a: "Velký a malý státní znak", o: ["Velký a malý státní znak", "Pražský orloj", "Národní divadlo", "Korunovační klenoty"] },
+    { q: "Který další je státním symbolem ČR?", a: "Státní vlajka", o: ["Státní vlajka", "Vlajka kraje", "Vlajka Evropské unie", "Slovanská vlajka"] },
+    { q: "Který z těchto je také státní symbol ČR?", a: "Vlajka prezidenta (standarta)", o: ["Vlajka prezidenta (standarta)", "Prezidentský palác", "Lípa srdčitá", "Klíče od Hradu"] },
+    { q: "Jak se jmenuje česká státní hymna?", a: "Kde domov můj", o: ["Kde domov můj", "Nad Tatrou sa blýska", "Ach synku, synku", "Čechy krásné, Čechy mé"] },
+    { q: "Jaké barvy tvoří státní trikolóru?", a: "Bílá, červená, modrá", o: ["Bílá, červená, modrá", "Bílá, červená, zelená", "Černá, červená, žlutá", "Modrá, žlutá, černá"] },
+    { q: "Jaký je poslední státní symbol?", a: "Státní pečeť", o: ["Státní pečeť", "Státní strom", "Státní zákon", "Ústava"] }
+  ]
+};
+
+let prvState = { quiz: [], index: 0, score: 0, subject: '' };
+
+window.startPrvQuiz = function(type) {
+  $('prv-menu').classList.add('hidden');
+  $('prv-game').classList.remove('hidden');
+  $('prv-game').classList.add('flex');
+  prvState.quiz = shuffle([...PRV_DATA[type]]);
+  prvState.index = 0;
+  prvState.score = 0;
+  prvState.subject = type === 'staty' ? 'Sousední státy' : 'Státní symboly';
+  $('prv-q-tot').textContent = prvState.quiz.length;
+  nextPrvQ();
+};
+
+window.nextPrvQ = function() {
+  if (prvState.index >= prvState.quiz.length) {
+    toast(`Konec kvízu! Skóre: ${prvState.score}/${prvState.quiz.length}`);
+    saveSession('Prvouka', prvState.subject, prvState.score, prvState.quiz.length);
+    closePrv();
+    return;
+  }
+  const q = prvState.quiz[prvState.index];
+  $('prv-q-num').textContent = prvState.index + 1;
+  $('prv-question').textContent = q.q;
+  $('prv-fb').innerHTML = '';
+  
+  const opts = shuffle([...q.o]);
+  const container = $('prv-options');
+  container.innerHTML = '';
+  
+  opts.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'bg-slate-50 border-2 border-slate-200 font-bold text-lg py-4 px-2 rounded-2xl hover:bg-slate-100 transition';
+    b.textContent = opt;
+    b.onclick = () => {
+      document.querySelectorAll('#prv-options button').forEach(btn => btn.disabled = true);
+      if (opt === q.a) {
+        b.classList.add('!bg-green-600', '!text-white', '!border-green-600');
+        $('prv-fb').innerHTML = '<i class="fa-solid fa-face-smile text-4xl text-green-500"></i>';
+        prvState.score++;
+      } else {
+        b.classList.add('!bg-red-500', '!text-white', '!border-red-500', 'shake');
+        $('prv-fb').innerHTML = `<div class="text-red-500 font-bold text-center">Špatně. Správně je:<br>${q.a}</div>`;
+      }
+      setTimeout(() => {
+        prvState.index++;
+        nextPrvQ();
+      }, 2000);
+    };
+    container.appendChild(b);
+  });
+};
+
+window.startPrvKompas = function() {
+  $('prv-menu').classList.add('hidden');
+  $('prv-kompas-view').classList.remove('hidden');
+  $('prv-kompas-view').classList.add('flex');
+  ['s', 'j', 'v', 'z', 'sv', 'sz', 'jv', 'jz'].forEach(id => {
+    const el = $('k-' + id);
+    el.value = '';
+    el.classList.remove('border-green-500', 'border-red-500', 'bg-green-50', 'bg-red-50', 'text-green-700', 'text-red-700');
+    el.classList.add('border-slate-300', 'bg-white');
+  });
+};
+
+window.checkKompas = function() {
+  const ans = { 's': 'S', 'j': 'J', 'v': 'V', 'z': 'Z', 'sv': 'SV', 'sz': 'SZ', 'jv': 'JV', 'jz': 'JZ' };
+  let ok = 0;
+  for (const [id, val] of Object.entries(ans)) {
+    const el = $('k-' + id);
+    el.classList.remove('border-slate-300', 'border-green-500', 'border-red-500', 'bg-white', 'bg-green-50', 'bg-red-50', 'text-green-700', 'text-red-700');
+    
+    if (el.value.trim().toUpperCase() === val) {
+      el.classList.add('border-green-500', 'bg-green-50', 'text-green-700');
+      ok++;
+    } else {
+      el.classList.add('border-red-500', 'bg-red-50', 'text-red-700', 'shake');
+      setTimeout(() => el.classList.remove('shake'), 400);
+    }
+  }
+  if (ok === 8) {
+    toast('Výborně! Všechny světové strany jsou správně. 🧭', true);
+    saveSession('Prvouka', 'Směrová růžice', 8, 8);
+    setTimeout(closePrv, 2500);
+  } else {
+    toast(`Máš správně ${ok} z 8. Zkus opravit chyby!`, false);
+  }
+};
+
+window.closePrv = function() {
+  $('prv-game').classList.add('hidden');
+  $('prv-game').classList.remove('flex');
+  $('prv-kompas-view').classList.add('hidden');
+  $('prv-kompas-view').classList.remove('flex');
+  $('prv-menu').classList.remove('hidden');
+};
+
+/* ---------- HRA: RYBKA (had), 1 minuta, pole 12×12 ---------- */
+let gT, gL, G;
+const GD = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] }, N = 12, C = 24;
+const gStart = () => [[5, 6], [4, 6], [3, 6]];
+function gTurn(k) { const [x, y] = GD[k]; if (x + G.d[0] === 0 && y + G.d[1] === 0) return; G.n = [x, y]; }
+function gKey(e) { const k = { ArrowUp: 'u', ArrowDown: 'd', ArrowLeft: 'l', ArrowRight: 'r' }[e.key]; if (k) { e.preventDefault(); gTurn(k); } }
+function gFood() { do { G.f = [rnd(0, N - 1), rnd(0, N - 1)]; } while (G.s.some(c => c[0] === G.f[0] && c[1] === G.f[1])); }
+function gDraw() {
+  const c = $('g-cv').getContext('2d'); c.clearRect(0, 0, N * C, N * C); c.font = '20px serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('🪱', G.f[0] * C + 12, G.f[1] * C + 13);
+  G.s.forEach((p, i) => { if (i === 0) c.fillText('🐟', p[0] * C + 12, p[1] * C + 13); else { c.fillStyle = '#fbbf24'; c.beginPath(); c.arc(p[0] * C + 12, p[1] * C + 12, i % 2 ? 8 : 7, 0, 7); c.fill(); } });
+}
+function gStep() {
+  G.d = G.n; const h = [G.s[0][0] + G.d[0], G.s[0][1] + G.d[1]];
+  if (h[0] < 0 || h[1] < 0 || h[0] >= N || h[1] >= N || G.s.some(c => c[0] === h[0] && c[1] === h[1])) { G.s = gStart(); G.d = G.n = [1, 0]; $('g-msg').textContent = 'Au! Plav dál.'; return gDraw(); }
+  G.s.unshift(h);
+  if (h[0] === G.f[0] && h[1] === G.f[1]) { G.sc++; $('g-score').textContent = G.sc; $('g-msg').textContent = ''; gFood(); } else G.s.pop();
+  gDraw();
+}
+function gStop() { clearInterval(gT); clearInterval(gL); }
+function closeGame() { gStop(); document.removeEventListener('keydown', gKey); $('game').classList.add('hidden'); $('
